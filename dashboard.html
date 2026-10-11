@@ -197,4 +197,252 @@
   <p style="font-weight:600;">Carregando painel...</p>
 </div>
 
-<aside class="sidebar"
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">C</div>
+    <div class="brand-text">
+      <h1>CIPA Ativa</h1>
+      <span>Painel SESMT</span>
+    </div>
+  </div>
+
+  <div class="nav-label">Visão Geral</div>
+  <nav>
+    <a class="active"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
+    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
+  </nav>
+
+  <div class="nav-label">Gestão CIPA</div>
+  <nav>
+    <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
+    <a onclick="emBreve('Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+  </nav>
+
+  <div class="nav-label">Inspeções</div>
+  <nav>
+    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Ver Inspeções</a>
+    <a onclick="emBreve('Checklists')"><span class="icon">📋</span> Checklists NR-6</a>
+  </nav>
+
+  <div class="nav-label">Sistema</div>
+  <nav>
+    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
+    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="avatar-sm" id="userAvatar">?</div>
+    <div class="info">
+      <strong id="userName">—</strong>
+      <small id="userRole">SESMT</small>
+    </div>
+    <button class="btn-logout" onclick="fazerLogout()" title="Sair">🚪</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <h2>Painel SESMT
+      <span id="saudacao">Bem-vindo ao centro de comando da CIPA.</span>
+    </h2>
+    <div class="topbar-actions">
+      <span class="sesmt-badge">🔒 SESMT</span>
+      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+    </div>
+  </div>
+
+  <div class="gestao-card">
+    <div class="gestao-card-info">
+      <div class="gestao-card-icon">🏛️</div>
+      <div class="gestao-card-text">
+        <h3>
+          <span id="gestaoTitulo">Carregando...</span>
+          <span class="gestao-card-badge">EM VIGOR</span>
+        </h3>
+        <p id="gestaoPeriodo">—</p>
+      </div>
+    </div>
+    <div class="gestao-card-actions">
+      <button class="btn-ghost" onclick="window.location.href='membros.html'">
+        👥 Gerenciar Membros
+      </button>
+    </div>
+  </div>
+
+  <section class="kpis">
+    <div class="kpi" onclick="window.location.href='membros.html'">
+      <div class="kpi-header"><div class="kpi-icon">👥</div></div>
+      <div class="kpi-value" id="kpiMembros">—</div>
+      <div class="kpi-label">Membros na gestão atual</div>
+      <span class="kpi-trend trend-neutral" id="kpiMembrosTrend">Carregando...</span>
+    </div>
+
+    <div class="kpi warning">
+      <div class="kpi-header"><div class="kpi-icon">⚠️</div></div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Não conformidades abertas</div>
+      <span class="kpi-trend trend-neutral">Aguardando módulo</span>
+    </div>
+
+    <div class="kpi info">
+      <div class="kpi-header"><div class="kpi-icon">🔍</div></div>
+      <div class="kpi-value">0</div>
+      <div class="kpi-label">Inspeções este mês</div>
+      <span class="kpi-trend trend-neutral">Aguardando módulo</span>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-header"><div class="kpi-icon">🏛️</div></div>
+      <div class="kpi-value" id="kpiGestoes">—</div>
+      <div class="kpi-label">Gestões registradas</div>
+      <span class="kpi-trend trend-neutral">Histórico completo</span>
+    </div>
+  </section>
+
+  <div class="grid-3">
+    <div class="atalho-card" onclick="window.location.href='membros.html'">
+      <div class="atalho-icon membros">👥</div>
+      <div class="atalho-info">
+        <h4>Membros da CIPA</h4>
+        <p>Cadastrar e gerenciar cipeiros</p>
+      </div>
+    </div>
+    <div class="atalho-card" onclick="emBreve('Histórico de Gestões')">
+      <div class="atalho-icon gestoes">🏛️</div>
+      <div class="atalho-info">
+        <h4>Gestões</h4>
+        <p>Criar, encerrar e consultar</p>
+      </div>
+    </div>
+    <div class="atalho-card" onclick="emBreve('Relatórios')">
+      <div class="atalho-icon relatorios">📈</div>
+      <div class="atalho-info">
+        <h4>Relatórios</h4>
+        <p>Auditoria NR-6 e ISO 14001</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-header">
+        <h3>⚠️ Não Conformidades Recentes</h3>
+        <a onclick="emBreve('Não Conformidades')">Ver todas →</a>
+      </div>
+      <ul class="list">
+        <li><div class="empty-state"><div class="icon">📭</div>
+          <p>Nenhuma não conformidade registrada</p>
+          <small>Aparecerão aqui quando os cipeiros reportarem</small>
+        </div></li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>🔍 Últimas Inspeções</h3>
+        <a onclick="emBreve('Inspeções')">Ver todas →</a>
+      </div>
+      <ul class="list">
+        <li><div class="empty-state"><div class="icon">📭</div>
+          <p>Nenhuma inspeção realizada</p>
+          <small>As inspeções dos cipeiros aparecerão aqui</small>
+        </div></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<script>
+  let usuario = null;
+  const log = (...args) => console.log('🔎 [CIPA]', ...args);
+
+  let toastTimer;
+  function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
+
+  // Só precisa estar logado
+  async function verificarLogin() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      window.location.href = 'index.html';
+      return false;
+    }
+    usuario = {
+      id: session.user.id,
+      email: session.user.email,
+      nome: session.user.email.split('@')[0]
+    };
+    return true;
+  }
+
+  function aplicarUsuario() {
+    const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+    document.getElementById('userAvatar').textContent = iniciais || '?';
+    document.getElementById('userName').textContent =
+      usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
+    document.getElementById('userRole').textContent = '🔑 SESMT';
+    document.getElementById('saudacao').textContent =
+      `Olá, ${usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1)}! Aqui está o resumo.`;
+  }
+
+  async function fazerLogout() {
+    if (!confirm('Deseja sair?')) return;
+    await db.auth.signOut();
+    sessionStorage.removeItem('cipa_user');
+    window.location.href = 'index.html';
+  }
+
+  async function carregarDados() {
+    try {
+      const { data: gestoes } = await db
+        .from('gestoes').select('*').order('ano_inicio', { ascending: false });
+
+      if (gestoes && gestoes.length > 0) {
+        const atual = gestoes.find(g => g.em_vigor) || gestoes[0];
+        document.getElementById('gestaoTitulo').textContent = atual.titulo;
+        document.getElementById('gestaoPeriodo').textContent =
+          `${atual.ano_inicio} — ${atual.ano_fim}${atual.empresa ? ' • ' + atual.empresa : ''}`;
+        document.getElementById('kpiGestoes').textContent = gestoes.length;
+
+        const { count } = await db
+          .from('members')
+          .select('*', { count: 'exact', head: true })
+          .eq('gestao_id', atual.id)
+          .eq('ativo', true);
+
+        document.getElementById('kpiMembros').textContent = count || 0;
+        document.getElementById('kpiMembrosTrend').textContent =
+          count > 0 ? `✅ ${count} cadastrados` : '⚠️ Nenhum cadastrado';
+      }
+    } catch (err) {
+      log('Erro:', err);
+    }
+  }
+
+  (async function init() {
+    const logado = await verificarLogin();
+    if (!logado) return;
+    aplicarUsuario();
+    await carregarDados();
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
+  })();
+</script>
+</body>
+</html>
