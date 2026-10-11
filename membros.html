@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
   :root {
     --green-900: #0d2818; --green-700: #1e5f3f; --green-600: #2e8b57; --green-500: #3fb878;
     --yellow: #ffc93c; --yellow-dark: #e8b324;
@@ -19,42 +20,37 @@
     --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
     --radius: 16px;
   }
+
   body { background: var(--bg); color: var(--text); min-height: 100vh;
     font-size: 14px; -webkit-font-smoothing: antialiased; display: flex; }
 
+  /* ============ LOADING ============ */
   .loading-overlay { position: fixed; inset: 0; background: var(--green-900);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px; z-index: 9999; color: #fff;
-    transition: opacity 0.4s; }
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+    gap: 16px; z-index: 9999; color: #fff; transition: opacity 0.4s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner-lg { width: 50px; height: 50px;
-    border: 4px solid rgba(255,201,60,0.2);
-    border-top-color: var(--yellow); border-radius: 50%;
-    animation: spin 0.8s linear infinite; }
+  .spinner-lg { width: 50px; height: 50px; border: 4px solid rgba(255,201,60,0.2);
+    border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* SIDEBAR */
-  .sidebar { width: 264px; background: var(--green-900); color: #fff;
-    padding: 24px 16px; position: fixed; height: 100vh;
-    overflow-y: auto; transition: transform 0.3s; z-index: 100;
-    display: flex; flex-direction: column; }
-  .brand { display: flex; align-items: center; gap: 12px;
-    padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 20px; }
+  /* ============ SIDEBAR ============ */
+  .sidebar { width: 264px; background: var(--green-900); color: #fff; padding: 24px 16px;
+    position: fixed; height: 100vh; overflow-y: auto; transition: transform 0.3s;
+    z-index: 100; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 20px; }
   .brand-icon { width: 44px; height: 44px;
     background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 12px; display: flex; align-items: center;
-    justify-content: center; font-weight: 800; font-size: 20px;
-    color: var(--green-900); box-shadow: 0 4px 12px rgba(255,201,60,0.3); }
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px; color: var(--green-900);
+    box-shadow: 0 4px 12px rgba(255,201,60,0.3); }
   .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
   .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
-  .nav-label { font-size: 10px; text-transform: uppercase;
-    letter-spacing: 1.2px; color: rgba(255,255,255,0.4);
-    padding: 12px 12px 8px; font-weight: 600; }
-  .sidebar nav a { display: flex; align-items: center; gap: 12px;
-    padding: 11px 12px; color: rgba(255,255,255,0.75);
-    text-decoration: none; font-size: 13.5px; font-weight: 500;
-    border-radius: 10px; margin-bottom: 2px;
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.4); padding: 12px 12px 8px; font-weight: 600; }
+  .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 11px 12px;
+    color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13.5px;
+    font-weight: 500; border-radius: 10px; margin-bottom: 2px;
     transition: all 0.18s; cursor: pointer; }
   .sidebar nav a:hover { background: rgba(255,255,255,0.06); color: #fff; }
   .sidebar nav a.active { background: linear-gradient(90deg, var(--green-600), var(--green-700));
@@ -68,16 +64,15 @@
     justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
   .sidebar-footer .info { flex: 1; min-width: 0; }
   .sidebar-footer .info small { display: block; color: rgba(255,255,255,0.5); font-size: 11px; }
-  .sidebar-footer .info strong { font-size: 13px; font-weight: 600;
-    display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar-footer .info strong { font-size: 13px; font-weight: 600; display: block;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .btn-logout { background: rgba(255,255,255,0.1); border: none; color: #fff;
     width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
     font-size: 14px; transition: all 0.2s; flex-shrink: 0; }
   .btn-logout:hover { background: var(--danger); }
 
-  /* MAIN */
-  .main { margin-left: 264px; flex: 1; padding: 28px 32px 100px;
-    width: calc(100% - 264px); }
+  /* ============ MAIN ============ */
+  .main { margin-left: 264px; flex: 1; padding: 28px 32px 100px; width: calc(100% - 264px); }
   .topbar { display: flex; justify-content: space-between; align-items: flex-start;
     margin-bottom: 20px; flex-wrap: wrap; gap: 16px; }
   .topbar h2 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
@@ -85,10 +80,9 @@
     font-weight: 400; display: block; margin-top: 4px; }
   .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 
-  .btn { padding: 11px 20px; border-radius: 10px; border: none;
-    font-weight: 600; font-size: 13px; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 8px;
-    transition: all 0.2s; font-family: inherit; white-space: nowrap; }
+  .btn { padding: 11px 20px; border-radius: 10px; border: none; font-weight: 600;
+    font-size: 13px; cursor: pointer; display: inline-flex; align-items: center;
+    gap: 8px; transition: all 0.2s; font-family: inherit; white-space: nowrap; }
   .btn-primary { background: linear-gradient(135deg, var(--green-600), var(--green-700));
     color: #fff; box-shadow: 0 4px 12px rgba(46,139,87,0.3); }
   .btn-primary:hover { transform: translateY(-2px);
@@ -97,29 +91,26 @@
     color: var(--green-900); box-shadow: 0 4px 12px rgba(255,201,60,0.35); }
   .btn-gold:hover { transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(255,201,60,0.45); }
-  .btn-secondary { background: #fff; color: var(--text);
-    border: 1px solid var(--border); }
+  .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--border); }
   .btn-secondary:hover { background: var(--bg); }
   .btn-danger { background: rgba(239,68,68,0.1); color: var(--danger);
     border: 1px solid rgba(239,68,68,0.2); }
-  .btn-danger:hover { background: var(--danger); color: #fff;
-    transform: translateY(-2px); }
+  .btn-danger:hover { background: var(--danger); color: #fff; transform: translateY(-2px); }
   .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-  /* GESTÃO BAR */
+  /* ============ BARRA DE GESTÃO ============ */
   .gestao-bar { background: #fff; border: 1px solid var(--border);
     border-radius: var(--radius); padding: 16px 20px; margin-bottom: 20px;
     display: flex; justify-content: space-between; align-items: center;
     gap: 16px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
-  .gestao-info { display: flex; align-items: center; gap: 14px;
-    flex: 1; min-width: 250px; }
+  .gestao-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 250px; }
   .gestao-flag { width: 44px; height: 44px; border-radius: 12px;
     background: linear-gradient(135deg, var(--green-600), var(--green-700));
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-size: 20px; flex-shrink: 0; }
   .gestao-flag.encerrada { background: linear-gradient(135deg, #94a3b8, #64748b); }
   .gestao-detalhes h3 { font-size: 15px; font-weight: 700;
-    display: flex; align-items: center; gap: 8px; }
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .status-gestao { font-size: 10px; font-weight: 700; padding: 3px 8px;
     border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px; }
   .status-gestao.vigor { background: rgba(16,185,129,0.15); color: var(--success); }
@@ -133,12 +124,12 @@
   .select-gestao:focus { border-color: var(--green-600);
     box-shadow: 0 0 0 3px rgba(46,139,87,0.1); }
 
+  /* ============ AVISOS ============ */
   .info-banner { background: linear-gradient(135deg, rgba(46,139,87,0.08), rgba(255,201,60,0.08));
     border-left: 4px solid var(--green-600); padding: 14px 20px;
     border-radius: 12px; margin-bottom: 20px; font-size: 12.5px;
     color: var(--text-soft); display: flex; align-items: center; gap: 12px; }
   .info-banner strong { color: var(--green-700); }
-
   .aviso-encerrada { background: rgba(245,158,11,0.1);
     border-left: 4px solid var(--warning); padding: 14px 20px;
     border-radius: 12px; margin-bottom: 20px; font-size: 13px;
@@ -146,11 +137,10 @@
     align-items: center; gap: 10px; }
   .aviso-encerrada.show { display: flex; }
 
-  /* ORGANOGRAMA */
-  .org-chart-wrapper { background: #fff; border-radius: var(--radius);
-    padding: 30px; box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border); overflow-x: auto;
-    margin-bottom: 24px; position: relative; }
+  /* ============ ORGANOGRAMA ============ */
+  .org-chart-wrapper { background: #fff; border-radius: var(--radius); padding: 30px;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    overflow-x: auto; margin-bottom: 24px; position: relative; }
   .org-chart { min-width: 1100px; display: grid; grid-template-columns: 1fr 1fr;
     gap: 40px; padding: 20px; position: relative;
     background-image: radial-gradient(circle at 50% 50%, rgba(46,139,87,0.06) 0%, transparent 60%); }
@@ -161,19 +151,18 @@
     position: relative; left: 50%; transform: translateX(-50%); white-space: nowrap; }
   .org-side-title small { display: block; font-size: 10px; font-weight: 500;
     color: var(--text-soft); margin-top: 2px; }
-  .member-card { background: #fff; border: 2px solid var(--text);
-    border-radius: 8px; padding: 8px; width: 140px;
-    display: flex; flex-direction: column; align-items: center;
-    gap: 6px; transition: all 0.2s; position: relative;
+  .member-card { background: #fff; border: 2px solid var(--text); border-radius: 8px;
+    padding: 8px; width: 140px; display: flex; flex-direction: column;
+    align-items: center; gap: 6px; transition: all 0.2s; position: relative;
     cursor: pointer; margin: 0 auto; }
   .member-card.editable:hover { transform: translateY(-3px);
     box-shadow: var(--shadow-md); border-color: var(--green-600); }
   .member-card.vago { opacity: 0.45; border-style: dashed; cursor: default; }
   .member-card.vago:hover { transform: none; box-shadow: none; }
   .member-photo { width: 110px; height: 110px; border-radius: 6px;
-    object-fit: cover; background: #e8ecf1; display: flex;
-    align-items: center; justify-content: center;
-    font-size: 32px; font-weight: 700; color: var(--green-700); overflow: hidden; }
+    object-fit: cover; background: #e8ecf1; display: flex; align-items: center;
+    justify-content: center; font-size: 32px; font-weight: 700;
+    color: var(--green-700); overflow: hidden; }
   .member-photo img { width: 100%; height: 100%; object-fit: cover; }
   .member-name { font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2; }
   .member-role { font-size: 10px; color: var(--text-soft);
@@ -181,11 +170,12 @@
   .member-actions { position: absolute; top: -8px; right: -8px;
     display: none; gap: 4px; z-index: 5; }
   .member-card.editable:hover .member-actions { display: flex; }
-  .member-action-btn { width: 24px; height: 24px; border-radius: 50%;
-    border: none; color: #fff; font-size: 12px; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+  .member-action-btn { width: 24px; height: 24px; border-radius: 50%; border: none;
+    color: #fff; font-size: 12px; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
   .member-action-btn.delete { background: var(--danger); }
+  .member-action-btn.info { background: var(--info); }
   .label-box { background: #fff; border: 2px solid var(--text);
     border-radius: 30px; padding: 6px 22px; font-size: 12.5px;
     font-weight: 700; text-align: center; display: inline-block;
@@ -198,8 +188,7 @@
     flex-direction: column; align-items: center; gap: 12px; }
   .titulares-row, .suplentes-row, .presidente-row { display: flex;
     gap: 12px; justify-content: center; flex-wrap: nowrap; }
-  .connector-vertical { width: 2px; height: 20px; background: var(--text);
-    margin: 0 auto; }
+  .connector-vertical { width: 2px; height: 20px; background: var(--text); margin: 0 auto; }
   .gestao-badge { text-align: center; margin-top: 30px; padding: 14px 30px;
     background: #fff; border: 2px solid var(--text); border-radius: 30px;
     font-weight: 700; font-size: 14px; letter-spacing: 0.5px;
@@ -207,14 +196,14 @@
   .gestao-badge.encerrada { background: #f1f5f9; color: var(--text-soft);
     border-color: var(--text-soft); }
 
-  /* MODAL */
+  /* ============ MODAL ============ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5);
     backdrop-filter: blur(4px); display: none; align-items: center;
     justify-content: center; z-index: 200; padding: 20px; overflow-y: auto; }
   .modal-overlay.open { display: flex; }
   .modal { background: #fff; border-radius: var(--radius); width: 100%;
-    max-width: 620px; box-shadow: var(--shadow-lg); animation: slideUp 0.3s;
-    max-height: 92vh; overflow-y: auto; }
+    max-width: 620px; box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s; max-height: 92vh; overflow-y: auto; }
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); } }
   .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border);
@@ -228,11 +217,13 @@
     justify-content: center; transition: all 0.2s; }
   .close-btn:hover { background: #e8ecf1; color: var(--text); }
   .modal-body { padding: 24px; }
+
   .form-section { margin-bottom: 24px; }
   .form-section-title { font-size: 11px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 1px; color: var(--green-700);
     margin-bottom: 14px; padding-bottom: 8px;
     border-bottom: 1px solid var(--border); }
+
   .form-group { margin-bottom: 16px; }
   .form-group label { display: block; font-size: 12.5px;
     font-weight: 600; margin-bottom: 7px; }
@@ -244,11 +235,11 @@
   .form-control:focus { border-color: var(--green-600);
     box-shadow: 0 0 0 3px rgba(46,139,87,0.1); }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+
   .photo-upload { display: flex; align-items: center; gap: 16px;
     padding: 14px; background: var(--bg); border-radius: 12px;
-    border: 2px dashed var(--border); cursor: pointer;
-    transition: all 0.2s; }
+    border: 2px dashed var(--border); cursor: pointer; transition: all 0.2s; }
   .photo-upload:hover { border-color: var(--green-600);
     background: rgba(46,139,87,0.04); }
   .photo-preview { width: 70px; height: 70px; border-radius: 10px;
@@ -258,6 +249,7 @@
   .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
   .photo-upload .text { font-size: 12.5px; color: var(--text-soft); line-height: 1.4; }
   .photo-upload .text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
   .modal-footer { padding: 18px 24px; border-top: 1px solid var(--border);
     display: flex; justify-content: flex-end; gap: 10px; background: #fafbfc;
     border-radius: 0 0 var(--radius) var(--radius); position: sticky; bottom: 0; }
@@ -266,6 +258,7 @@
   .btn-save:hover:not(:disabled) { transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(46,139,87,0.4); }
 
+  /* ============ TOAST ============ */
   .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(100px); background: var(--green-900);
     color: #fff; padding: 14px 24px; border-radius: 12px;
@@ -279,7 +272,7 @@
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
     .topbar h2 { font-size: 20px; }
-    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
     .gestao-bar { flex-direction: column; align-items: stretch; }
     .select-gestao { width: 100%; }
   }
@@ -287,11 +280,13 @@
 </head>
 <body>
 
+<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner-lg"></div>
-  <p style="font-weight:600;">Carregando...</p>
+  <p style="font-weight:600;">Carregando membros...</p>
 </div>
 
+<!-- SIDEBAR -->
 <aside class="sidebar" id="sidebar">
   <div class="brand">
     <div class="brand-icon">C</div>
@@ -301,19 +296,29 @@
     </div>
   </div>
 
-  <div class="nav-label">Painel</div>
+  <div class="nav-label">Visão Geral</div>
   <nav>
     <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
-    <a class="active"><span class="icon">👥</span> Membros</a>
-    <a onclick="emBreve('Gestões')"><span class="icon">🏛️</span> Gestões</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
-    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Inspeções</a>
     <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
+    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
+  </nav>
+
+  <div class="nav-label">Gestão CIPA</div>
+  <nav>
+    <a class="active"><span class="icon">👥</span> Membros da CIPA</a>
+    <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+  </nav>
+
+  <div class="nav-label">Inspeções</div>
+  <nav>
+    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Ver Inspeções</a>
+    <a onclick="emBreve('Checklists')"><span class="icon">📋</span> Checklists NR-6</a>
   </nav>
 
   <div class="nav-label">Sistema</div>
   <nav>
-    <a onclick="emBreve('Usuários')"><span class="icon">👤</span> Usuários</a>
+    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
     <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
@@ -321,16 +326,18 @@
     <div class="avatar-sm" id="userAvatar">?</div>
     <div class="info">
       <strong id="userName">—</strong>
-      <small id="userRole">—</small>
+      <small id="userRole">SESMT</small>
     </div>
     <button class="btn-logout" onclick="fazerLogout()" title="Sair">🚪</button>
   </div>
 </aside>
 
+<!-- MAIN -->
 <main class="main">
+
   <div class="topbar">
     <h2>Membros da CIPA
-      <span>Gestão em consulta: <strong id="gestaoAtualTitulo">—</strong></span>
+      <span>Organograma oficial • Gestão: <strong id="gestaoAtualTitulo">—</strong></span>
     </h2>
     <div class="topbar-actions">
       <button class="btn btn-secondary" onclick="baixarOrganograma()">
@@ -342,6 +349,7 @@
     </div>
   </div>
 
+  <!-- BARRA DE GESTÃO -->
   <div class="gestao-bar">
     <div class="gestao-info">
       <div class="gestao-flag" id="gestaoFlag">🏛️</div>
@@ -358,16 +366,21 @@
       <select class="select-gestao" id="selectGestao" onchange="trocarGestao()">
         <option>Carregando...</option>
       </select>
-      <button class="btn btn-primary" id="btnNovaGestao" onclick="emBreve('Nova Gestão')">
+      <button class="btn btn-primary" id="btnNovaGestao" onclick="abrirModalGestao()">
         ➕ Nova Gestão
+      </button>
+      <button class="btn btn-danger" id="btnEncerrarGestao" onclick="encerrarGestao()">
+        🔒 Encerrar Vigência
       </button>
     </div>
   </div>
 
+  <!-- AVISO GESTÃO ENCERRADA -->
   <div class="aviso-encerrada" id="avisoEncerrada">
     ⚠️ Esta gestão está <strong>ENCERRADA</strong>. Apenas para consulta — não pode ser editada.
   </div>
 
+  <!-- BANNER NR-6 / ISO -->
   <div class="info-banner">
     <span style="font-size:20px;">📋</span>
     <div>
@@ -376,6 +389,7 @@
     </div>
   </div>
 
+  <!-- ORGANOGRAMA -->
   <div class="org-chart-wrapper" id="orgWrapper">
     <div class="org-chart" id="orgChart">
 
@@ -421,6 +435,7 @@
     </div>
     <div class="gestao-badge" id="gestaoBadge">CIPA ATIVA — GESTÃO 2024/2025</div>
   </div>
+
 </main>
 
 <!-- MODAL MEMBRO COMPLETO -->
@@ -432,7 +447,7 @@
     </div>
     <div class="modal-body">
 
-      <!-- SEÇÃO 1: FOTO -->
+      <!-- FOTO -->
       <div class="form-section">
         <div class="form-section-title">📷 Foto</div>
         <label class="photo-upload" for="photoInput">
@@ -445,7 +460,7 @@
         <input type="file" id="photoInput" accept="image/*" hidden onchange="previewFoto(event)">
       </div>
 
-      <!-- SEÇÃO 2: DADOS PESSOAIS -->
+      <!-- DADOS PESSOAIS -->
       <div class="form-section">
         <div class="form-section-title">👤 Dados Pessoais</div>
 
@@ -476,7 +491,7 @@
         </div>
       </div>
 
-      <!-- SEÇÃO 3: CONTATO -->
+      <!-- CONTATO -->
       <div class="form-section">
         <div class="form-section-title">📞 Contato</div>
 
@@ -492,7 +507,7 @@
         </div>
       </div>
 
-      <!-- SEÇÃO 4: CARGO NA CIPA -->
+      <!-- CARGO CIPA -->
       <div class="form-section">
         <div class="form-section-title">🦺 Função na CIPA</div>
 
@@ -511,7 +526,7 @@
         </div>
 
         <div class="form-group">
-          <label>Status</label>
+          <label>Status do Membro</label>
           <select class="form-control" id="ativo">
             <option value="true">✅ Ativo</option>
             <option value="false">🚫 Inativo (ex-membro)</option>
@@ -524,6 +539,48 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="fecharModalMembro()">Cancelar</button>
       <button class="btn btn-save" id="btnSalvarMembro" onclick="salvarMembro()">💾 Salvar Cipeiro</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA GESTÃO -->
+<div class="modal-overlay" id="modalGestao">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🏛️ Nova Gestão da CIPA</h3>
+      <button class="close-btn" onclick="fecharModalGestao()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div style="background:rgba(245,158,11,0.1); border-left:3px solid var(--warning); padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:12.5px; color:#92400e;">
+        ⚠️ Ao criar uma nova gestão, a gestão atual será <strong>encerrada automaticamente</strong> e ficará disponível apenas para consulta.
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ano de Início <span>*</span></label>
+          <input type="number" class="form-control" id="gestaoAnoInicio" placeholder="2025" min="2000" max="2100">
+        </div>
+        <div class="form-group">
+          <label>Ano de Fim <span>*</span></label>
+          <input type="number" class="form-control" id="gestaoAnoFim" placeholder="2026" min="2000" max="2100">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Empresa / Unidade</label>
+        <input type="text" class="form-control" id="gestaoEmpresa" placeholder="Ex: TENDEX">
+      </div>
+
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea class="form-control" id="gestaoObs" rows="3" placeholder="Informações adicionais sobre esta gestão..."></textarea>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalGestao()">Cancelar</button>
+      <button class="btn btn-save" id="btnSalvarGestao" onclick="salvarGestao()">💾 Criar e Ativar</button>
     </div>
   </div>
 </div>
@@ -560,32 +617,22 @@
   }
 
   function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
-  function isAdmin() { return usuario?.role === 'admin'; }
-  function isGestaoEmVigor() { return gestaoSelecionada?.em_vigor === true; }
-  function podeEditar() { return isAdmin() && isGestaoEmVigor(); }
 
-  // ============ PROTEÇÃO ============
+  function isGestaoEmVigor() { return gestaoSelecionada?.em_vigor === true; }
+  // Todos que estão logados podem editar (são SESMT)
+  function podeEditar() { return isGestaoEmVigor(); }
+
+  // ============ LOGIN SIMPLES ============
   async function verificarLogin() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) {
       window.location.href = 'index.html';
       return false;
     }
-
-    const { data: perfil } = await db
-      .from('profiles').select('*').eq('id', session.user.id).single();
-
-    if (perfil?.role !== 'admin') {
-      alert('⛔ Acesso restrito ao SESMT');
-      window.location.href = 'index.html';
-      return false;
-    }
-
     usuario = {
       id: session.user.id,
       email: session.user.email,
-      nome: perfil?.full_name?.split('@')[0] || session.user.email.split('@')[0],
-      role: perfil?.role || 'member'
+      nome: session.user.email.split('@')[0]
     };
     return true;
   }
@@ -609,11 +656,15 @@
   // ============ CARREGAR GESTÕES ============
   async function carregarGestoes() {
     const { data, error } = await db
-      .from('gestoes').select('*').order('ano_inicio', { ascending: false });
+      .from('gestoes')
+      .select('*')
+      .order('ano_inicio', { ascending: false });
 
     if (error) {
       log('Erro gestões:', error);
-      mostrarToast('❌ Erro ao carregar gestões', true);
+      mostrarToast('❌ Erro ao carregar gestões: ' + error.message, true);
+      // Fallback: tenta carregar membros mesmo sem gestão
+      await carregarMembrosSemGestao();
       return;
     }
 
@@ -622,7 +673,11 @@
     select.innerHTML = '';
 
     if (gestoes.length === 0) {
-      select.innerHTML = '<option>Nenhuma gestão</option>';
+      select.innerHTML = '<option>Nenhuma gestão cadastrada</option>';
+      gestaoSelecionada = null;
+      document.getElementById('btnCadastrar').style.display = 'none';
+      document.getElementById('btnNovaGestao').style.display = 'none';
+      document.getElementById('btnEncerrarGestao').style.display = 'none';
       return;
     }
 
@@ -637,6 +692,22 @@
     select.value = gestaoSelecionada.id;
   }
 
+  // Fallback: se não há gestões, carrega todos os membros
+  async function carregarMembrosSemGestao() {
+    const { data, error } = await db
+      .from('members')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      log('Erro membros:', error);
+      return;
+    }
+
+    membros = data || [];
+    renderizarOrganograma();
+  }
+
   function trocarGestao() {
     const id = document.getElementById('selectGestao').value;
     gestaoSelecionada = gestoes.find(g => g.id === id);
@@ -644,6 +715,7 @@
     carregarMembros();
   }
 
+  // ============ UI GESTÃO ============
   function atualizarUIGestao() {
     if (!gestaoSelecionada) return;
     const g = gestaoSelecionada;
@@ -666,22 +738,29 @@
 
     document.getElementById('avisoEncerrada').classList.toggle('show', !emVigor);
 
-    // Botão cadastrar: só se admin E gestão em vigor
-    document.getElementById('btnCadastrar').style.display = podeEditar() ? 'inline-flex' : 'none';
+    // Botões: cadastrar e encerrar só se gestão em vigor
+    document.getElementById('btnCadastrar').style.display = emVigor ? 'inline-flex' : 'none';
+    document.getElementById('btnEncerrarGestao').style.display = emVigor ? 'inline-flex' : 'none';
+    document.getElementById('btnNovaGestao').style.display = 'inline-flex';
   }
 
   // ============ CARREGAR MEMBROS ============
   async function carregarMembros() {
-    if (!gestaoSelecionada) { membros = []; renderizarOrganograma(); return; }
+    if (!gestaoSelecionada) {
+      membros = [];
+      renderizarOrganograma();
+      return;
+    }
 
     const { data, error } = await db
-      .from('members').select('*')
+      .from('members')
+      .select('*')
       .eq('gestao_id', gestaoSelecionada.id)
-      .eq('ativo', true)
       .order('created_at', { ascending: true });
 
     if (error) {
       log('Erro membros:', error);
+      mostrarToast('❌ Erro ao carregar membros', true);
       return;
     }
 
@@ -689,7 +768,7 @@
     renderizarOrganograma();
   }
 
-  // ============ RENDERIZAR ============
+  // ============ RENDERIZAR ORGANOGRAMA ============
   function renderizarOrganograma() {
     ['slot-presidente','slot-vice-presidente','slot-secretario',
      'slot-suplente-presidente','slot-suplente-secretario',
@@ -698,7 +777,10 @@
       if (el) el.innerHTML = '';
     });
 
-    membros.forEach(m => {
+    // Filtra apenas membros ATIVOS para o organograma
+    const ativos = membros.filter(m => m.ativo !== false);
+
+    ativos.forEach(m => {
       const slotId = {
         'presidente': 'slot-presidente',
         'vice-presidente': 'slot-vice-presidente',
@@ -713,6 +795,7 @@
       if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
     });
 
+    // Placeholders para slots vazios
     const placeholders = {
       'slot-presidente': 'Presidente',
       'slot-vice-presidente': 'Vice-Presidente',
@@ -739,8 +822,10 @@
     const foto = m.photo_url
       ? `<img src="${m.photo_url}" alt="${m.name}" onerror="this.parentElement.textContent='${iniciais(m.name)}'">`
       : iniciais(m.name);
+
     const nome = m.name.length > 18 ? m.name.substring(0, 16) + '…' : m.name;
     const editavel = podeEditar() ? 'editable' : '';
+    const inativo = m.ativo === false ? ' (inativo)' : '';
 
     return `
       <div class="member-card ${editavel}" ${podeEditar() ? `onclick="editarMembro('${m.id}')"` : ''}>
@@ -751,8 +836,8 @@
           </div>
         ` : ''}
         <div class="member-photo">${foto}</div>
-        <div class="member-name">${nome}</div>
-        <div class="member-role">${m.cargo_empresa || m.ocupacao || ''}</div>
+        <div class="member-name">${nome}${inativo}</div>
+        <div class="member-role">${m.cargo_empresa || m.ocupacao || m.sector || ''}</div>
       </div>
     `;
   }
@@ -762,11 +847,11 @@
       .map(n => n[0].toUpperCase()).join('');
   }
 
-  // ============ MODAL ============
+  // ============ MODAL MEMBRO ============
   function abrirModalMembro(membro = null) {
     if (!podeEditar()) {
       if (!isGestaoEmVigor()) mostrarToast('🔒 Gestão encerrada. Apenas consulta.', true);
-      else mostrarToast('⛔ Apenas SESMT pode editar.', true);
+      else mostrarToast('⚠️ Selecione uma gestão em vigor.', true);
       return;
     }
 
@@ -814,9 +899,12 @@
     reader.readAsDataURL(file);
   }
 
+  // ============ UPLOAD ============
   async function uploadFoto(file) {
     const ext = file.name.split('.').pop().toLowerCase();
     const nomeArquivo = `membro-${Date.now()}-${Math.random().toString(36).substring(2,8)}.${ext}`;
+
+    log('Upload:', nomeArquivo);
 
     const { error } = await db.storage
       .from('cipa-photos')
@@ -828,7 +916,7 @@
     return data.publicUrl;
   }
 
-  // ============ SALVAR ============
+  // ============ SALVAR MEMBRO ============
   async function salvarMembro() {
     if (!podeEditar()) return;
 
@@ -847,18 +935,20 @@
     };
     const id = document.getElementById('editingId').value;
 
-    // Validações
     if (!dados.name || !dados.matricula || !dados.role) {
       mostrarToast('⚠️ Preencha nome, matrícula e cargo na CIPA!', true);
       return;
     }
 
+    // Cargos únicos por gestão
     const cargosUnicos = ['presidente','vice-presidente','secretario',
                           'suplente-presidente','suplente-secretario'];
     if (cargosUnicos.includes(dados.role)) {
-      const conflito = membros.find(m => m.role === dados.role && m.id !== id);
+      const conflito = membros.find(m =>
+        m.role === dados.role && m.id !== id && m.ativo !== false
+      );
       if (conflito) {
-        mostrarToast(`⚠️ Já existe um ${dados.role.replace('-', ' ')}!`, true);
+        mostrarToast(`⚠️ Já existe um ${dados.role.replace('-', ' ')} ativo nesta gestão!`, true);
         return;
       }
     }
@@ -903,28 +993,164 @@
     if (!confirm(`Excluir "${nome}"?`)) return;
 
     const { error } = await db.from('members').delete().eq('id', id);
-    if (error) { mostrarToast('❌ ' + error.message, true); return; }
+    if (error) {
+      mostrarToast('❌ ' + error.message, true);
+      return;
+    }
     mostrarToast('🗑️ Cipeiro removido.');
     await carregarMembros();
   }
 
+  // ============ MODAL GESTÃO ============
+  function abrirModalGestao() {
+    const ultima = gestoes[0];
+    const proximoInicio = ultima ? ultima.ano_fim : new Date().getFullYear();
+    const proximoFim = proximoInicio + 1;
+
+    document.getElementById('gestaoAnoInicio').value = proximoInicio;
+    document.getElementById('gestaoAnoFim').value = proximoFim;
+    document.getElementById('gestaoEmpresa').value = ultima?.empresa || '';
+    document.getElementById('gestaoObs').value = '';
+
+    document.getElementById('modalGestao').classList.add('open');
+  }
+
+  function fecharModalGestao() {
+    document.getElementById('modalGestao').classList.remove('open');
+  }
+
+  async function salvarGestao() {
+    const anoInicio = parseInt(document.getElementById('gestaoAnoInicio').value);
+    const anoFim    = parseInt(document.getElementById('gestaoAnoFim').value);
+    const empresa   = document.getElementById('gestaoEmpresa').value.trim();
+    const obs       = document.getElementById('gestaoObs').value.trim();
+
+    if (!anoInicio || !anoFim || anoFim <= anoInicio) {
+      mostrarToast('⚠️ Verifique os anos!', true);
+      return;
+    }
+
+    const btn = document.getElementById('btnSalvarGestao');
+    btn.disabled = true;
+    btn.textContent = '⏳ Criando...';
+
+    try {
+      // 1. Encerrar gestão atual
+      const atual = gestoes.find(g => g.em_vigor);
+      if (atual) {
+        log('Encerrando gestão:', atual.titulo);
+        const { error: errEncerrar } = await db
+          .from('gestoes')
+          .update({
+            em_vigor: false,
+            encerrada_em: new Date().toISOString(),
+            encerrada_por: usuario.id
+          })
+          .eq('id', atual.id);
+
+        if (errEncerrar) throw errEncerrar;
+      }
+
+      // 2. Criar nova gestão
+      const titulo = `${empresa || 'CIPA'} ${anoInicio}/${anoFim}`;
+      log('Criando gestão:', titulo);
+
+      const { error: errNova } = await db
+        .from('gestoes')
+        .insert([{
+          ano_inicio: anoInicio,
+          ano_fim: anoFim,
+          titulo,
+          empresa,
+          em_vigor: true,
+          observacoes: obs,
+          created_by: usuario.id
+        }]);
+
+      if (errNova) throw errNova;
+
+      fecharModalGestao();
+      mostrarToast('✅ Nova gestão criada e ativada!');
+
+      await carregarGestoes();
+      atualizarUIGestao();
+      await carregarMembros();
+    } catch (err) {
+      log('Erro gestão:', err);
+      mostrarToast('❌ ' + (err.message || 'Erro'), true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Criar e Ativar';
+    }
+  }
+
+  async function encerrarGestao() {
+    if (!isGestaoEmVigor()) return;
+
+    const confirmacao = prompt(
+      `⚠️ ATENÇÃO!\n\n` +
+      `Você está prestes a ENCERRAR a gestão "${gestaoSelecionada.titulo}".\n\n` +
+      `Isso significa que:\n` +
+      `• Ela não poderá mais ser editada\n` +
+      `• Continuará disponível para consulta\n` +
+      `• Você deverá criar uma nova gestão depois\n\n` +
+      `Digite ENCERRAR para confirmar:`
+    );
+
+    if (confirmacao !== 'ENCERRAR') {
+      mostrarToast('❌ Operação cancelada.');
+      return;
+    }
+
+    const { error } = await db
+      .from('gestoes')
+      .update({
+        em_vigor: false,
+        encerrada_em: new Date().toISOString(),
+        encerrada_por: usuario.id
+      })
+      .eq('id', gestaoSelecionada.id);
+
+    if (error) {
+      mostrarToast('❌ ' + error.message, true);
+      return;
+    }
+
+    mostrarToast('🔒 Gestão encerrada.');
+
+    await carregarGestoes();
+    atualizarUIGestao();
+    await carregarMembros();
+    setTimeout(() => abrirModalGestao(), 800);
+  }
+
+  // ============ DOWNLOAD ============
   function baixarOrganograma() {
     const el = document.getElementById('orgChart');
     const titulo = gestaoSelecionada?.titulo || 'cipa';
     mostrarToast('📸 Gerando imagem...');
-    html2canvas(el, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false })
-      .then(canvas => {
-        const link = document.createElement('a');
-        link.download = `organograma-${titulo.replace(/\s+/g, '-').toLowerCase()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-        mostrarToast('✅ Download concluído!');
-      })
-      .catch(err => { log(err); mostrarToast('❌ Erro ao gerar imagem.', true); });
+
+    html2canvas(el, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `organograma-${titulo.replace(/\s+/g, '-').toLowerCase()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      mostrarToast('✅ Download concluído!');
+    }).catch(err => {
+      log(err);
+      mostrarToast('❌ Erro ao gerar imagem.', true);
+    });
   }
 
   // ============ INIT ============
   (async function init() {
+    log('Iniciando membros.html...');
+
     const logado = await verificarLogin();
     if (!logado) return;
 
@@ -935,9 +1161,16 @@
 
     setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
 
-    document.getElementById('modalMembro').addEventListener('click', e => {
-      if (e.target.id === 'modalMembro') fecharModalMembro();
+    // Fechar modais clicando fora
+    ['modalMembro', 'modalGestao'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target.id === id) {
+          id === 'modalMembro' ? fecharModalMembro() : fecharModalGestao();
+        }
+      });
     });
+
+    log('✅ Pronto. Gestão:', gestaoSelecionada?.titulo);
   })();
 </script>
 
