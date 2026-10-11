@@ -184,7 +184,7 @@
   /* ============ TOPBAR ============ */
   .topbar {
     display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 16px;
   }
 
   .topbar h2 {
@@ -216,6 +216,7 @@
     gap: 8px;
     transition: all 0.2s;
     font-family: inherit;
+    white-space: nowrap;
   }
 
   .btn-primary {
@@ -248,9 +249,117 @@
 
   .btn-secondary:hover { background: var(--bg); }
 
+  .btn-danger {
+    background: rgba(239,68,68,0.1);
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+
+  .btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
   .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-  /* ============ INFO BANNER (NR-6 / ISO) ============ */
+  /* ============ BARRA DE GESTÃO ============ */
+  .gestao-bar {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .gestao-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .gestao-flag {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .gestao-flag.encerrada {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+  }
+
+  .gestao-detalhes h3 {
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .gestao-detalhes h3 .status-gestao {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .status-gestao.vigor {
+    background: rgba(16,185,129,0.15);
+    color: var(--success);
+  }
+
+  .status-gestao.encerrada {
+    background: rgba(100,116,139,0.15);
+    color: var(--text-soft);
+  }
+
+  .gestao-detalhes p {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    margin-top: 3px;
+  }
+
+  .gestao-controles {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .select-gestao {
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    min-width: 220px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .select-gestao:focus {
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 3px rgba(46,139,87,0.1);
+  }
+
+  /* ============ BANNER ============ */
   .info-banner {
     background: linear-gradient(135deg, rgba(46,139,87,0.08), rgba(255,201,60,0.08));
     border-left: 4px solid var(--green-600);
@@ -284,7 +393,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 40px;
     padding: 20px;
-    position: relative;
     background-image: radial-gradient(circle at 50% 50%, rgba(46,139,87,0.06) 0%, transparent 60%);
   }
 
@@ -294,7 +402,6 @@
     text-align: center;
     font-size: 13px;
     font-weight: 700;
-    color: var(--text);
     background: #fff;
     border: 2px solid var(--text);
     border-radius: 30px;
@@ -315,7 +422,6 @@
     margin-top: 2px;
   }
 
-  /* ============ MEMBER CARD ============ */
   .member-card {
     background: #fff;
     border: 2px solid var(--text);
@@ -345,7 +451,6 @@
   .member-card.vago:hover {
     transform: none;
     box-shadow: none;
-    border-color: var(--text);
   }
 
   .member-photo {
@@ -398,9 +503,7 @@
   }
 
   .member-action-btn.delete { background: var(--danger); }
-  .member-action-btn.edit { background: var(--green-600); }
 
-  /* ============ LABELS E CONECTORES ============ */
   .label-box {
     background: #fff;
     border: 2px solid var(--text);
@@ -446,7 +549,7 @@
   .gestao-badge {
     text-align: center;
     margin-top: 30px;
-    padding: 14px;
+    padding: 14px 30px;
     background: #fff;
     border: 2px solid var(--text);
     border-radius: 30px;
@@ -457,6 +560,12 @@
     position: relative;
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .gestao-badge.encerrada {
+    background: #f1f5f9;
+    color: var(--text-soft);
+    border-color: var(--text-soft);
   }
 
   /* ============ MODAL ============ */
@@ -599,6 +708,23 @@
     box-shadow: 0 8px 20px rgba(46,139,87,0.4);
   }
 
+  /* ============ AVISO DE GESTÃO ENCERRADA ============ */
+  .aviso-encerrada {
+    background: rgba(245,158,11,0.1);
+    border-left: 4px solid var(--warning);
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #92400e;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .aviso-encerrada.show { display: flex; }
+
   /* ============ TOAST ============ */
   .toast {
     position: fixed;
@@ -627,6 +753,9 @@
     .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
     .topbar h2 { font-size: 20px; }
     .form-row { grid-template-columns: 1fr; }
+    .gestao-bar { flex-direction: column; align-items: stretch; }
+    .gestao-controles { justify-content: stretch; }
+    .select-gestao { width: 100%; }
   }
 </style>
 </head>
@@ -635,7 +764,7 @@
 <!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner-lg"></div>
-  <p style="font-weight:600;">Carregando membros...</p>
+  <p style="font-weight:600;">Carregando...</p>
 </div>
 
 <!-- SIDEBAR -->
@@ -650,22 +779,22 @@
 
   <div class="nav-label">Principal</div>
   <nav>
-    <a onclick="irPara('dashboard')"><span class="icon">📊</span> Dashboard</a>
-    <a onclick="irPara('inspecoes')"><span class="icon">🔍</span> Inspeções</a>
-    <a onclick="irPara('checklists')"><span class="icon">📋</span> Checklists</a>
-    <a onclick="irPara('nao-conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+    <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Inspeções</a>
+    <a onclick="emBreve('Checklists')"><span class="icon">📋</span> Checklists</a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Gestão</div>
   <nav>
-    <a onclick="irPara('calendario')"><span class="icon">📅</span> Calendário</a>
-    <a onclick="irPara('relatorios')"><span class="icon">📈</span> Relatórios</a>
+    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
+    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
     <a class="active">
       <span class="icon">👥</span> Membros
       <span class="admin-tag" id="tagAdmin" style="display:none;">ADMIN</span>
     </a>
-    <a onclick="irPara('biblioteca')"><span class="icon">📚</span> Biblioteca</a>
-    <a onclick="irPara('configuracoes')"><span class="icon">⚙️</span> Configurações</a>
+    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
+    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
   <div class="sidebar-footer">
@@ -684,21 +813,54 @@
   <!-- TOPBAR -->
   <div class="topbar">
     <h2>Membros da CIPA
-      <span>Organograma oficial da gestão <span id="gestaoAno">2024/2025</span></span>
+      <span>Organograma oficial • Gestão em consulta: <strong id="gestaoAtualTitulo">—</strong></span>
     </h2>
     <div class="topbar-actions">
       <button class="btn btn-secondary" onclick="baixarOrganograma()">
         📸 Baixar Organograma
       </button>
-      <button class="btn btn-gold" id="btnCadastrar" onclick="abrirModal()" style="display:none;">
+      <button class="btn btn-gold" id="btnCadastrar" onclick="abrirModalMembro()" style="display:none;">
         ➕ Cadastrar Membro
       </button>
     </div>
   </div>
 
+  <!-- BARRA DE GESTÃO -->
+  <div class="gestao-bar">
+    <div class="gestao-info">
+      <div class="gestao-flag" id="gestaoFlag">🏛️</div>
+      <div class="gestao-detalhes">
+        <h3>
+          <span id="gestaoTitulo">Carregando...</span>
+          <span class="status-gestao vigor" id="gestaoStatus">EM VIGOR</span>
+        </h3>
+        <p id="gestaoPeriodo">—</p>
+      </div>
+    </div>
+
+    <div class="gestao-controles">
+      <select class="select-gestao" id="selectGestao" onchange="trocarGestao()">
+        <option>Carregando...</option>
+      </select>
+
+      <button class="btn btn-primary" id="btnNovaGestao" onclick="abrirModalGestao()" style="display:none;">
+        ➕ Nova Gestão
+      </button>
+
+      <button class="btn btn-danger" id="btnEncerrarGestao" onclick="encerrarGestao()" style="display:none;">
+        🔒 Encerrar Vigência
+      </button>
+    </div>
+  </div>
+
+  <!-- AVISO GESTÃO ENCERRADA -->
+  <div class="aviso-encerrada" id="avisoEncerrada">
+    ⚠️ Esta gestão está <strong>ENCERRADA</strong>. Apenas para consulta — não pode ser editada.
+  </div>
+
   <!-- BANNER NR-6 / ISO -->
   <div class="info-banner">
-        <span style="font-size:20px;">📋</span>
+    <span style="font-size:20px;">📋</span>
     <div>
       <strong>Conformidade NR-6 e ISO 14001</strong> — Este organograma é um documento oficial da CIPA.
       Mantenha os dados sempre atualizados para auditorias e fiscalizações.
@@ -706,10 +868,9 @@
   </div>
 
   <!-- ORGANOGRAMA -->
-  <div class="org-chart-wrapper">
+  <div class="org-chart-wrapper" id="orgWrapper">
     <div class="org-chart" id="orgChart">
 
-      <!-- LADO ESQUERDO -->
       <div class="org-side side-left">
         <div class="org-side-title">
           Representantes do Empregador
@@ -730,7 +891,6 @@
         <div class="suplentes-row" id="slot-suplentes"></div>
       </div>
 
-      <!-- LADO DIREITO -->
       <div class="org-side side-right">
         <div class="org-side-title">
           Representantes do Empregador
@@ -763,12 +923,12 @@
 
 </main>
 
-<!-- MODAL CADASTRO -->
-<div class="modal-overlay" id="modal">
+<!-- MODAL MEMBRO -->
+<div class="modal-overlay" id="modalMembro">
   <div class="modal">
     <div class="modal-header">
-      <h3 id="modalTitle">Cadastrar Membro</h3>
-      <button class="close-btn" onclick="fecharModal()">✕</button>
+      <h3 id="modalMembroTitle">Cadastrar Membro</h3>
+      <button class="close-btn" onclick="fecharModalMembro()">✕</button>
     </div>
     <div class="modal-body">
 
@@ -818,8 +978,50 @@
 
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-save" id="btnSalvar" onclick="salvarMembro()">💾 Salvar</button>
+      <button class="btn btn-secondary" onclick="fecharModalMembro()">Cancelar</button>
+      <button class="btn btn-save" id="btnSalvarMembro" onclick="salvarMembro()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA GESTÃO -->
+<div class="modal-overlay" id="modalGestao">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🏛️ Nova Gestão da CIPA</h3>
+      <button class="close-btn" onclick="fecharModalGestao()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div style="background:rgba(245,158,11,0.1); border-left:3px solid var(--warning); padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:12.5px; color:#92400e;">
+        ⚠️ Ao criar uma nova gestão, a gestão atual será <strong>encerrada automaticamente</strong> e ficará disponível apenas para consulta.
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ano de Início <span>*</span></label>
+          <input type="number" class="form-control" id="gestaoAnoInicio" placeholder="2025" min="2000" max="2100">
+        </div>
+        <div class="form-group">
+          <label>Ano de Fim <span>*</span></label>
+          <input type="number" class="form-control" id="gestaoAnoFim" placeholder="2026" min="2000" max="2100">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Empresa / Unidade</label>
+        <input type="text" class="form-control" id="gestaoEmpresa" placeholder="Ex: TENDEX">
+      </div>
+
+      <div class="form-group">
+        <label>Observações</label>
+        <textarea class="form-control" id="gestaoObs" rows="3" placeholder="Informações adicionais sobre esta gestão..."></textarea>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalGestao()">Cancelar</button>
+      <button class="btn btn-save" id="btnSalvarGestao" onclick="salvarGestao()">💾 Criar e Ativar</button>
     </div>
   </div>
 </div>
@@ -840,11 +1042,13 @@
 <script>
   // ============ ESTADO ============
   let usuario = null;
+  let gestoes = [];
+  let gestaoSelecionada = null;
   let membros = [];
   let arquivoFoto = null;
   let fotoAtualUrl = null;
 
-  // ============ TOAST ============
+  // ============ HELPERS ============
   let toastTimer;
   function mostrarToast(msg, erro = false) {
     const t = document.getElementById('toast');
@@ -855,13 +1059,21 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
   }
 
-  // ============ NAVEGAÇÃO ============
-  function irPara(pagina) {
-    if (pagina === 'dashboard') window.location.href = 'dashboard.html';
-    else mostrarToast(`🚧 "${pagina}" em construção!`);
+  function emBreve(secao) {
+    mostrarToast(`🚧 "${secao}" em construção!`);
   }
 
-  // ============ PROTEÇÃO E PERFIL ============
+  function isAdmin() { return usuario?.role === 'admin'; }
+
+  function isGestaoEmVigor() {
+    return gestaoSelecionada?.em_vigor === true;
+  }
+
+  function podeEditar() {
+    return isAdmin() && isGestaoEmVigor();
+  }
+
+  // ============ PROTEÇÃO E USUÁRIO ============
   async function verificarLogin() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) {
@@ -896,16 +1108,12 @@
     document.getElementById('userRole').textContent =
       usuario.role === 'admin' ? '🔑 Administrador' : '👷 Membro CIPA';
 
-    // Só admin vê botão de cadastrar
-    if (usuario.role === 'admin') {
-      document.getElementById('btnCadastrar').style.display = 'inline-flex';
+    if (isAdmin()) {
       document.getElementById('tagAdmin').style.display = 'inline-block';
+      document.getElementById('btnNovaGestao').style.display = 'inline-flex';
     }
   }
 
-  function isAdmin() { return usuario?.role === 'admin'; }
-
-  // ============ LOGOUT ============
   async function fazerLogout() {
     if (!confirm('Deseja sair do sistema?')) return;
     await db.auth.signOut();
@@ -913,15 +1121,105 @@
     window.location.href = 'index.html';
   }
 
+  // ============ CARREGAR GESTÕES ============
+  async function carregarGestoes() {
+    const { data, error } = await db
+      .from('gestoes')
+      .select('*')
+      .order('ano_inicio', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao carregar gestões:', error);
+      mostrarToast('❌ Erro ao carregar gestões', true);
+      return;
+    }
+
+    gestoes = data || [];
+
+    // Preencher select
+    const select = document.getElementById('selectGestao');
+    select.innerHTML = '';
+
+    if (gestoes.length === 0) {
+      select.innerHTML = '<option>Nenhuma gestão cadastrada</option>';
+      gestaoSelecionada = null;
+      return;
+    }
+
+    gestoes.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g.id;
+      opt.textContent = `${g.em_vigor ? '⭐ ' : ''}${g.titulo}${g.em_vigor ? ' (EM VIGOR)' : ''}`;
+      select.appendChild(opt);
+    });
+
+    // Selecionar a em vigor por padrão (ou a mais recente)
+    const emVigor = gestoes.find(g => g.em_vigor);
+    gestaoSelecionada = emVigor || gestoes[0];
+    select.value = gestaoSelecionada.id;
+  }
+
+  function trocarGestao() {
+    const id = document.getElementById('selectGestao').value;
+    gestaoSelecionada = gestoes.find(g => g.id === id);
+    atualizarUIGestao();
+    carregarMembros();
+  }
+
+  // ============ ATUALIZAR UI DA GESTÃO ============
+  function atualizarUIGestao() {
+    if (!gestaoSelecionada) return;
+
+    const g = gestaoSelecionada;
+    const emVigor = g.em_vigor;
+
+    // Título na topbar
+    document.getElementById('gestaoAtualTitulo').textContent = g.titulo;
+
+    // Barra de gestão
+    document.getElementById('gestaoTitulo').textContent = g.titulo;
+    document.getElementById('gestaoStatus').textContent = emVigor ? 'EM VIGOR' : 'ENCERRADA';
+    document.getElementById('gestaoStatus').className = 'status-gestao ' + (emVigor ? 'vigor' : 'encerrada');
+    document.getElementById('gestaoPeriodo').textContent =
+      `${g.ano_inicio} — ${g.ano_fim}${g.empresa ? ' • ' + g.empresa : ''}`;
+
+    // Ícone da bandeira
+    const flag = document.getElementById('gestaoFlag');
+    flag.textContent = emVigor ? '🏛️' : '📁';
+    flag.className = 'gestao-flag' + (emVigor ? '' : ' encerrada');
+
+    // Badge do organograma
+    const badge = document.getElementById('gestaoBadge');
+    badge.textContent = `CIPA ATIVA — GESTÃO ${g.ano_inicio}/${g.ano_fim}`;
+    badge.classList.toggle('encerrada', !emVigor);
+
+    // Aviso de gestão encerrada
+    const aviso = document.getElementById('avisoEncerrada');
+    aviso.classList.toggle('show', !emVigor);
+
+    // Botões
+    if (isAdmin()) {
+      document.getElementById('btnCadastrar').style.display = emVigor ? 'inline-flex' : 'none';
+      document.getElementById('btnEncerrarGestao').style.display = emVigor ? 'inline-flex' : 'none';
+    }
+  }
+
   // ============ CARREGAR MEMBROS ============
   async function carregarMembros() {
+    if (!gestaoSelecionada) {
+      membros = [];
+      renderizarOrganograma();
+      return;
+    }
+
     const { data, error } = await db
       .from('members')
       .select('*')
+      .eq('gestao_id', gestaoSelecionada.id)
       .order('created_at', { ascending: true });
 
     if (error) {
-      console.error('Erro ao carregar:', error);
+      console.error('Erro:', error);
       mostrarToast('❌ Erro ao carregar membros', true);
       return;
     }
@@ -932,7 +1230,6 @@
 
   // ============ RENDERIZAR ============
   function renderizarOrganograma() {
-    // Limpa todos os slots
     ['slot-presidente','slot-vice-presidente','slot-secretario',
      'slot-suplente-presidente','slot-suplente-secretario',
      'slot-titulares','slot-suplentes'].forEach(id => {
@@ -940,7 +1237,6 @@
       if (el) el.innerHTML = '';
     });
 
-    // Distribui cada membro
     membros.forEach(m => {
       const slotId = {
         'presidente':           'slot-presidente',
@@ -956,7 +1252,6 @@
       if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
     });
 
-    // Placeholders
     const placeholders = {
       'slot-presidente':          'Presidente',
       'slot-vice-presidente':     'Vice-Presidente',
@@ -985,11 +1280,11 @@
       : iniciais(m.name);
 
     const nome = m.name.length > 18 ? m.name.substring(0, 16) + '…' : m.name;
-    const editavel = isAdmin() ? 'editable' : '';
+    const editavel = podeEditar() ? 'editable' : '';
 
     return `
-      <div class="member-card ${editavel}" ${isAdmin() ? `onclick="editarMembro('${m.id}')"` : ''}>
-        ${isAdmin() ? `
+      <div class="member-card ${editavel}" ${podeEditar() ? `onclick="editarMembro('${m.id}')"` : ''}>
+        ${podeEditar() ? `
           <div class="member-actions">
             <button class="member-action-btn delete" title="Excluir"
               onclick="event.stopPropagation(); excluirMembro('${m.id}', '${m.name.replace(/'/g, "\\'")}')">✕</button>
@@ -1007,17 +1302,18 @@
       .map(n => n[0].toUpperCase()).join('');
   }
 
-  // ============ MODAL ============
-  function abrirModal(membro = null) {
-    if (!isAdmin()) {
-      mostrarToast('⛔ Apenas administradores podem cadastrar membros.', true);
+  // ============ MODAL MEMBRO ============
+  function abrirModalMembro(membro = null) {
+    if (!podeEditar()) {
+      if (!isGestaoEmVigor()) mostrarToast('🔒 Gestão encerrada. Apenas consulta.', true);
+      else mostrarToast('⛔ Apenas administradores podem editar.', true);
       return;
     }
 
     arquivoFoto = null;
     fotoAtualUrl = membro?.photo_url || null;
 
-    document.getElementById('modalTitle').textContent =
+    document.getElementById('modalMembroTitle').textContent =
       membro ? 'Editar Membro' : 'Cadastrar Membro';
     document.getElementById('nome').value      = membro?.name || '';
     document.getElementById('cargo').value     = membro?.role || '';
@@ -1033,11 +1329,11 @@
     }
 
     document.getElementById('photoInput').value = '';
-    document.getElementById('modal').classList.add('open');
+    document.getElementById('modalMembro').classList.add('open');
   }
 
-  function fecharModal() {
-    document.getElementById('modal').classList.remove('open');
+  function fecharModalMembro() {
+    document.getElementById('modalMembro').classList.remove('open');
   }
 
   function previewFoto(e) {
@@ -1071,12 +1367,9 @@
     return data.publicUrl;
   }
 
-  // ============ SALVAR ============
+  // ============ SALVAR MEMBRO ============
   async function salvarMembro() {
-    if (!isAdmin()) {
-      mostrarToast('⛔ Apenas administradores podem editar.', true);
-      return;
-    }
+    if (!podeEditar()) return;
 
     const nome    = document.getElementById('nome').value.trim();
     const cargo   = document.getElementById('cargo').value;
@@ -1089,7 +1382,6 @@
       return;
     }
 
-    // Valida cargos únicos
     const cargosUnicos = ['presidente','vice-presidente','secretario',
                           'suplente-presidente','suplente-secretario'];
     if (cargosUnicos.includes(cargo)) {
@@ -1100,15 +1392,13 @@
       }
     }
 
-    const btn = document.getElementById('btnSalvar');
+    const btn = document.getElementById('btnSalvarMembro');
     btn.disabled = true;
     btn.textContent = '⏳ Salvando...';
 
     try {
       let photoUrl = fotoAtualUrl;
-      if (arquivoFoto) {
-        photoUrl = await uploadFoto(arquivoFoto);
-      }
+      if (arquivoFoto) photoUrl = await uploadFoto(arquivoFoto);
 
       const dados = {
         name: nome,
@@ -1116,6 +1406,7 @@
         sector: setor,
         contact: contato,
         photo_url: photoUrl,
+        gestao_id: gestaoSelecionada.id,
         updated_at: new Date().toISOString()
       };
 
@@ -1128,7 +1419,7 @@
 
       if (error) throw error;
 
-      fecharModal();
+      fecharModalMembro();
       mostrarToast(id ? '✅ Membro atualizado!' : '✅ Membro cadastrado!');
       await carregarMembros();
 
@@ -1141,23 +1432,17 @@
     }
   }
 
-  // ============ EDITAR / EXCLUIR ============
   function editarMembro(id) {
-    if (!isAdmin()) return;
+    if (!podeEditar()) return;
     const m = membros.find(x => x.id === id);
-    if (m) abrirModal(m);
+    if (m) abrirModalMembro(m);
   }
 
   async function excluirMembro(id, nome) {
-    if (!isAdmin()) {
-      mostrarToast('⛔ Apenas administradores podem excluir.', true);
-      return;
-    }
-
+    if (!podeEditar()) return;
     if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return;
 
     const { error } = await db.from('members').delete().eq('id', id);
-
     if (error) {
       mostrarToast('❌ ' + error.message, true);
       return;
@@ -1167,9 +1452,141 @@
     await carregarMembros();
   }
 
+  // ============ MODAL GESTÃO ============
+  function abrirModalGestao() {
+    if (!isAdmin()) return;
+
+    // Sugerir anos baseado na última gestão
+    const ultima = gestoes[0];
+    const proximoInicio = ultima ? ultima.ano_fim : new Date().getFullYear();
+    const proximoFim = proximoInicio + 1;
+
+    document.getElementById('gestaoAnoInicio').value = proximoInicio;
+    document.getElementById('gestaoAnoFim').value = proximoFim;
+    document.getElementById('gestaoEmpresa').value = ultima?.empresa || '';
+    document.getElementById('gestaoObs').value = '';
+
+    document.getElementById('modalGestao').classList.add('open');
+  }
+
+  function fecharModalGestao() {
+    document.getElementById('modalGestao').classList.remove('open');
+  }
+
+  async function salvarGestao() {
+    if (!isAdmin()) return;
+
+    const anoInicio = parseInt(document.getElementById('gestaoAnoInicio').value);
+    const anoFim    = parseInt(document.getElementById('gestaoAnoFim').value);
+    const empresa   = document.getElementById('gestaoEmpresa').value.trim();
+    const obs       = document.getElementById('gestaoObs').value.trim();
+
+    if (!anoInicio || !anoFim || anoFim <= anoInicio) {
+      mostrarToast('⚠️ Verifique os anos! O fim deve ser maior que o início.', true);
+      return;
+    }
+
+    const btn = document.getElementById('btnSalvarGestao');
+    btn.disabled = true;
+    btn.textContent = '⏳ Criando...';
+
+    try {
+      // 1. Encerrar a gestão atual (se houver)
+      const atual = gestoes.find(g => g.em_vigor);
+      if (atual) {
+        const { error: errEncerrar } = await db
+          .from('gestoes')
+          .update({
+            em_vigor: false,
+            encerrada_em: new Date().toISOString(),
+            encerrada_por: usuario.id
+          })
+          .eq('id', atual.id);
+
+        if (errEncerrar) throw errEncerrar;
+      }
+
+      // 2. Criar nova gestão
+      const titulo = `${empresa || 'CIPA'} ${anoInicio}/${anoFim}`;
+      const { error: errNova } = await db
+        .from('gestoes')
+        .insert([{
+          ano_inicio: anoInicio,
+          ano_fim: anoFim,
+          titulo,
+          empresa,
+          em_vigor: true,
+          observacoes: obs,
+          created_by: usuario.id
+        }]);
+
+      if (errNova) throw errNova;
+
+      fecharModalGestao();
+      mostrarToast('✅ Nova gestão criada e ativada!');
+
+      // 3. Recarregar
+      await carregarGestoes();
+      atualizarUIGestao();
+      await carregarMembros();
+
+    } catch (err) {
+      console.error('Erro:', err);
+      mostrarToast('❌ ' + (err.message || 'Erro ao criar gestão'), true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Criar e Ativar';
+    }
+  }
+
+  // ============ ENCERRAR GESTÃO ============
+  async function encerrarGestao() {
+    if (!isAdmin() || !isGestaoEmVigor()) return;
+
+    const confirmacao = prompt(
+      `⚠️ ATENÇÃO!\n\n` +
+      `Você está prestes a ENCERRAR a gestão "${gestaoSelecionada.titulo}".\n\n` +
+      `Isso significa que:\n` +
+      `• Ela não poderá mais ser editada\n` +
+      `• Continuará disponível para consulta\n` +
+      `• Você deverá criar uma nova gestão depois\n\n` +
+      `Digite ENCERRAR para confirmar:`
+    );
+
+    if (confirmacao !== 'ENCERRAR') {
+      mostrarToast('❌ Operação cancelada.');
+      return;
+    }
+
+    const { error } = await db
+      .from('gestoes')
+      .update({
+        em_vigor: false,
+        encerrada_em: new Date().toISOString(),
+        encerrada_por: usuario.id
+      })
+      .eq('id', gestaoSelecionada.id);
+
+    if (error) {
+      mostrarToast('❌ ' + error.message, true);
+      return;
+    }
+
+    mostrarToast('🔒 Gestão encerrada. Crie uma nova agora.');
+
+    // Recarregar
+    await carregarGestoes();
+    atualizarUIGestao();
+    await carregarMembros();
+
+    // Abrir modal de nova gestão automaticamente
+    setTimeout(() => abrirModalGestao(), 800);
+  }
+
   // ============ DOWNLOAD ============
   function baixarOrganograma() {
     const el = document.getElementById('orgChart');
+    const titulo = gestaoSelecionada?.titulo || 'cipa';
     mostrarToast('📸 Gerando imagem...');
 
     html2canvas(el, {
@@ -1179,7 +1596,8 @@
       logging: false
     }).then(canvas => {
       const link = document.createElement('a');
-      link.download = `organograma-cipa-${new Date().toISOString().slice(0,10)}.png`;
+      const nomeArquivo = `organograma-${titulo.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0,10)}.png`;
+      link.download = nomeArquivo;
       link.href = canvas.toDataURL('image/png');
       link.click();
       mostrarToast('✅ Download concluído!');
@@ -1195,17 +1613,24 @@
     if (!logado) return;
 
     aplicarUsuario();
+    await carregarGestoes();
+    atualizarUIGestao();
     await carregarMembros();
 
     setTimeout(() => {
       document.getElementById('loadingOverlay').classList.add('hidden');
     }, 400);
 
-    document.getElementById('modal').addEventListener('click', e => {
-      if (e.target.id === 'modal') fecharModal();
+    // Fechar modais ao clicar fora
+    ['modalMembro', 'modalGestao'].forEach(id => {
+      document.getElementById(id).addEventListener('click', e => {
+        if (e.target.id === id) {
+          id === 'modalMembro' ? fecharModalMembro() : fecharModalGestao();
+        }
+      });
     });
 
-    console.log('✅ Membros carregados. Usuário:', usuario);
+    console.log('✅ Membros carregados. Usuário:', usuario, 'Gestão:', gestaoSelecionada);
   })();
 </script>
 
