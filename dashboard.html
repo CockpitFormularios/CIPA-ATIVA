@@ -40,7 +40,7 @@
     display: flex;
   }
 
-  /* ============ LOADING OVERLAY ============ */
+  /* ============ LOADING ============ */
   .loading-overlay {
     position: fixed;
     inset: 0;
@@ -55,12 +55,9 @@
     transition: opacity 0.4s;
   }
 
-  .loading-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
 
-  .loading-overlay .spinner-lg {
+  .spinner-lg {
     width: 50px;
     height: 50px;
     border: 4px solid rgba(255,201,60,0.2);
@@ -96,11 +93,16 @@
   }
 
   .brand-icon {
-    width: 44px; height: 44px;
+    width: 44px;
+    height: 44px;
     background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
     border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 20px; color: var(--green-900);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--green-900);
     box-shadow: 0 4px 12px rgba(255,201,60,0.3);
   }
 
@@ -165,20 +167,20 @@
     padding-left: 8px;
   }
 
-  .sidebar-footer .avatar-sm {
-    width: 36px; height: 36px;
+  .avatar-sm {
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: var(--green-600);
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: 700;
     font-size: 13px;
     flex-shrink: 0;
   }
 
-  .sidebar-footer .info {
-    flex: 1;
-    min-width: 0;
-  }
+  .sidebar-footer .info { flex: 1; min-width: 0; }
 
   .sidebar-footer .info small {
     display: block;
@@ -195,11 +197,12 @@
     white-space: nowrap;
   }
 
-  .sidebar-footer .btn-logout {
+  .btn-logout {
     background: rgba(255,255,255,0.1);
     border: none;
     color: #fff;
-    width: 32px; height: 32px;
+    width: 32px;
+    height: 32px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
@@ -207,9 +210,7 @@
     flex-shrink: 0;
   }
 
-  .sidebar-footer .btn-logout:hover {
-    background: var(--danger);
-  }
+  .btn-logout:hover { background: var(--danger); }
 
   /* ============ MAIN ============ */
   .main {
@@ -268,19 +269,32 @@
   }
 
   .icon-btn {
-    width: 40px; height: 40px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: var(--card);
     border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-size: 16px;
     transition: all 0.2s;
   }
 
-  .icon-btn:hover {
-    background: var(--bg);
-    transform: translateY(-1px);
+  .icon-btn:hover { background: var(--bg); transform: translateY(-1px); }
+
+  .menu-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
   }
 
   /* ============ KPIs ============ */
@@ -305,7 +319,8 @@
   .kpi::before {
     content: '';
     position: absolute;
-    top: 0; left: 0;
+    top: 0;
+    left: 0;
     width: 4px;
     height: 100%;
     background: var(--green-600);
@@ -315,10 +330,7 @@
   .kpi.danger::before  { background: var(--danger); }
   .kpi.info::before    { background: var(--info); }
 
-  .kpi:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-  }
+  .kpi:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 
   .kpi-header {
     display: flex;
@@ -328,9 +340,12 @@
   }
 
   .kpi-icon {
-    width: 44px; height: 44px;
+    width: 44px;
+    height: 44px;
     border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 20px;
     background: rgba(46,139,87,0.1);
   }
@@ -343,7 +358,6 @@
     font-size: 32px;
     font-weight: 800;
     letter-spacing: -1px;
-    color: var(--text);
     line-height: 1;
     margin-bottom: 6px;
   }
@@ -456,7 +470,8 @@
   .list li:last-child { border-bottom: none; }
 
   .dot {
-    width: 8px; height: 8px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
   }
@@ -583,18 +598,7 @@
     .kpi-value { font-size: 26px; }
     .chart-bars { gap: 10px; height: 160px; }
     .fab { bottom: 20px; right: 20px; padding: 14px 20px; }
-    .menu-toggle { display: flex !important; }
-  }
-
-  .menu-toggle {
-    display: none;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
+    .menu-toggle { display: flex; }
   }
 </style>
 </head>
@@ -619,21 +623,21 @@
   <div class="nav-label">Principal</div>
   <nav>
     <a class="active"><span class="icon">📊</span> Dashboard</a>
-    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Inspeções</a>
-    <a onclick="emBreve('Checklists')"><span class="icon">📋</span> Checklists</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+    <a onclick="irPara('inspecoes')"><span class="icon">🔍</span> Inspeções</a>
+    <a onclick="irPara('checklists')"><span class="icon">📋</span> Checklists</a>
+    <a onclick="irPara('nao-conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Gestão</div>
   <nav>
-    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
-    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
-    <a id="menuMembros" onclick="emBreve('Membros')">
+    <a onclick="irPara('calendario')"><span class="icon">📅</span> Calendário</a>
+    <a onclick="irPara('relatorios')"><span class="icon">📈</span> Relatórios</a>
+    <a id="menuMembros" onclick="window.location.href='membros.html'">
       <span class="icon">👥</span> Membros
       <span class="admin-tag" id="tagAdmin" style="display:none;">ADMIN</span>
     </a>
-    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
-    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
+    <a onclick="irPara('biblioteca')"><span class="icon">📚</span> Biblioteca</a>
+    <a onclick="irPara('configuracoes')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
   <div class="sidebar-footer">
@@ -696,7 +700,7 @@
     <div class="card">
       <div class="card-header">
         <h3>Inspeções por Setor</h3>
-        <a onclick="emBreve('Detalhes')">Ver detalhes →</a>
+        <a onclick="irPara('relatorios')">Ver detalhes →</a>
       </div>
       <div class="chart-bars" id="chart"></div>
     </div>
@@ -704,7 +708,7 @@
     <div class="card">
       <div class="card-header">
         <h3>Pendências Recentes</h3>
-        <a onclick="emBreve('Pendências')">Ver todas →</a>
+        <a onclick="irPara('nao-conformidades')">Ver todas →</a>
       </div>
       <ul class="list">
         <li>
@@ -755,7 +759,7 @@
   <section class="card">
     <div class="card-header">
       <h3>Últimas Inspeções Realizadas</h3>
-      <a onclick="emBreve('Histórico')">Ver histórico →</a>
+      <a onclick="irPara('inspecoes')">Ver histórico →</a>
     </div>
     <div class="table-wrap">
       <table>
@@ -815,7 +819,7 @@
     </div>
   </section>
 
-  <button class="fab" onclick="emBreve('Nova Inspeção')">➕ Nova Inspeção</button>
+  <button class="fab" onclick="irPara('nova-inspecao')">➕ Nova Inspeção</button>
 
 </main>
 
@@ -846,9 +850,34 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  // ============ EM BREVE ============
-  function emBreve(secao) {
-    mostrarToast(`🚧 "${secao}" em construção!`);
+  // ============ NAVEGAÇÃO ============
+  function irPara(pagina) {
+    const rotas = {
+      'inspecoes':         'inspecoes.html',
+      'checklists':        'checklists.html',
+      'nao-conformidades': 'nao-conformidades.html',
+      'calendario':        'calendario.html',
+      'relatorios':        'relatorios.html',
+      'membros':           'membros.html',
+      'biblioteca':        'biblioteca.html',
+      'configuracoes':     'configuracoes.html',
+      'nova-inspecao':     'inspecoes.html#nova'
+    };
+
+    const destino = rotas[pagina];
+
+    if (destino && !pagina.includes('em-breve')) {
+      // Se a página existe, tenta navegar; se não, mostra toast
+      // Aqui usamos um fallback: se ainda não criamos a página, avisa.
+      const paginasExistentes = ['membros', 'nova-inspecao'];
+      if (paginasExistentes.includes(pagina)) {
+        window.location.href = destino;
+      } else {
+        mostrarToast(`🚧 "${pagina}" em construção!`);
+      }
+    } else {
+      mostrarToast(`🚧 "${pagina}" em construção!`);
+    }
   }
 
   // ============ PROTEÇÃO DE ROTA ============
@@ -856,21 +885,17 @@
     const { data: { session } } = await db.auth.getSession();
 
     if (!session) {
-      // Não logado → volta pro login
       window.location.href = 'index.html';
       return false;
     }
 
-    // Buscar perfil
     const { data: perfil, error } = await db
       .from('profiles')
       .select('*')
       .eq('id', session.user.id)
       .single();
 
-    if (error) {
-      console.error('Erro ao buscar perfil:', error);
-    }
+    if (error) console.error('Erro ao buscar perfil:', error);
 
     usuario = {
       id: session.user.id,
@@ -885,26 +910,19 @@
 
   // ============ APLICAR DADOS DO USUÁRIO ============
   function aplicarUsuario() {
-    // Avatar (iniciais)
     const iniciais = usuario.nome
-      .split(/[\s._-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map(n => n[0].toUpperCase())
-      .join('');
+      .split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
     document.getElementById('userAvatar').textContent = iniciais || '?';
 
-    // Nome e role na sidebar
     const nomeCapitalizado = usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
     document.getElementById('userName').textContent = nomeCapitalizado;
     document.getElementById('userRole').textContent =
       usuario.role === 'admin' ? '🔑 Administrador' : '👷 Membro CIPA';
 
-    // Saudação
     document.getElementById('saudacao').textContent =
       `Olá, ${nomeCapitalizado}! Aqui está o resumo da CIPA.`;
 
-    // Badge de role no topo
     const badge = document.getElementById('roleBadge');
     if (usuario.role === 'admin') {
       badge.textContent = '🔑 Administrador';
@@ -914,7 +932,6 @@
       badge.classList.remove('admin');
     }
 
-    // Se for admin → mostra a tag "ADMIN" no menu Membros
     if (usuario.role === 'admin') {
       document.getElementById('tagAdmin').style.display = 'inline-block';
     }
@@ -923,7 +940,6 @@
   // ============ LOGOUT ============
   async function fazerLogout() {
     if (!confirm('Deseja sair do sistema?')) return;
-
     await db.auth.signOut();
     sessionStorage.removeItem('cipa_user');
     window.location.href = 'index.html';
@@ -971,7 +987,6 @@
     aplicarUsuario();
     renderizarGrafico();
 
-    // Esconde loading
     setTimeout(() => {
       document.getElementById('loadingOverlay').classList.add('hidden');
     }, 300);
