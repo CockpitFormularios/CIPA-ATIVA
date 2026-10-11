@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membros | CIPA Ativa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦺</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+  :root {
+    --green-900: #0d2818;
+    --green-700: #1e5f3f;
+    --green-600: #2e8b57;
+    --green-500: #3fb878;
+    --yellow: #ffc93c;
+    --yellow-dark: #e8b324;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+    --text: #0f172a;
+    --text-soft: #64748b;
+    --border: #e8ecf1;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --info: #3b82f6;
+    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
+    --shadow-md: 0 4px 16px rgba(15,23,42,0.06);
+    --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
+    --radius: 16px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+  }
+
+  /* ============ LOADING ============ */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: var(--green-900);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+    z-index: 9999; color: #fff;
+    transition: opacity 0.4s;
+  }
+
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+  .spinner-lg {
+    width: 50px; height: 50px;
+    border: 4px solid rgba(255,201,60,0.2);
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar {
+    width: 264px;
+    background: var(--green-900);
+    color: #fff;
+    padding: 24px 16px;
+    position: fixed; height: 100vh;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    display: flex; flex-direction: column;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 8px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+  }
+
+  .brand-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 20px; color: var(--green-900);
+    box-shadow: 0 4px 12px rgba(255,201,60,0.3);
+  }
+
+  .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255,255,255,0.4);
+    padding: 12px 12px 8px;
+    font-weight: 600;
+  }
+
+  .sidebar nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 12px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 13.5px; font-weight: 500;
+    border-radius: 10px;
+    margin-bottom: 2px;
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .sidebar nav a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+
+  .sidebar nav a.active {
+    background: linear-gradient(90deg, var(--green-600), var(--green-700));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(46,139,87,0.35);
+  }
+
+  .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar nav a .admin-tag {
+    margin-left: auto;
+    font-size: 9px;
+    background: rgba(255,201,60,0.2);
+    color: var(--yellow);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+    padding-left: 8px;
+  }
+
+  .avatar-sm {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--green-600);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer .info { flex: 1; min-width: 0; }
+  .sidebar-footer .info small { display: block; color: rgba(255,255,255,0.5); font-size: 11px; }
+  .sidebar-footer .info strong {
+    font-size: 13px; font-weight: 600;
+    display: block;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .btn-logout {
+    background: rgba(255,255,255,0.1);
+    border: none; color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer; font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-logout:hover { background: var(--danger); }
+
+  /* ============ MAIN ============ */
+  .main {
+    margin-left: 264px;
+    flex: 1;
+    padding: 28px 32px 100px;
+    width: calc(100% - 264px);
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+  }
+
+  .topbar h2 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .topbar h2 span {
+    color: var(--text-soft);
+    font-size: 13.5px; font-weight: 400;
+    display: block; margin-top: 4px;
+  }
+
+  .topbar-actions {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 11px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(46,139,87,0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46,139,87,0.4);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    color: var(--green-900);
+    box-shadow: 0 4px 12px rgba(255,201,60,0.35);
+  }
+
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,201,60,0.45);
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--bg); }
+
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* ============ INFO BANNER (NR-6 / ISO) ============ */
+  .info-banner {
+    background: linear-gradient(135deg, rgba(46,139,87,0.08), rgba(255,201,60,0.08));
+    border-left: 4px solid var(--green-600);
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 12.5px;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .info-banner strong { color: var(--green-700); }
+
+  /* ============ ORGANOGRAMA ============ */
+  .org-chart-wrapper {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 30px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .org-chart {
+    min-width: 1100px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    padding: 20px;
+    position: relative;
+    background-image: radial-gradient(circle at 50% 50%, rgba(46,139,87,0.06) 0%, transparent 60%);
+  }
+
+  .org-side { position: relative; }
+
+  .org-side-title {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    background: #fff;
+    border: 2px solid var(--text);
+    border-radius: 30px;
+    padding: 8px 20px;
+    display: inline-block;
+    margin: 0 auto 24px;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  .org-side-title small {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--text-soft);
+    margin-top: 2px;
+  }
+
+  /* ============ MEMBER CARD ============ */
+  .member-card {
+    background: #fff;
+    border: 2px solid var(--text);
+    border-radius: 8px;
+    padding: 8px;
+    width: 140px;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    position: relative;
+    cursor: pointer;
+    margin: 0 auto;
+  }
+
+  .member-card.editable:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--green-600);
+  }
+
+  .member-card.vago {
+    opacity: 0.45;
+    border-style: dashed;
+    cursor: default;
+  }
+
+  .member-card.vago:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--text);
+  }
+
+  .member-photo {
+    width: 110px; height: 110px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: #e8ecf1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green-700);
+    overflow: hidden;
+  }
+
+  .member-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .member-name {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .member-role {
+    font-size: 10px;
+    color: var(--text-soft);
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .member-actions {
+    position: absolute;
+    top: -8px; right: -8px;
+    display: none;
+    gap: 4px;
+    z-index: 5;
+  }
+
+  .member-card.editable:hover .member-actions { display: flex; }
+
+  .member-action-btn {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .member-action-btn.delete { background: var(--danger); }
+  .member-action-btn.edit { background: var(--green-600); }
+
+  /* ============ LABELS E CONECTORES ============ */
+  .label-box {
+    background: #fff;
+    border: 2px solid var(--text);
+    border-radius: 30px;
+    padding: 6px 22px;
+    font-size: 12.5px;
+    font-weight: 700;
+    text-align: center;
+    display: inline-block;
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+  }
+
+  .label-box.center {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: table;
+  }
+
+  .side-left, .side-right {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 18px;
+  }
+
+  .top-block, .presidente-block, .secretario-block {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 12px;
+  }
+
+  .titulares-row, .suplentes-row, .presidente-row {
+    display: flex; gap: 12px; justify-content: center;
+    flex-wrap: nowrap;
+  }
+
+  .connector-vertical {
+    width: 2px; height: 20px;
+    background: var(--text);
+    margin: 0 auto;
+  }
+
+  .gestao-badge {
+    text-align: center;
+    margin-top: 30px;
+    padding: 14px;
+    background: #fff;
+    border: 2px solid var(--text);
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  /* ============ MODAL ============ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15,23,42,0.5);
+    backdrop-filter: blur(4px);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 540px;
+    box-shadow: var(--shadow-lg);
+    animation: slideUp 0.3s ease;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0;
+    background: #fff; z-index: 2;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  .modal-header h3 { font-size: 17px; font-weight: 700; }
+
+  .close-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-soft);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .close-btn:hover { background: #e8ecf1; color: var(--text); }
+
+  .modal-body { padding: 24px; }
+
+  .form-group { margin-bottom: 18px; }
+
+  .form-group label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 7px;
+  }
+
+  .form-group label span { color: var(--danger); }
+
+  .form-control {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: var(--text);
+    background: #fff;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .form-control:focus {
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 3px rgba(46,139,87,0.1);
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .photo-upload {
+    display: flex; align-items: center; gap: 16px;
+    padding: 14px;
+    background: var(--bg);
+    border-radius: 12px;
+    border: 2px dashed var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .photo-upload:hover {
+    border-color: var(--green-600);
+    background: rgba(46,139,87,0.04);
+  }
+
+  .photo-preview {
+    width: 70px; height: 70px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    color: var(--text-soft);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  .photo-upload .text { font-size: 12.5px; color: var(--text-soft); line-height: 1.4; }
+  .photo-upload .text strong { color: var(--text); display: block; margin-bottom: 2px; }
+
+  .modal-footer {
+    padding: 18px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+    background: #fafbfc;
+    border-radius: 0 0 var(--radius) var(--radius);
+    position: sticky; bottom: 0;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(46,139,87,0.3);
+  }
+
+  .btn-save:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(46,139,87,0.4);
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--green-900);
+    color: #fff;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    z-index: 300;
+    transition: transform 0.3s;
+    max-width: 90vw;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+
+  /* ============ RESPONSIVO ============ */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
+    .topbar h2 { font-size: 20px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-lg"></div>
+  <p style="font-weight:600;">Carregando membros...</p>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">C</div>
+    <div class="brand-text">
+      <h1>CIPA Ativa</h1>
+      <span>Segurança do Trabalho</span>
+    </div>
+  </div>
+
+  <div class="nav-label">Principal</div>
+  <nav>
+    <a onclick="irPara('dashboard')"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="irPara('inspecoes')"><span class="icon">🔍</span> Inspeções</a>
+    <a onclick="irPara('checklists')"><span class="icon">📋</span> Checklists</a>
+    <a onclick="irPara('nao-conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+  </nav>
+
+  <div class="nav-label">Gestão</div>
+  <nav>
+    <a onclick="irPara('calendario')"><span class="icon">📅</span> Calendário</a>
+    <a onclick="irPara('relatorios')"><span class="icon">📈</span> Relatórios</a>
+    <a class="active">
+      <span class="icon">👥</span> Membros
+      <span class="admin-tag" id="tagAdmin" style="display:none;">ADMIN</span>
+    </a>
+    <a onclick="irPara('biblioteca')"><span class="icon">📚</span> Biblioteca</a>
+    <a onclick="irPara('configuracoes')"><span class="icon">⚙️</span> Configurações</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="avatar-sm" id="userAvatar">?</div>
+    <div class="info">
+      <strong id="userName">—</strong>
+      <small id="userRole">—</small>
+    </div>
+    <button class="btn-logout" onclick="fazerLogout()" title="Sair">🚪</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <h2>Membros da CIPA
+      <span>Organograma oficial da gestão <span id="gestaoAno">2024/2025</span></span>
+    </h2>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" onclick="baixarOrganograma()">
+        📸 Baixar Organograma
+      </button>
+      <button class="btn btn-gold" id="btnCadastrar" onclick="abrirModal()" style="display:none;">
+        ➕ Cadastrar Membro
+      </button>
+    </div>
+  </div>
+
+  <!-- BANNER NR-6 / ISO -->
+  <div class="info-banner">
+        <span style="font-size:20px;">📋</span>
+    <div>
+      <strong>Conformidade NR-6 e ISO 14001</strong> — Este organograma é um documento oficial da CIPA.
+      Mantenha os dados sempre atualizados para auditorias e fiscalizações.
+    </div>
+  </div>
+
+  <!-- ORGANOGRAMA -->
+  <div class="org-chart-wrapper">
+    <div class="org-chart" id="orgChart">
+
+      <!-- LADO ESQUERDO -->
+      <div class="org-side side-left">
+        <div class="org-side-title">
+          Representantes do Empregador
+          <small>(Eleitos)</small>
+        </div>
+
+        <div class="top-block">
+          <div class="label-box">Vice-Presidente</div>
+          <div id="slot-vice-presidente"></div>
+        </div>
+
+        <div class="connector-vertical"></div>
+        <div class="label-box center">Titulares</div>
+        <div class="titulares-row" id="slot-titulares"></div>
+
+        <div class="connector-vertical"></div>
+        <div class="label-box center">Suplentes</div>
+        <div class="suplentes-row" id="slot-suplentes"></div>
+      </div>
+
+      <!-- LADO DIREITO -->
+      <div class="org-side side-right">
+        <div class="org-side-title">
+          Representantes do Empregador
+          <small>(Designados)</small>
+        </div>
+
+        <div class="presidente-block">
+          <div class="label-box center">Presidente</div>
+          <div class="presidente-row">
+            <div id="slot-presidente"></div>
+            <div id="slot-suplente-presidente"></div>
+          </div>
+        </div>
+
+        <div class="connector-vertical"></div>
+
+        <div class="secretario-block">
+          <div class="label-box center">Secretário(a)</div>
+          <div class="presidente-row">
+            <div id="slot-secretario"></div>
+            <div id="slot-suplente-secretario"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="gestao-badge" id="gestaoBadge">CIPA ATIVA — GESTÃO 2024/2025</div>
+  </div>
+
+</main>
+
+<!-- MODAL CADASTRO -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Cadastrar Membro</h3>
+      <button class="close-btn" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Foto do Membro</label>
+        <label class="photo-upload" for="photoInput">
+          <div class="photo-preview" id="photoPreview">📷</div>
+          <div class="text">
+            <strong>Clique para enviar uma foto</strong>
+            JPG ou PNG • até 2MB
+          </div>
+        </label>
+        <input type="file" id="photoInput" accept="image/*" hidden onchange="previewFoto(event)">
+      </div>
+
+      <div class="form-group">
+        <label>Nome Completo <span>*</span></label>
+        <input type="text" class="form-control" id="nome" placeholder="Ex: João da Silva">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Cargo na CIPA <span>*</span></label>
+          <select class="form-control" id="cargo">
+            <option value="">Selecione...</option>
+            <option value="presidente">Presidente</option>
+            <option value="vice-presidente">Vice-Presidente</option>
+            <option value="secretario">Secretário(a)</option>
+            <option value="titular">Titular</option>
+            <option value="suplente">Suplente</option>
+            <option value="suplente-presidente">Suplente do Presidente</option>
+            <option value="suplente-secretario">Suplente do Secretário</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Setor</label>
+          <input type="text" class="form-control" id="setor" placeholder="Ex: Produção">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Matrícula / Contato</label>
+        <input type="text" class="form-control" id="contato" placeholder="Ex: 12345 / (11) 99999-9999">
+      </div>
+
+      <input type="hidden" id="editingId">
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-save" id="btnSalvar" onclick="salvarMembro()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================== -->
+<!-- SUPABASE                                        -->
+<!-- ============================================== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<script>
+  // ============ ESTADO ============
+  let usuario = null;
+  let membros = [];
+  let arquivoFoto = null;
+  let fotoAtualUrl = null;
+
+  // ============ TOAST ============
+  let toastTimer;
+  function mostrarToast(msg, erro = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', erro);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  // ============ NAVEGAÇÃO ============
+  function irPara(pagina) {
+    if (pagina === 'dashboard') window.location.href = 'dashboard.html';
+    else mostrarToast(`🚧 "${pagina}" em construção!`);
+  }
+
+  // ============ PROTEÇÃO E PERFIL ============
+  async function verificarLogin() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      window.location.href = 'index.html';
+      return false;
+    }
+
+    const { data: perfil } = await db
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    usuario = {
+      id: session.user.id,
+      email: session.user.email,
+      nome: perfil?.full_name?.split('@')[0] || session.user.email.split('@')[0],
+      role: perfil?.role || 'member'
+    };
+
+    return true;
+  }
+
+  function aplicarUsuario() {
+    const iniciais = usuario.nome
+      .split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+
+    document.getElementById('userAvatar').textContent = iniciais || '?';
+    document.getElementById('userName').textContent =
+      usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
+    document.getElementById('userRole').textContent =
+      usuario.role === 'admin' ? '🔑 Administrador' : '👷 Membro CIPA';
+
+    // Só admin vê botão de cadastrar
+    if (usuario.role === 'admin') {
+      document.getElementById('btnCadastrar').style.display = 'inline-flex';
+      document.getElementById('tagAdmin').style.display = 'inline-block';
+    }
+  }
+
+  function isAdmin() { return usuario?.role === 'admin'; }
+
+  // ============ LOGOUT ============
+  async function fazerLogout() {
+    if (!confirm('Deseja sair do sistema?')) return;
+    await db.auth.signOut();
+    sessionStorage.removeItem('cipa_user');
+    window.location.href = 'index.html';
+  }
+
+  // ============ CARREGAR MEMBROS ============
+  async function carregarMembros() {
+    const { data, error } = await db
+      .from('members')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Erro ao carregar:', error);
+      mostrarToast('❌ Erro ao carregar membros', true);
+      return;
+    }
+
+    membros = data || [];
+    renderizarOrganograma();
+  }
+
+  // ============ RENDERIZAR ============
+  function renderizarOrganograma() {
+    // Limpa todos os slots
+    ['slot-presidente','slot-vice-presidente','slot-secretario',
+     'slot-suplente-presidente','slot-suplente-secretario',
+     'slot-titulares','slot-suplentes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
+
+    // Distribui cada membro
+    membros.forEach(m => {
+      const slotId = {
+        'presidente':           'slot-presidente',
+        'vice-presidente':      'slot-vice-presidente',
+        'secretario':           'slot-secretario',
+        'suplente-presidente':  'slot-suplente-presidente',
+        'suplente-secretario':  'slot-suplente-secretario',
+        'titular':              'slot-titulares',
+        'suplente':             'slot-suplentes'
+      }[m.role];
+
+      const container = document.getElementById(slotId);
+      if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
+    });
+
+    // Placeholders
+    const placeholders = {
+      'slot-presidente':          'Presidente',
+      'slot-vice-presidente':     'Vice-Presidente',
+      'slot-secretario':          'Secretário(a)',
+      'slot-suplente-presidente': 'Suplente',
+      'slot-suplente-secretario': 'Suplente',
+      'slot-titulares':           'Titular',
+      'slot-suplentes':           'Suplente'
+    };
+
+    Object.entries(placeholders).forEach(([id, label]) => {
+      const el = document.getElementById(id);
+      if (el && el.innerHTML.trim() === '') {
+        el.innerHTML = `<div class="member-card vago">
+          <div class="member-photo">👤</div>
+          <div class="member-name">${label}</div>
+          <div class="member-role">Vago</div>
+        </div>`;
+      }
+    });
+  }
+
+  function cardMembroHTML(m) {
+    const foto = m.photo_url
+      ? `<img src="${m.photo_url}" alt="${m.name}" onerror="this.parentElement.textContent='${iniciais(m.name)}'">`
+      : iniciais(m.name);
+
+    const nome = m.name.length > 18 ? m.name.substring(0, 16) + '…' : m.name;
+    const editavel = isAdmin() ? 'editable' : '';
+
+    return `
+      <div class="member-card ${editavel}" ${isAdmin() ? `onclick="editarMembro('${m.id}')"` : ''}>
+        ${isAdmin() ? `
+          <div class="member-actions">
+            <button class="member-action-btn delete" title="Excluir"
+              onclick="event.stopPropagation(); excluirMembro('${m.id}', '${m.name.replace(/'/g, "\\'")}')">✕</button>
+          </div>
+        ` : ''}
+        <div class="member-photo">${foto}</div>
+        <div class="member-name">${nome}</div>
+        <div class="member-role">${m.sector || ''}</div>
+      </div>
+    `;
+  }
+
+  function iniciais(nome) {
+    return nome.split(' ').filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+  }
+
+  // ============ MODAL ============
+  function abrirModal(membro = null) {
+    if (!isAdmin()) {
+      mostrarToast('⛔ Apenas administradores podem cadastrar membros.', true);
+      return;
+    }
+
+    arquivoFoto = null;
+    fotoAtualUrl = membro?.photo_url || null;
+
+    document.getElementById('modalTitle').textContent =
+      membro ? 'Editar Membro' : 'Cadastrar Membro';
+    document.getElementById('nome').value      = membro?.name || '';
+    document.getElementById('cargo').value     = membro?.role || '';
+    document.getElementById('setor').value     = membro?.sector || '';
+    document.getElementById('contato').value   = membro?.contact || '';
+    document.getElementById('editingId').value = membro?.id || '';
+
+    const preview = document.getElementById('photoPreview');
+    if (membro?.photo_url) {
+      preview.innerHTML = `<img src="${membro.photo_url}">`;
+    } else {
+      preview.innerHTML = '📷';
+    }
+
+    document.getElementById('photoInput').value = '';
+    document.getElementById('modal').classList.add('open');
+  }
+
+  function fecharModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function previewFoto(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      mostrarToast('⚠️ Imagem muito grande (máx 2MB)', true);
+      return;
+    }
+    arquivoFoto = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      document.getElementById('photoPreview').innerHTML =
+        `<img src="${ev.target.result}">`;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ============ UPLOAD ============
+  async function uploadFoto(file) {
+    const ext = file.name.split('.').pop().toLowerCase();
+    const nomeArquivo = `membro-${Date.now()}-${Math.random().toString(36).substring(2,8)}.${ext}`;
+
+    const { error } = await db.storage
+      .from('cipa-photos')
+      .upload(nomeArquivo, file, { upsert: false });
+
+    if (error) throw new Error('Falha ao enviar foto: ' + error.message);
+
+    const { data } = db.storage.from('cipa-photos').getPublicUrl(nomeArquivo);
+    return data.publicUrl;
+  }
+
+  // ============ SALVAR ============
+  async function salvarMembro() {
+    if (!isAdmin()) {
+      mostrarToast('⛔ Apenas administradores podem editar.', true);
+      return;
+    }
+
+    const nome    = document.getElementById('nome').value.trim();
+    const cargo   = document.getElementById('cargo').value;
+    const setor   = document.getElementById('setor').value.trim();
+    const contato = document.getElementById('contato').value.trim();
+    const id      = document.getElementById('editingId').value;
+
+    if (!nome || !cargo) {
+      mostrarToast('⚠️ Preencha nome e cargo!', true);
+      return;
+    }
+
+    // Valida cargos únicos
+    const cargosUnicos = ['presidente','vice-presidente','secretario',
+                          'suplente-presidente','suplente-secretario'];
+    if (cargosUnicos.includes(cargo)) {
+      const conflito = membros.find(m => m.role === cargo && m.id !== id);
+      if (conflito) {
+        mostrarToast(`⚠️ Já existe um ${cargo.replace('-', ' ')}!`, true);
+        return;
+      }
+    }
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando...';
+
+    try {
+      let photoUrl = fotoAtualUrl;
+      if (arquivoFoto) {
+        photoUrl = await uploadFoto(arquivoFoto);
+      }
+
+      const dados = {
+        name: nome,
+        role: cargo,
+        sector: setor,
+        contact: contato,
+        photo_url: photoUrl,
+        updated_at: new Date().toISOString()
+      };
+
+      let error;
+      if (id) {
+        ({ error } = await db.from('members').update(dados).eq('id', id));
+      } else {
+        ({ error } = await db.from('members').insert([dados]));
+      }
+
+      if (error) throw error;
+
+      fecharModal();
+      mostrarToast(id ? '✅ Membro atualizado!' : '✅ Membro cadastrado!');
+      await carregarMembros();
+
+    } catch (err) {
+      console.error('Erro:', err);
+      mostrarToast('❌ ' + (err.message || 'Erro ao salvar'), true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Salvar';
+    }
+  }
+
+  // ============ EDITAR / EXCLUIR ============
+  function editarMembro(id) {
+    if (!isAdmin()) return;
+    const m = membros.find(x => x.id === id);
+    if (m) abrirModal(m);
+  }
+
+  async function excluirMembro(id, nome) {
+    if (!isAdmin()) {
+      mostrarToast('⛔ Apenas administradores podem excluir.', true);
+      return;
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return;
+
+    const { error } = await db.from('members').delete().eq('id', id);
+
+    if (error) {
+      mostrarToast('❌ ' + error.message, true);
+      return;
+    }
+
+    mostrarToast('🗑️ Membro removido.');
+    await carregarMembros();
+  }
+
+  // ============ DOWNLOAD ============
+  function baixarOrganograma() {
+    const el = document.getElementById('orgChart');
+    mostrarToast('📸 Gerando imagem...');
+
+    html2canvas(el, {
+      backgroundColor: '#ffffff',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `organograma-cipa-${new Date().toISOString().slice(0,10)}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      mostrarToast('✅ Download concluído!');
+    }).catch(err => {
+      console.error(err);
+      mostrarToast('❌ Erro ao gerar imagem.', true);
+    });
+  }
+
+  // ============ INICIALIZAÇÃO ============
+  (async function init() {
+    const logado = await verificarLogin();
+    if (!logado) return;
+
+    aplicarUsuario();
+    await carregarMembros();
+
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }, 400);
+
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target.id === 'modal') fecharModal();
+    });
+
+    console.log('✅ Membros carregados. Usuário:', usuario);
+  })();
+</script>
+
+</body>
+</html>
