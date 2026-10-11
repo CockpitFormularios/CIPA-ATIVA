@@ -3,370 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIPA Ativa — Membros</title>
+<title>Login | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦺</text></svg>">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
 
-  :root {
-    --green-900: #0d2818;
-    --green-700: #1e5f3f;
-    --green-600: #2e8b57;
-    --green-500: #3fb878;
-    --yellow: #ffc93c;
-    --yellow-dark: #e8b324;
-    --bg: #f5f7fa;
-    --card: #ffffff;
-    --text: #0f172a;
-    --text-soft: #64748b;
-    --border: #e8ecf1;
-    --danger: #ef4444;
-    --success: #10b981;
-    --shadow-sm: 0 1px 2px rgba(15,23,42,0.04);
-    --shadow-md: 0 4px 16px rgba(15,23,42,0.06);
-    --shadow-lg: 0 12px 32px rgba(15,23,42,0.10);
-    --radius: 16px;
-  }
-
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: linear-gradient(135deg, #0d2818 0%, #143d28 50%, #1e5f3f 100%);
     min-height: 100vh;
-    font-size: 14px;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ===== HEADER ===== */
-  .header {
-    background: var(--green-900);
-    color: #fff;
-    padding: 16px 32px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: var(--shadow-md);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-
-  .header .brand { display: flex; align-items: center; gap: 12px; }
-
-  .header .brand-icon {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 20px; color: var(--green-900);
-  }
-
-  .header h1 { font-size: 17px; font-weight: 700; }
-  .header h1 span {
-    display: block; font-size: 11px; font-weight: 500;
-    color: var(--yellow); letter-spacing: 0.3px;
-  }
-
-  .header .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-
-  .btn {
-    padding: 10px 18px;
-    border-radius: 10px;
-    border: none;
-    font-weight: 600;
-    font-size: 13px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.2s;
-    font-family: inherit;
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    color: var(--green-900);
-    box-shadow: 0 4px 12px rgba(255,201,60,0.3);
-  }
-
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(255,201,60,0.4);
-  }
-
-  .btn-outline {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.15);
-  }
-
-  .btn-outline:hover { background: rgba(255,255,255,0.18); }
-
-  /* ===== STATUS DE CONEXÃO ===== */
-  .connection-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11.5px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.1);
-    font-weight: 600;
-  }
-
-  .connection-status .dot-status {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #94a3b8;
-    animation: pulse 1.5s infinite;
-  }
-
-  .connection-status.online .dot-status { background: var(--success); animation: none; }
-  .connection-status.offline .dot-status { background: var(--danger); animation: none; }
-
-  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:.4;} }
-
-  /* ===== CONTAINER ===== */
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 28px 24px 80px;
-  }
-
-  .page-title { margin-bottom: 24px; }
-  .page-title h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
-  .page-title p { color: var(--text-soft); font-size: 13.5px; margin-top: 4px; }
-
-  /* ===== LOADING ===== */
-  .loading {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-soft);
-  }
-
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--border);
-    border-top-color: var(--green-600);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ===== ORGANOGRAMA ===== */
-  .org-chart-wrapper {
-    background: #fff;
-    border-radius: var(--radius);
-    padding: 30px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
-    overflow-x: auto;
-    margin-bottom: 24px;
-    position: relative;
-  }
-
-  .org-chart {
-    min-width: 1100px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
-    padding: 20px;
-    position: relative;
-    background-image: radial-gradient(circle at 50% 50%, rgba(46,139,87,0.06) 0%, transparent 60%);
-  }
-
-  .org-side { position: relative; }
-
-  .org-side-title {
-    text-align: center;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-    background: #fff;
-    border: 2px solid var(--text);
-    border-radius: 30px;
-    padding: 8px 20px;
-    display: inline-block;
-    margin: 0 auto 24px;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-  }
-
-  .org-side-title small {
-    display: block;
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--text-soft);
-    margin-top: 2px;
-  }
-
-  .member-card {
-    background: #fff;
-    border: 2px solid var(--text);
-    border-radius: 8px;
-    padding: 8px;
-    width: 140px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s;
-    position: relative;
-    cursor: pointer;
-    margin: 0 auto;
-  }
-
-  .member-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--green-600);
-  }
-
-  .member-photo {
-    width: 110px;
-    height: 110px;
-    border-radius: 6px;
-    object-fit: cover;
-    background: #e8ecf1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--green-700);
+    padding: 20px;
+    position: relative;
     overflow: hidden;
   }
 
-  .member-photo img { width: 100%; height: 100%; object-fit: cover; }
-
-  .member-name {
-    font-size: 11px;
-    font-weight: 600;
-    text-align: center;
-    color: var(--text);
-    line-height: 1.2;
+  /* Efeitos decorativos de fundo */
+  body::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(255,201,60,0.08) 0%, transparent 70%);
+    top: -200px; right: -200px;
+    border-radius: 50%;
   }
 
-  .member-role {
-    font-size: 10px;
-    color: var(--text-soft);
-    font-weight: 500;
+  body::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(63,184,120,0.1) 0%, transparent 70%);
+    bottom: -150px; left: -150px;
+    border-radius: 50%;
   }
 
-  .label-box {
-    background: #fff;
-    border: 2px solid var(--text);
-    border-radius: 30px;
-    padding: 6px 22px;
-    font-size: 12.5px;
-    font-weight: 700;
-    text-align: center;
-    color: var(--text);
-    display: inline-block;
-    white-space: nowrap;
+  .login-container {
+    width: 100%;
+    max-width: 420px;
     position: relative;
     z-index: 2;
+    animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .label-box.center {
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 24px;
+    padding: 40px 32px;
+    box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5);
+    backdrop-filter: blur(20px);
+  }
+
+  .login-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .logo-icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #1e5f3f, #2e8b57);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 800;
+    color: #ffc93c;
+    box-shadow: 0 10px 30px rgba(30, 95, 63, 0.3);
     position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-    display: table;
   }
 
-  .side-left, .side-right {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 18px;
+  .logo-icon::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #ffc93c, #e8b324);
+    z-index: -1;
+    opacity: 0.5;
   }
 
-  .top-block, .presidente-block, .secretario-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
+  .login-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #0d2818;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
   }
 
-  .titulares-row, .suplentes-row, .presidente-row {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    flex-wrap: nowrap;
+  .login-header p {
+    font-size: 13.5px;
+    color: #64748b;
+    font-weight: 500;
   }
-
-  .connector-vertical {
-    width: 2px; height: 20px;
-    background: var(--text);
-    margin: 0 auto;
-  }
-
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.5);
-    backdrop-filter: blur(4px);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 200;
-    padding: 20px;
-    overflow-y: auto;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: #fff;
-    border-radius: var(--radius);
-    width: 100%;
-    max-width: 540px;
-    box-shadow: var(--shadow-lg);
-    animation: slideUp 0.3s ease;
-    max-height: 92vh;
-    overflow-y: auto;
-  }
-
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky; top: 0;
-    background: #fff; z-index: 2;
-    border-radius: var(--radius) var(--radius) 0 0;
-  }
-
-  .modal-header h3 { font-size: 17px; font-weight: 700; }
-
-  .close-btn {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    border: none;
-    background: var(--bg);
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--text-soft);
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .close-btn:hover { background: #e8ecf1; color: var(--text); }
-
-  .modal-body { padding: 24px; }
 
   .form-group { margin-bottom: 18px; }
 
@@ -374,644 +110,316 @@
     display: block;
     font-size: 12.5px;
     font-weight: 600;
-    color: var(--text);
-    margin-bottom: 7px;
+    color: #0f172a;
+    margin-bottom: 8px;
   }
 
-  .form-group label span { color: var(--danger); }
+  .input-wrapper { position: relative; }
 
-  .form-control {
+  .input-wrapper input {
     width: 100%;
-    padding: 11px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 13.5px;
+    padding: 14px 16px 14px 44px;
+    font-size: 14px;
     font-family: inherit;
-    color: var(--text);
-    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
     outline: none;
     transition: all 0.2s;
+    background: #fafbfc;
+    color: #0f172a;
   }
 
-  .form-control:focus {
-    border-color: var(--green-600);
-    box-shadow: 0 0 0 3px rgba(46,139,87,0.1);
+  .input-wrapper input:focus {
+    border-color: #2e8b57;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.1);
   }
 
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .input-wrapper .icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: #94a3b8;
+    pointer-events: none;
+  }
 
-  .photo-upload {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px;
-    background: var(--bg);
-    border-radius: 12px;
-    border: 2px dashed var(--border);
+  .toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
     cursor: pointer;
+    font-size: 16px;
+    color: #94a3b8;
+    padding: 4px 8px;
+    border-radius: 6px;
     transition: all 0.2s;
   }
 
-  .photo-upload:hover {
-    border-color: var(--green-600);
-    background: rgba(46,139,87,0.04);
-  }
+  .toggle-password:hover { background: #f1f5f9; color: #0f172a; }
 
-  .photo-preview {
-    width: 70px; height: 70px;
-    border-radius: 10px;
-    background: #fff;
-    border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 24px;
-    color: var(--text-soft);
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-
-  .photo-upload .text { font-size: 12.5px; color: var(--text-soft); line-height: 1.4; }
-  .photo-upload .text strong { color: var(--text); display: block; margin-bottom: 2px; }
-
-  .modal-footer {
-    padding: 18px 24px;
-    border-top: 1px solid var(--border);
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    color: #0d2818;
+    background: linear-gradient(135deg, #ffc93c, #e8b324);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s;
+    box-shadow: 0 6px 20px rgba(255, 201, 60, 0.35);
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    background: #fafbfc;
-    border-radius: 0 0 var(--radius) var(--radius);
-    position: sticky; bottom: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
   }
 
-  .btn-secondary {
-    background: #fff;
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  .btn-secondary:hover { background: var(--bg); }
-
-  .btn-save {
-    background: linear-gradient(135deg, var(--green-600), var(--green-700));
-    color: #fff;
-    box-shadow: 0 4px 12px rgba(46,139,87,0.3);
-  }
-
-  .btn-save:hover {
+  .btn-login:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(46,139,87,0.4);
+    box-shadow: 0 10px 28px rgba(255, 201, 60, 0.5);
   }
 
-  .btn-save:disabled {
-    opacity: 0.6;
+  .btn-login:active:not(:disabled) { transform: translateY(0); }
+
+  .btn-login:disabled {
+    opacity: 0.7;
     cursor: not-allowed;
     transform: none;
   }
 
-  .member-actions {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    display: none;
-    gap: 4px;
-    z-index: 5;
-  }
-
-  .member-card:hover .member-actions { display: flex; }
-
-  .member-action-btn {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    border: none;
-    background: var(--danger);
-    color: #fff;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
-
-  .gestao-badge {
-    text-align: center;
-    margin-top: 30px;
-    padding: 14px;
-    background: #fff;
-    border: 2px solid var(--text);
-    border-radius: 30px;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 0.5px;
-    display: inline-block;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  /* ===== TOAST ===== */
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--green-900);
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 12px;
-    font-size: 13.5px;
+  .message {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 600;
-    box-shadow: var(--shadow-lg);
-    z-index: 300;
-    transition: transform 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 90vw;
+    text-align: center;
+    margin-top: 16px;
+    display: none;
+    animation: shake 0.4s;
   }
 
-  .toast.show { transform: translateX(-50%) translateY(0); }
-  .toast.error { background: var(--danger); }
+  .message.show { display: block; }
 
-  @media (max-width: 768px) {
-    .header { padding: 14px 16px; }
-    .container { padding: 20px 14px 60px; }
-    .header h1 { font-size: 15px; }
-    .btn { padding: 9px 14px; font-size: 12px; }
-    .form-row { grid-template-columns: 1fr; }
+  .message.error {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
   }
+
+  .message.success {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+
+  .message.info {
+    background: #e0f2fe;
+    color: #075985;
+    border: 1px solid #bae6fd;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 11.5px;
+    color: #94a3b8;
+  }
+
+  .footer-note strong { color: #2e8b57; }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(13, 40, 24, 0.3);
+    border-top-color: #0d2818;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="brand">
-    <div class="brand-icon">C</div>
-    <h1>CIPA Ativa<span>Gestão de Membros</span></h1>
-  </div>
-  <div class="actions">
-    <div class="connection-status" id="connectionStatus">
-      <span class="dot-status"></span>
-      <span id="statusText">Conectando...</span>
-    </div>
-    <button class="btn btn-outline" onclick="baixarOrganograma()">⬇️ Baixar</button>
-    <button class="btn btn-primary" onclick="abrirModal()">➕ Cadastrar</button>
-  </div>
-</header>
+<div class="login-container">
+  <div class="login-card">
 
-<!-- CONTAINER -->
-<div class="container">
-
-  <div class="page-title">
-    <h2>Membros da CIPA</h2>
-    <p>Dados sincronizados em tempo real com o Supabase ☁️</p>
-  </div>
-
-  <!-- LOADING -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    Carregando membros...
-  </div>
-
-  <!-- ORGANOGRAMA -->
-  <div class="org-chart-wrapper" id="orgWrapper" style="display:none;">
-    <div class="org-chart" id="orgChart">
-
-      <div class="org-side side-left">
-        <div class="org-side-title">
-          Representantes do Empregador
-          <small>(Eleitos)</small>
-        </div>
-
-        <div class="top-block">
-          <div class="label-box">Vice-Presidente</div>
-          <div id="slot-vice-presidente"></div>
-        </div>
-
-        <div class="connector-vertical"></div>
-        <div class="label-box center">Titulares</div>
-        <div class="titulares-row" id="slot-titulares"></div>
-
-        <div class="connector-vertical"></div>
-        <div class="label-box center">Suplentes</div>
-        <div class="suplentes-row" id="slot-suplentes"></div>
-      </div>
-
-      <div class="org-side side-right">
-        <div class="org-side-title">
-          Representantes do Empregador
-          <small>(Designados)</small>
-        </div>
-
-        <div class="presidente-block">
-          <div class="label-box center">Presidente</div>
-          <div class="presidente-row">
-            <div id="slot-presidente"></div>
-            <div id="slot-suplente-presidente"></div>
-          </div>
-        </div>
-
-        <div class="connector-vertical"></div>
-
-        <div class="secretario-block">
-          <div class="label-box center">Secretário(a)</div>
-          <div class="presidente-row">
-            <div id="slot-secretario"></div>
-            <div id="slot-suplente-secretario"></div>
-          </div>
-        </div>
-      </div>
-
+    <div class="login-header">
+      <div class="logo-icon">C</div>
+      <h1>CIPA Ativa</h1>
+      <p>Comissão Interna de Prevenção de Acidentes</p>
     </div>
 
-    <div class="gestao-badge">CIPAMIN — GESTÃO 2024/2025</div>
-  </div>
-
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <div class="modal-header">
-      <h3 id="modalTitle">Cadastrar Cipeiro</h3>
-      <button class="close-btn" onclick="fecharModal()">✕</button>
-    </div>
-    <div class="modal-body">
-
+    <form id="loginForm">
       <div class="form-group">
-        <label>Foto do Membro</label>
-        <label class="photo-upload" for="photoInput">
-          <div class="photo-preview" id="photoPreview">📷</div>
-          <div class="text">
-            <strong>Clique para enviar uma foto</strong>
-            JPG ou PNG • até 2MB
-          </div>
-        </label>
-        <input type="file" id="photoInput" accept="image/*" hidden onchange="previewFoto(event)">
-      </div>
-
-      <div class="form-group">
-        <label>Nome Completo <span>*</span></label>
-        <input type="text" class="form-control" id="nome" placeholder="Ex: João da Silva">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label>Cargo/Função <span>*</span></label>
-          <select class="form-control" id="cargo">
-            <option value="">Selecione...</option>
-            <option value="presidente">Presidente</option>
-            <option value="vice-presidente">Vice-Presidente</option>
-            <option value="secretario">Secretário(a)</option>
-            <option value="titular">Titular</option>
-            <option value="suplente">Suplente</option>
-            <option value="suplente-presidente">Suplente do Presidente</option>
-            <option value="suplente-secretario">Suplente do Secretário</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Setor</label>
-          <input type="text" class="form-control" id="setor" placeholder="Ex: Produção">
+        <label for="email">E-mail</label>
+        <div class="input-wrapper">
+          <span class="icon">📧</span>
+          <input type="email" id="email" placeholder="seu@cipaativa.com" required autocomplete="email">
         </div>
       </div>
 
       <div class="form-group">
-        <label>Matrícula / Contato</label>
-        <input type="text" class="form-control" id="contato" placeholder="Ex: 12345 / (11) 99999-9999">
+        <label for="password">Senha</label>
+        <div class="input-wrapper">
+          <span class="icon">🔒</span>
+          <input type="password" id="password" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="toggle-password" onclick="toggleSenha()" title="Mostrar/ocultar senha">👁️</button>
+        </div>
       </div>
 
-      <input type="hidden" id="editingId">
+      <button type="submit" class="btn-login" id="btnLogin">
+        <span id="btnText">ENTRAR</span>
+      </button>
 
+      <div class="message" id="message"></div>
+    </form>
+
+    <div class="footer-note">
+      Sistema de gestão da <strong>CIPA</strong> • Uso restrito
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-save" id="btnSalvar" onclick="salvarMembro()">💾 Salvar</button>
-    </div>
+
   </div>
 </div>
-
-<!-- TOAST -->
-<div class="toast" id="toast">✅ Membro salvo!</div>
 
 <!-- ============================================== -->
-<!-- SUPABASE CLIENT                                 -->
+<!-- CLIENTE SUPABASE                                -->
 <!-- ============================================== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // 🔑 CONFIGURAÇÃO DO SUPABASE
   const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
-
   const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 </script>
 
 <script>
-  // ============ ESTADO ============
-  let membros = [];
-  let fotoAtual = null;    // Base64 da foto sendo editada
-  let arquivoFoto = null;  // File object para upload
+  // ============ ELEMENTOS ============
+  const form = document.getElementById('loginForm');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const messageEl = document.getElementById('message');
+  const btnLogin = document.getElementById('btnLogin');
+  const btnText = document.getElementById('btnText');
 
-  const GESTAO = 'CIPAMIN — GESTÃO 2024/2025';
-
-  // ============ STATUS DE CONEXÃO ============
-  function setStatus(online, texto) {
-    const el = document.getElementById('connectionStatus');
-    el.classList.remove('online', 'offline');
-    el.classList.add(online ? 'online' : 'offline');
-    document.getElementById('statusText').textContent = texto;
+  // ============ HELPERS ============
+  function mostrarMensagem(texto, tipo = 'info') {
+    messageEl.textContent = texto;
+    messageEl.className = 'message show ' + tipo;
   }
 
-  // ============ CARREGAR MEMBROS ============
-  async function carregarMembros() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('orgWrapper').style.display = 'none';
+  function esconderMensagem() {
+    messageEl.className = 'message';
+  }
 
-    const { data, error } = await db
-      .from('members')
-      .select('*')
-      .order('created_at', { ascending: true });
+  function setLoading(loading) {
+    btnLogin.disabled = loading;
+    btnText.innerHTML = loading
+      ? '<span class="spinner"></span> Entrando...'
+      : 'ENTRAR';
+  }
 
-    if (error) {
-      console.error('Erro ao carregar:', error);
-      setStatus(false, 'Erro de conexão');
-      mostrarToast('❌ ' + error.message, true);
-      document.getElementById('loading').innerHTML =
-        `<p style="color:var(--danger);font-weight:600;">❌ Erro ao conectar com o Supabase</p>
-         <p style="margin-top:8px;font-size:12px;">${error.message}</p>
-         <p style="margin-top:8px;font-size:12px;">Verifique se a tabela <code>members</code> foi criada e se o RLS está configurado.</p>`;
+  function toggleSenha() {
+    passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+  }
+
+  // ============ VERIFICAR SE JÁ ESTÁ LOGADO ============
+  async function verificarSessao() {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
+      window.location.href = 'dashboard.html';
+    }
+  }
+
+  // ============ LOGIN ============
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    esconderMensagem();
+
+    const email = emailInput.value.trim().toLowerCase();
+    const senha = passwordInput.value;
+
+    if (!email || !senha) {
+      mostrarMensagem('⚠️ Preencha e-mail e senha', 'error');
       return;
     }
 
-    membros = data || [];
-    setStatus(true, `Online • ${membros.length} membros`);
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('orgWrapper').style.display = 'block';
-    renderizarOrganograma();
-  }
-
-  // ============ RENDERIZAR ============
-  function renderizarOrganograma() {
-    // Limpa os slots
-    ['slot-presidente','slot-vice-presidente','slot-secretario',
-     'slot-suplente-presidente','slot-suplente-secretario',
-     'slot-titulares','slot-suplentes'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.innerHTML = '';
-    });
-
-    // Distribui cada membro no seu slot
-    membros.forEach(m => {
-      const slotId = {
-        'presidente':           'slot-presidente',
-        'vice-presidente':      'slot-vice-presidente',
-        'secretario':           'slot-secretario',
-        'suplente-presidente':  'slot-suplente-presidente',
-        'suplente-secretario':  'slot-suplente-secretario',
-        'titular':              'slot-titulares',
-        'suplente':             'slot-suplentes'
-      }[m.role];
-
-      const container = document.getElementById(slotId);
-      if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
-    });
-
-    // Placeholders para slots vazios
-    const placeholders = {
-      'slot-presidente':          'Presidente',
-      'slot-vice-presidente':     'Vice-Presidente',
-      'slot-secretario':          'Secretário(a)',
-      'slot-suplente-presidente': 'Suplente',
-      'slot-suplente-secretario': 'Suplente',
-      'slot-titulares':           'Titular',
-      'slot-suplentes':           'Suplente'
-    };
-
-    Object.entries(placeholders).forEach(([id, label]) => {
-      const el = document.getElementById(id);
-      if (el && el.innerHTML.trim() === '') {
-        el.innerHTML = `<div class="member-card" style="opacity:0.4;border-style:dashed;">
-          <div class="member-photo">👤</div>
-          <div class="member-name">${label}</div>
-          <div class="member-role">Vago</div>
-        </div>`;
-      }
-    });
-  }
-
-  function cardMembroHTML(m) {
-    const foto = m.photo_url
-      ? `<img src="${m.photo_url}" alt="${m.name}" onerror="this.parentElement.textContent='${iniciais(m.name)}'">`
-      : iniciais(m.name);
-
-    const nome = m.name.length > 18 ? m.name.substring(0, 16) + '…' : m.name;
-
-    return `
-      <div class="member-card" onclick="editarMembro('${m.id}')">
-        <div class="member-actions">
-          <button class="member-action-btn" title="Excluir"
-            onclick="event.stopPropagation(); excluirMembro('${m.id}', '${m.name.replace(/'/g, "\\'")}')">✕</button>
-        </div>
-        <div class="member-photo">${foto}</div>
-        <div class="member-name">${nome}</div>
-        <div class="member-role">${m.sector || ''}</div>
-      </div>
-    `;
-  }
-
-  function iniciais(nome) {
-    return nome.split(' ').filter(Boolean).slice(0, 2)
-      .map(n => n[0].toUpperCase()).join('');
-  }
-
-  // ============ MODAL ============
-  function abrirModal(membro = null) {
-    fotoAtual = null;
-    arquivoFoto = null;
-
-    document.getElementById('modalTitle').textContent =
-      membro ? 'Editar Cipeiro' : 'Cadastrar Cipeiro';
-    document.getElementById('nome').value      = membro?.name || '';
-    document.getElementById('cargo').value     = membro?.role || '';
-    document.getElementById('setor').value     = membro?.sector || '';
-    document.getElementById('contato').value   = membro?.contact || '';
-    document.getElementById('editingId').value = membro?.id || '';
-
-    const preview = document.getElementById('photoPreview');
-    if (membro?.photo_url) {
-      preview.innerHTML = `<img src="${membro.photo_url}">`;
-    } else {
-      preview.innerHTML = '📷';
-    }
-
-    document.getElementById('photoInput').value = '';
-    document.getElementById('modal').classList.add('open');
-  }
-
-  function fecharModal() {
-    document.getElementById('modal').classList.remove('open');
-  }
-
-  function previewFoto(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      mostrarToast('⚠️ Imagem muito grande (máx 2MB)', true);
-      return;
-    }
-    arquivoFoto = file;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      document.getElementById('photoPreview').innerHTML =
-        `<img src="${ev.target.result}">`;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  // ============ UPLOAD DE FOTO ============
-  async function uploadFoto(file) {
-    const ext = file.name.split('.').pop();
-    const nomeArquivo = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
-
-    const { error } = await db.storage
-      .from('cipa-photos')
-      .upload(nomeArquivo, file, { upsert: false });
-
-    if (error) {
-      console.error('Erro no upload:', error);
-      throw new Error('Falha ao enviar foto: ' + error.message);
-    }
-
-    const { data } = db.storage.from('cipa-photos').getPublicUrl(nomeArquivo);
-    return data.publicUrl;
-  }
-
-  // ============ SALVAR MEMBRO ============
-  async function salvarMembro() {
-    const nome    = document.getElementById('nome').value.trim();
-    const cargo   = document.getElementById('cargo').value;
-    const setor   = document.getElementById('setor').value.trim();
-    const contato = document.getElementById('contato').value.trim();
-    const id      = document.getElementById('editingId').value;
-
-    if (!nome || !cargo) {
-      mostrarToast('⚠️ Preencha nome e cargo!', true);
-      return;
-    }
-
-    const btn = document.getElementById('btnSalvar');
-    btn.disabled = true;
-    btn.textContent = '⏳ Salvando...';
+    setLoading(true);
+    mostrarMensagem('⏳ Verificando...', 'info');
 
     try {
-      // Upload de foto (se houver nova)
-      let photoUrl = null;
-      if (arquivoFoto) {
-        photoUrl = await uploadFoto(arquivoFoto);
-      }
+      // 1. Autenticar no Supabase
+      const { data, error } = await db.auth.signInWithPassword({
+        email: email,
+        password: senha
+      });
 
-      // Valida cargo único
-      const cargosUnicos = ['presidente','vice-presidente','secretario',
-                            'suplente-presidente','suplente-secretario'];
-      if (cargosUnicos.includes(cargo)) {
-        const conflito = membros.find(m => m.role === cargo && m.id !== id);
-        if (conflito) {
-          mostrarToast(`⚠️ Já existe um ${cargo.replace('-', ' ')} cadastrado!`, true);
-          btn.disabled = false;
-          btn.textContent = '💾 Salvar';
-          return;
+      if (error) {
+        let msg = '❌ ' + error.message;
+        if (error.message.includes('Invalid login credentials')) {
+          msg = '❌ E-mail ou senha incorretos';
+        } else if (error.message.includes('Email not confirmed')) {
+          msg = '⚠️ E-mail não confirmado. Contate o administrador.';
+        } else if (error.message.includes('Too many requests')) {
+          msg = '⚠️ Muitas tentativas. Aguarde alguns minutos.';
         }
+        mostrarMensagem(msg, 'error');
+        passwordInput.value = '';
+        passwordInput.focus();
+        setLoading(false);
+        return;
       }
 
-      // Monta objeto
-      const dados = { name: nome, role: cargo, sector: setor, contact: contato };
-      if (photoUrl) dados.photo_url = photoUrl;
+      // 2. Buscar o perfil (nome + role)
+      const { data: perfil } = await db
+        .from('profiles')
+        .select('*')
+        .eq('id', data.user.id)
+        .single();
 
-      let error;
-      if (id) {
-        // UPDATE
-        ({ error } = await db.from('members').update(dados).eq('id', id));
-      } else {
-        // INSERT
-        ({ error } = await db.from('members').insert([dados]));
-      }
+      // 3. Salvar dados do usuário
+      const userData = {
+        id: data.user.id,
+        email: data.user.email,
+        nome: perfil?.full_name || data.user.email,
+        role: perfil?.role || 'member'
+      };
 
-      if (error) throw error;
+      sessionStorage.setItem('cipa_user', JSON.stringify(userData));
 
-      fecharModal();
-      mostrarToast(id ? '✅ Membro atualizado!' : '✅ Membro cadastrado!');
-      await carregarMembros();
+      const nomeCurto = userData.nome.split('@')[0];
+      const nomeCapitalizado = nomeCurto.charAt(0).toUpperCase() + nomeCurto.slice(1);
+
+      mostrarMensagem(`✅ Bem-vindo, ${nomeCapitalizado}!`, 'success');
+
+      // 4. Redirecionar
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 800);
 
     } catch (err) {
-      console.error('Erro ao salvar:', err);
-      mostrarToast('❌ ' + (err.message || 'Erro ao salvar'), true);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '💾 Salvar';
-    }
-  }
-
-  // ============ EDITAR / EXCLUIR ============
-  function editarMembro(id) {
-    const m = membros.find(x => x.id === id);
-    if (m) abrirModal(m);
-  }
-
-  async function excluirMembro(id, nome) {
-    if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) return;
-
-    const { error } = await db.from('members').delete().eq('id', id);
-
-    if (error) {
-      mostrarToast('❌ ' + error.message, true);
-      return;
-    }
-
-    mostrarToast('🗑️ Membro removido.');
-    await carregarMembros();
-  }
-
-  // ============ DOWNLOAD ============
-  function baixarOrganograma() {
-    const el = document.getElementById('orgChart');
-    mostrarToast('📸 Gerando imagem...');
-
-    html2canvas(el, {
-      backgroundColor: '#ffffff',
-      scale: 2,
-      useCORS: true,
-      logging: false
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `organograma-cipa-${new Date().toISOString().slice(0,10)}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      mostrarToast('✅ Download concluído!');
-    }).catch(err => {
       console.error(err);
-      mostrarToast('❌ Erro ao gerar imagem.', true);
-    });
-  }
-
-  // ============ TOAST ============
-  let toastTimer;
-  function mostrarToast(msg, erro = false) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.toggle('error', erro);
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-  }
+      mostrarMensagem('❌ Erro inesperado. Tente novamente.', 'error');
+      setLoading(false);
+    }
+  });
 
   // ============ INICIALIZAÇÃO ============
-  document.addEventListener('DOMContentLoaded', () => {
-    carregarMembros();
-
-    document.getElementById('modal').addEventListener('click', e => {
-      if (e.target.id === 'modal') fecharModal();
-    });
-  });
+  verificarSessao();
+  emailInput.focus();
 </script>
 
 </body>
