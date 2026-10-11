@@ -175,7 +175,6 @@
     align-items: center; justify-content: center;
     box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
   .member-action-btn.delete { background: var(--danger); }
-  .member-action-btn.info { background: var(--info); }
   .label-box { background: #fff; border: 2px solid var(--text);
     border-radius: 30px; padding: 6px 22px; font-size: 12.5px;
     font-weight: 700; text-align: center; display: inline-block;
@@ -438,7 +437,7 @@
 
 </main>
 
-<!-- MODAL MEMBRO COMPLETO -->
+<!-- MODAL MEMBRO -->
 <div class="modal-overlay" id="modalMembro">
   <div class="modal">
     <div class="modal-header">
@@ -447,7 +446,6 @@
     </div>
     <div class="modal-body">
 
-      <!-- FOTO -->
       <div class="form-section">
         <div class="form-section-title">📷 Foto</div>
         <label class="photo-upload" for="photoInput">
@@ -460,7 +458,6 @@
         <input type="file" id="photoInput" accept="image/*" hidden onchange="previewFoto(event)">
       </div>
 
-      <!-- DADOS PESSOAIS -->
       <div class="form-section">
         <div class="form-section-title">👤 Dados Pessoais</div>
 
@@ -482,32 +479,30 @@
 
         <div class="form-group">
           <label>Ocupação <span>*</span></label>
-          <input type="text" class="form-control" id="ocupacao" placeholder="Ex: Operador de Máquina, Analista Administrativo...">
+          <input type="text" class="form-control" id="ocupacao" placeholder="Ex: Operador de Máquina">
         </div>
 
         <div class="form-group">
           <label>Cargo na Empresa</label>
-          <input type="text" class="form-control" id="cargoEmpresa" placeholder="Ex: Técnico de Segurança, Encarregado...">
+          <input type="text" class="form-control" id="cargoEmpresa" placeholder="Ex: Técnico de Segurança">
         </div>
       </div>
 
-      <!-- CONTATO -->
       <div class="form-section">
         <div class="form-section-title">📞 Contato</div>
 
         <div class="form-row">
           <div class="form-group">
             <label>E-mail</label>
-            <input type="email" class="form-control" id="email" placeholder="Ex: joao@empresa.com">
+            <input type="email" class="form-control" id="email" placeholder="joao@empresa.com">
           </div>
           <div class="form-group">
             <label>Telefone</label>
-            <input type="text" class="form-control" id="telefone" placeholder="Ex: (11) 99999-9999">
+            <input type="text" class="form-control" id="telefone" placeholder="(11) 99999-9999">
           </div>
         </div>
       </div>
 
-      <!-- CARGO CIPA -->
       <div class="form-section">
         <div class="form-section-title">🦺 Função na CIPA</div>
 
@@ -574,7 +569,7 @@
 
       <div class="form-group">
         <label>Observações</label>
-        <textarea class="form-control" id="gestaoObs" rows="3" placeholder="Informações adicionais sobre esta gestão..."></textarea>
+        <textarea class="form-control" id="gestaoObs" rows="3" placeholder="Informações adicionais..."></textarea>
       </div>
 
     </div>
@@ -619,10 +614,9 @@
   function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
 
   function isGestaoEmVigor() { return gestaoSelecionada?.em_vigor === true; }
-  // Todos que estão logados podem editar (são SESMT)
   function podeEditar() { return isGestaoEmVigor(); }
 
-  // ============ LOGIN SIMPLES ============
+  // ============ LOGIN SIMPLES (sem profiles!) ============
   async function verificarLogin() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) {
@@ -663,8 +657,6 @@
     if (error) {
       log('Erro gestões:', error);
       mostrarToast('❌ Erro ao carregar gestões: ' + error.message, true);
-      // Fallback: tenta carregar membros mesmo sem gestão
-      await carregarMembrosSemGestao();
       return;
     }
 
@@ -690,22 +682,6 @@
 
     gestaoSelecionada = gestoes.find(g => g.em_vigor) || gestoes[0];
     select.value = gestaoSelecionada.id;
-  }
-
-  // Fallback: se não há gestões, carrega todos os membros
-  async function carregarMembrosSemGestao() {
-    const { data, error } = await db
-      .from('members')
-      .select('*')
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      log('Erro membros:', error);
-      return;
-    }
-
-    membros = data || [];
-    renderizarOrganograma();
   }
 
   function trocarGestao() {
@@ -738,7 +714,6 @@
 
     document.getElementById('avisoEncerrada').classList.toggle('show', !emVigor);
 
-    // Botões: cadastrar e encerrar só se gestão em vigor
     document.getElementById('btnCadastrar').style.display = emVigor ? 'inline-flex' : 'none';
     document.getElementById('btnEncerrarGestao').style.display = emVigor ? 'inline-flex' : 'none';
     document.getElementById('btnNovaGestao').style.display = 'inline-flex';
@@ -760,7 +735,7 @@
 
     if (error) {
       log('Erro membros:', error);
-      mostrarToast('❌ Erro ao carregar membros', true);
+      mostrarToast('❌ Erro: ' + error.message, true);
       return;
     }
 
@@ -768,7 +743,7 @@
     renderizarOrganograma();
   }
 
-  // ============ RENDERIZAR ORGANOGRAMA ============
+  // ============ RENDERIZAR ============
   function renderizarOrganograma() {
     ['slot-presidente','slot-vice-presidente','slot-secretario',
      'slot-suplente-presidente','slot-suplente-secretario',
@@ -777,7 +752,6 @@
       if (el) el.innerHTML = '';
     });
 
-    // Filtra apenas membros ATIVOS para o organograma
     const ativos = membros.filter(m => m.ativo !== false);
 
     ativos.forEach(m => {
@@ -795,7 +769,6 @@
       if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
     });
 
-    // Placeholders para slots vazios
     const placeholders = {
       'slot-presidente': 'Presidente',
       'slot-vice-presidente': 'Vice-Presidente',
@@ -825,7 +798,6 @@
 
     const nome = m.name.length > 18 ? m.name.substring(0, 16) + '…' : m.name;
     const editavel = podeEditar() ? 'editable' : '';
-    const inativo = m.ativo === false ? ' (inativo)' : '';
 
     return `
       <div class="member-card ${editavel}" ${podeEditar() ? `onclick="editarMembro('${m.id}')"` : ''}>
@@ -836,7 +808,7 @@
           </div>
         ` : ''}
         <div class="member-photo">${foto}</div>
-        <div class="member-name">${nome}${inativo}</div>
+        <div class="member-name">${nome}</div>
         <div class="member-role">${m.cargo_empresa || m.ocupacao || m.sector || ''}</div>
       </div>
     `;
@@ -851,7 +823,6 @@
   function abrirModalMembro(membro = null) {
     if (!podeEditar()) {
       if (!isGestaoEmVigor()) mostrarToast('🔒 Gestão encerrada. Apenas consulta.', true);
-      else mostrarToast('⚠️ Selecione uma gestão em vigor.', true);
       return;
     }
 
@@ -940,7 +911,6 @@
       return;
     }
 
-    // Cargos únicos por gestão
     const cargosUnicos = ['presidente','vice-presidente','secretario',
                           'suplente-presidente','suplente-secretario'];
     if (cargosUnicos.includes(dados.role)) {
@@ -948,7 +918,7 @@
         m.role === dados.role && m.id !== id && m.ativo !== false
       );
       if (conflito) {
-        mostrarToast(`⚠️ Já existe um ${dados.role.replace('-', ' ')} ativo nesta gestão!`, true);
+        mostrarToast(`⚠️ Já existe um ${dados.role.replace('-', ' ')} ativo!`, true);
         return;
       }
     }
@@ -993,10 +963,7 @@
     if (!confirm(`Excluir "${nome}"?`)) return;
 
     const { error } = await db.from('members').delete().eq('id', id);
-    if (error) {
-      mostrarToast('❌ ' + error.message, true);
-      return;
-    }
+    if (error) { mostrarToast('❌ ' + error.message, true); return; }
     mostrarToast('🗑️ Cipeiro removido.');
     await carregarMembros();
   }
@@ -1035,10 +1002,8 @@
     btn.textContent = '⏳ Criando...';
 
     try {
-      // 1. Encerrar gestão atual
       const atual = gestoes.find(g => g.em_vigor);
       if (atual) {
-        log('Encerrando gestão:', atual.titulo);
         const { error: errEncerrar } = await db
           .from('gestoes')
           .update({
@@ -1047,14 +1012,10 @@
             encerrada_por: usuario.id
           })
           .eq('id', atual.id);
-
         if (errEncerrar) throw errEncerrar;
       }
 
-      // 2. Criar nova gestão
       const titulo = `${empresa || 'CIPA'} ${anoInicio}/${anoFim}`;
-      log('Criando gestão:', titulo);
-
       const { error: errNova } = await db
         .from('gestoes')
         .insert([{
@@ -1071,7 +1032,6 @@
 
       fecharModalGestao();
       mostrarToast('✅ Nova gestão criada e ativada!');
-
       await carregarGestoes();
       atualizarUIGestao();
       await carregarMembros();
@@ -1089,11 +1049,7 @@
 
     const confirmacao = prompt(
       `⚠️ ATENÇÃO!\n\n` +
-      `Você está prestes a ENCERRAR a gestão "${gestaoSelecionada.titulo}".\n\n` +
-      `Isso significa que:\n` +
-      `• Ela não poderá mais ser editada\n` +
-      `• Continuará disponível para consulta\n` +
-      `• Você deverá criar uma nova gestão depois\n\n` +
+      `Encerrar a gestão "${gestaoSelecionada.titulo}"?\n\n` +
       `Digite ENCERRAR para confirmar:`
     );
 
@@ -1161,7 +1117,6 @@
 
     setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
 
-    // Fechar modais clicando fora
     ['modalMembro', 'modalGestao'].forEach(id => {
       document.getElementById(id).addEventListener('click', e => {
         if (e.target.id === id) {
