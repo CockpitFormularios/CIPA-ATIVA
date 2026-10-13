@@ -18,7 +18,6 @@
     --green-100: #e8f5ed;
     --yellow: #ffc93c;
     --yellow-dark: #e8b324;
-    --yellow-soft: #fff5d6;
     --bg: #f7f9fb;
     --bg-alt: #eef2f6;
     --card: #ffffff;
@@ -35,7 +34,6 @@
     --success-soft: #d1fae5;
     --info: #3b82f6;
     --info-soft: #dbeafe;
-    --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
     --shadow-sm: 0 2px 6px rgba(15,23,42,0.05);
     --shadow-md: 0 6px 18px rgba(15,23,42,0.08);
     --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
@@ -138,6 +136,16 @@
   }
 
   .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar nav a .badge-mini {
+    margin-left: auto;
+    font-size: 10px;
+    background: rgba(255,201,60,0.25);
+    color: var(--yellow);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 800;
+  }
 
   .sidebar-footer {
     margin-top: auto;
@@ -486,12 +494,12 @@
 
   .atalho-card:hover .atalho-icon { transform: scale(1.1) rotate(-5deg); }
 
-  .atalho-icon.membros   { background: linear-gradient(135deg, rgba(46,139,87,0.15), rgba(46,139,87,0.25)); }
+  .atalho-icon.membros    { background: linear-gradient(135deg, rgba(46,139,87,0.15), rgba(46,139,87,0.25)); }
   .atalho-icon.checklists { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.25)); }
-  .atalho-icon.inspecoes { background: linear-gradient(135deg, rgba(255,201,60,0.25), rgba(255,201,60,0.35)); }
-  .atalho-icon.gestoes   { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.25)); }
+  .atalho-icon.inspecoes  { background: linear-gradient(135deg, rgba(255,201,60,0.25), rgba(255,201,60,0.35)); }
+  .atalho-icon.gestoes    { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.25)); }
   .atalho-icon.relatorios { background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.25)); }
-  .atalho-icon.nc        { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.25)); }
+  .atalho-icon.nc         { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.25)); }
 
   .atalho-info h4 {
     font-size: 15px;
@@ -549,24 +557,74 @@
     color: var(--green-700);
   }
 
-  /* ============ LISTA ============ */
-  .list { list-style: none; }
+  /* ============ LISTA DE INSPEÇÕES ============ */
+  .insp-list { list-style: none; }
 
-  .list li {
+  .insp-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 13px 0;
+    gap: 14px;
+    padding: 14px 0;
     border-bottom: 1px solid var(--border);
     font-size: 13.5px;
+    cursor: pointer;
+    transition: all 0.2s;
   }
 
-  .list li:last-child { border-bottom: none; }
+  .insp-item:last-child { border-bottom: none; }
+  .insp-item:hover { padding-left: 6px; }
 
+  .insp-avatar {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--green-500), var(--green-700));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 16px;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .insp-info { flex: 1; min-width: 0; }
+  .insp-info strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .insp-info small {
+    color: var(--text-soft);
+    font-size: 11.5px;
+    font-weight: 500;
+  }
+
+  .insp-result {
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+  }
+
+  .insp-result.ok { background: var(--success-soft); color: #047857; }
+  .insp-result.nok { background: var(--danger-soft); color: #991b1b; }
+  .insp-result.parcial { background: var(--warning-soft); color: #92400e; }
+
+  /* ============ EMPTY STATE ============ */
   .empty-state {
     text-align: center;
     padding: 40px 20px;
     color: var(--text-soft);
+    width: 100%;
   }
 
   .empty-state .icon {
@@ -653,12 +711,18 @@
   <nav>
     <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
     <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+    <a onclick="emBreve('Não Conformidades')">
+      <span class="icon">⚠️</span> Não Conformidades
+      <span class="badge-mini" id="badgeNC" style="display:none;">0</span>
+    </a>
   </nav>
 
   <div class="nav-label">Inspeções</div>
   <nav>
-    <a onclick="emBreve('Inspeções')"><span class="icon">🔍</span> Ver Inspeções</a>
+    <a onclick="window.location.href='inspecoes.html'">
+      <span class="icon">🔍</span> Ver Inspeções
+      <span class="badge-mini" id="badgeInsp" style="display:none;">0</span>
+    </a>
     <a onclick="window.location.href='checklists.html'"><span class="icon">📋</span> Checklists</a>
   </nav>
 
@@ -728,18 +792,18 @@
       <span class="kpi-trend trend-neutral" id="kpiChecklistsTrend">Carregando...</span>
     </div>
 
-    <div class="kpi warning">
-      <div class="kpi-header"><div class="kpi-icon">⚠️</div></div>
-      <div class="kpi-value">0</div>
-      <div class="kpi-label">Não conformidades abertas</div>
-      <span class="kpi-trend trend-neutral">Aguardando módulo</span>
+    <div class="kpi" onclick="window.location.href='inspecoes.html'">
+      <div class="kpi-header"><div class="kpi-icon">🔍</div></div>
+      <div class="kpi-value" id="kpiInspecoes">—</div>
+      <div class="kpi-label">Inspeções realizadas</div>
+      <span class="kpi-trend trend-neutral" id="kpiInspecoesTrend">Carregando...</span>
     </div>
 
-    <div class="kpi">
-      <div class="kpi-header"><div class="kpi-icon">🏛️</div></div>
-      <div class="kpi-value" id="kpiGestoes">—</div>
-      <div class="kpi-label">Gestões registradas</div>
-      <span class="kpi-trend trend-neutral">Histórico completo</span>
+    <div class="kpi warning" onclick="emBreve('Não Conformidades')">
+      <div class="kpi-header"><div class="kpi-icon">⚠️</div></div>
+      <div class="kpi-value" id="kpiNC">0</div>
+      <div class="kpi-label">Não conformidades abertas</div>
+      <span class="kpi-trend trend-neutral">Aguardando módulo</span>
     </div>
   </section>
 
@@ -757,15 +821,15 @@
       <div class="atalho-icon checklists">📋</div>
       <div class="atalho-info">
         <h4>Checklists</h4>
-        <p>Criar modelos de inspeção (EPI, 5S, RAC...)</p>
+        <p>Criar modelos (EPI, 5S, RAC...)</p>
       </div>
     </div>
 
-    <div class="atalho-card" onclick="emBreve('Inspeções')">
+    <div class="atalho-card" onclick="window.location.href='inspecoes.html'">
       <div class="atalho-icon inspecoes">🔍</div>
       <div class="atalho-info">
-        <h4>Inspeções</h4>
-        <p>Aplicar checklists e registrar</p>
+        <h4>Ver Inspeções</h4>
+        <p>Respostas dos cipeiros</p>
       </div>
     </div>
   </div>
@@ -774,15 +838,15 @@
   <section class="grid-2">
     <div class="card">
       <div class="card-header">
-        <h3>⚠️ Não Conformidades Recentes</h3>
-        <a onclick="emBreve('Não Conformidades')">Ver todas →</a>
+        <h3>🔍 Últimas Inspeções</h3>
+        <a onclick="window.location.href='inspecoes.html'">Ver todas →</a>
       </div>
-      <ul class="list">
+      <ul class="insp-list" id="listaInspecoes">
         <li>
-          <div class="empty-state" style="width:100%;">
+          <div class="empty-state">
             <div class="icon">📭</div>
-            <p>Nenhuma não conformidade registrada</p>
-            <small>As NCs reportadas pelos cipeiros aparecerão aqui</small>
+            <p>Nenhuma inspeção ainda</p>
+            <small>Os cipeiros enviam pelo link direto</small>
           </div>
         </li>
       </ul>
@@ -790,15 +854,15 @@
 
     <div class="card">
       <div class="card-header">
-        <h3>🔍 Últimas Inspeções</h3>
-        <a onclick="emBreve('Inspeções')">Ver todas →</a>
+        <h3>⚠️ Não Conformidades</h3>
+        <a onclick="emBreve('Não Conformidades')">Ver todas →</a>
       </div>
-      <ul class="list">
+      <ul class="insp-list">
         <li>
-          <div class="empty-state" style="width:100%;">
+          <div class="empty-state">
             <div class="icon">📭</div>
-            <p>Nenhuma inspeção realizada</p>
-            <small>As inspeções dos cipeiros aparecerão aqui</small>
+            <p>Nenhuma NC registrada</p>
+            <small>As NCs aparecem quando houver itens reprovados</small>
           </div>
         </li>
       </ul>
@@ -867,7 +931,7 @@
   // ============ CARREGAR DADOS ============
   async function carregarDados() {
     try {
-      // Gestões
+      // ===== GESTÕES =====
       const { data: gestoes } = await db
         .from('gestoes').select('*').order('ano_inicio', { ascending: false });
 
@@ -882,8 +946,6 @@
         const badge = document.getElementById('gestaoBadge');
         badge.textContent = emVigor ? 'EM VIGOR' : 'ENCERRADA';
         badge.classList.toggle('encerrada', !emVigor);
-
-        document.getElementById('kpiGestoes').textContent = gestoes.length;
 
         // Contar membros ativos
         const { count: countMembros } = await db
@@ -900,12 +962,11 @@
         document.getElementById('gestaoPeriodo').textContent = 'Crie a primeira gestão para começar';
         document.getElementById('gestaoBadge').textContent = 'SEM GESTÃO';
         document.getElementById('gestaoBadge').classList.add('encerrada');
-        document.getElementById('kpiGestoes').textContent = '0';
         document.getElementById('kpiMembros').textContent = '0';
         document.getElementById('kpiMembrosTrend').textContent = 'Sem gestão ativa';
       }
 
-      // Contar checklists
+      // ===== CHECKLISTS =====
       const { count: countChecklists } = await db
         .from('checklists')
         .select('*', { count: 'exact', head: true })
@@ -914,6 +975,57 @@
       document.getElementById('kpiChecklists').textContent = countChecklists || 0;
       document.getElementById('kpiChecklistsTrend').textContent =
         countChecklists > 0 ? `📋 ${countChecklists} modelos prontos` : '⚠️ Nenhum criado';
+
+      // ===== INSPEÇÕES =====
+      const { count: countInspecoes } = await db
+        .from('inspecoes')
+        .select('*', { count: 'exact', head: true });
+
+      document.getElementById('kpiInspecoes').textContent = countInspecoes || 0;
+      document.getElementById('kpiInspecoesTrend').textContent =
+        countInspecoes > 0 ? `✅ ${countInspecoes} realizadas` : '📭 Nenhuma ainda';
+
+      // Badge no menu
+      if (countInspecoes > 0) {
+        const b = document.getElementById('badgeInsp');
+        b.textContent = countInspecoes;
+        b.style.display = 'inline-block';
+      }
+
+      // Últimas 4 inspeções
+      if (countInspecoes > 0) {
+        const { data: ultimas } = await db
+          .from('inspecoes')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(4);
+
+        if (ultimas && ultimas.length > 0) {
+          const lista = document.getElementById('listaInspecoes');
+          lista.innerHTML = '';
+          ultimas.forEach(i => {
+            const pct = parseFloat(i.percentual_conformidade) || 0;
+            let cls = 'ok';
+            if (pct < 70) cls = 'nok';
+            else if (pct < 90) cls = 'parcial';
+
+            const li = document.createElement('li');
+            li.className = 'insp-item';
+            li.onclick = () => window.location.href = 'inspecoes.html';
+            li.innerHTML = `
+              <div class="insp-avatar">
+                ${i.cipeiro_nome.substring(0, 2).toUpperCase()}
+              </div>
+              <div class="insp-info">
+                <strong>${i.cipeiro_nome}</strong>
+                <small>${i.checklist_titulo} • ${i.local_inspecionado || 'Sem local'}</small>
+              </div>
+              <div class="insp-result ${cls}">${pct.toFixed(0)}%</div>
+            `;
+            lista.appendChild(li);
+          });
+        }
+      }
 
     } catch (err) {
       log('Erro ao carregar:', err);
@@ -932,7 +1044,7 @@
 
     setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
 
-    log('✅ Pronto. Usuário:', usuario.nome);
+    log('✅ Pronto.');
   })();
 </script>
 
