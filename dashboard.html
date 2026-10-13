@@ -8,747 +8,295 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦺</text></svg>">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-
   :root {
-    --green-900: #0a1f13;
-    --green-800: #0d2818;
-    --green-700: #1e5f3f;
-    --green-600: #2e8b57;
-    --green-500: #3fb878;
-    --green-100: #e8f5ed;
-    --yellow: #ffc93c;
-    --yellow-dark: #e8b324;
-    --bg: #f7f9fb;
-    --bg-alt: #eef2f6;
-    --card: #ffffff;
-    --text: #0b1220;
-    --text-soft: #64748b;
-    --text-muted: #94a3b8;
-    --border: #e5eaf0;
-    --border-strong: #cbd5e1;
-    --danger: #e11d48;
-    --danger-soft: #fee2e2;
-    --warning: #f59e0b;
-    --warning-soft: #fef3c7;
-    --success: #10b981;
-    --success-soft: #d1fae5;
-    --info: #3b82f6;
-    --info-soft: #dbeafe;
+    --green-900: #0a1f13; --green-800: #0d2818; --green-700: #1e5f3f;
+    --green-600: #2e8b57; --green-500: #3fb878; --green-100: #e8f5ed;
+    --yellow: #ffc93c; --yellow-dark: #e8b324;
+    --bg: #f7f9fb; --bg-alt: #eef2f6; --card: #fff;
+    --text: #0b1220; --text-soft: #64748b; --text-muted: #94a3b8;
+    --border: #e5eaf0; --border-strong: #cbd5e1;
+    --danger: #e11d48; --danger-soft: #fee2e2;
+    --warning: #f59e0b; --warning-soft: #fef3c7;
+    --success: #10b981; --success-soft: #d1fae5;
+    --info: #3b82f6; --info-soft: #dbeafe;
     --shadow-sm: 0 2px 6px rgba(15,23,42,0.05);
     --shadow-md: 0 6px 18px rgba(15,23,42,0.08);
     --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
-    --radius: 14px;
-    --radius-lg: 20px;
+    --radius: 14px; --radius-lg: 20px;
   }
+  body { background: var(--bg); color: var(--text); min-height: 100vh;
+    font-size: 14px; -webkit-font-smoothing: antialiased; display: flex;
+    overflow-x: hidden; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    font-size: 14px;
-    -webkit-font-smoothing: antialiased;
-    display: flex;
-    overflow-x: hidden;
-  }
-
-  /* ============ LOADING ============ */
-  .loading-overlay {
-    position: fixed; inset: 0;
+  .loading-overlay { position: fixed; inset: 0;
     background: linear-gradient(135deg, var(--green-900), var(--green-700));
     display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 20px;
-    z-index: 9999; color: #fff;
-    transition: opacity 0.4s;
-  }
+    flex-direction: column; gap: 20px; z-index: 9999;
+    color: #fff; transition: opacity 0.4s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner-lg {
-    width: 54px; height: 54px;
-    border: 4px solid rgba(255,201,60,0.2);
-    border-top-color: var(--yellow);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
+  .spinner-lg { width: 54px; height: 54px;
+    border: 4px solid rgba(255,201,60,0.2); border-top-color: var(--yellow);
+    border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ============ SKELETON (loading nos KPIs) ============ */
-  .skeleton {
-    display: inline-block;
-    width: 60px;
-    height: 32px;
+  .skeleton { display: inline-block; width: 60px; height: 32px;
     background: linear-gradient(90deg, #e5eaf0 25%, #eef2f6 50%, #e5eaf0 75%);
-    background-size: 200% 100%;
-    border-radius: 8px;
-    animation: shimmer 1.5s infinite;
-  }
+    background-size: 200% 100%; border-radius: 8px;
+    animation: shimmer 1.5s infinite; }
+  @keyframes shimmer { from { background-position: 200% 0; }
+    to { background-position: -200% 0; } }
 
-  @keyframes shimmer {
-    from { background-position: 200% 0; }
-    to { background-position: -200% 0; }
-  }
-
-  /* ============ SIDEBAR ============ */
-  .sidebar {
-    width: 268px;
+  /* SIDEBAR */
+  .sidebar { width: 268px;
     background: linear-gradient(180deg, var(--green-900) 0%, var(--green-800) 100%);
-    color: #fff;
-    padding: 24px 16px;
-    position: fixed; height: 100vh;
-    overflow-y: auto;
-    transition: transform 0.3s ease;
-    z-index: 100;
-    display: flex; flex-direction: column;
-  }
-
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-    padding: 0 8px 24px;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 20px;
-  }
-
-  .brand-icon {
-    width: 46px; height: 46px;
+    color: #fff; padding: 24px 16px; position: fixed; height: 100vh;
+    overflow-y: auto; transition: transform 0.3s ease; z-index: 100;
+    display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 12px;
+    padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px; }
+  .brand-icon { width: 46px; height: 46px;
     background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 13px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 21px; color: var(--green-900);
-    box-shadow: 0 6px 16px rgba(255,201,60,0.35);
-    flex-shrink: 0;
-  }
-
+    border-radius: 13px; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 21px;
+    color: var(--green-900); box-shadow: 0 6px 16px rgba(255,201,60,0.35);
+    flex-shrink: 0; }
   .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
   .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
-
-  .nav-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.3px;
-    color: rgba(255,255,255,0.35);
-    padding: 14px 12px 8px;
-    font-weight: 700;
-  }
-
-  .sidebar nav a {
-    display: flex; align-items: center; gap: 12px;
-    padding: 11px 14px;
-    color: rgba(255,255,255,0.75);
-    text-decoration: none;
-    font-size: 13.5px; font-weight: 500;
-    border-radius: 11px;
-    margin-bottom: 2px;
-    transition: all 0.18s ease;
-    cursor: pointer;
-  }
-
-  .sidebar nav a:hover {
-    background: rgba(255,255,255,0.07);
-    color: #fff;
-    transform: translateX(2px);
-  }
-
-  .sidebar nav a.active {
-    background: linear-gradient(90deg, var(--green-600), var(--green-700));
-    color: #fff;
-    box-shadow: 0 6px 14px rgba(46,139,87,0.4);
-  }
-
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px;
+    color: rgba(255,255,255,0.35); padding: 14px 12px 8px; font-weight: 700; }
+  .sidebar nav a { display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; color: rgba(255,255,255,0.75);
+    text-decoration: none; font-size: 13.5px; font-weight: 500;
+    border-radius: 11px; margin-bottom: 2px;
+    transition: all 0.18s ease; cursor: pointer; }
+  .sidebar nav a:hover { background: rgba(255,255,255,0.07); color: #fff;
+    transform: translateX(2px); }
+  .sidebar nav a.active { background: linear-gradient(90deg, var(--green-600), var(--green-700));
+    color: #fff; box-shadow: 0 6px 14px rgba(46,139,87,0.4); }
   .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
-
-  .sidebar nav a .badge-mini {
-    margin-left: auto;
-    font-size: 10px;
-    background: rgba(255,201,60,0.25);
-    color: var(--yellow);
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 800;
-  }
-
-  .sidebar-footer {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    display: flex; align-items: center; gap: 10px;
-    padding-left: 8px;
-  }
-
-  .avatar-sm {
-    width: 38px; height: 38px;
-    border-radius: 50%;
+  .sidebar nav a .badge-mini { margin-left: auto; font-size: 10px;
+    background: rgba(255,201,60,0.25); color: var(--yellow);
+    padding: 2px 8px; border-radius: 10px; font-weight: 800; }
+  .sidebar-footer { margin-top: auto; padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08); display: flex;
+    align-items: center; gap: 10px; padding-left: 8px; }
+  .avatar-sm { width: 38px; height: 38px; border-radius: 50%;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px;
-    flex-shrink: 0;
-  }
-
+    font-weight: 700; font-size: 13px; flex-shrink: 0; }
   .sidebar-footer .info { flex: 1; min-width: 0; }
-  .sidebar-footer .info small {
-    display: block;
-    color: rgba(255,255,255,0.5);
-    font-size: 11px;
-  }
-  .sidebar-footer .info strong {
-    font-size: 13px; font-weight: 600;
-    display: block;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-
-  .btn-logout {
-    background: rgba(255,255,255,0.08);
-    border: none; color: #fff;
-    width: 34px; height: 34px;
-    border-radius: 10px;
-    cursor: pointer; font-size: 14px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
+  .sidebar-footer .info small { display: block;
+    color: rgba(255,255,255,0.5); font-size: 11px; }
+  .sidebar-footer .info strong { font-size: 13px; font-weight: 600;
+    display: block; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; }
+  .btn-logout { background: rgba(255,255,255,0.08); border: none;
+    color: #fff; width: 34px; height: 34px; border-radius: 10px;
+    cursor: pointer; font-size: 14px; transition: all 0.2s;
+    flex-shrink: 0; }
   .btn-logout:hover { background: var(--danger); }
 
-  /* ============ MAIN ============ */
-  .main {
-    margin-left: 268px;
-    flex: 1;
-    padding: 28px 36px 100px;
-    width: calc(100% - 268px);
-    max-width: 1600px;
-    min-width: 0;
-  }
-
-  /* ============ TOPBAR ============ */
-  .topbar {
-    display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
-  }
-
-  .topbar h2 {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: -0.8px;
+  /* MAIN */
+  .main { margin-left: 268px; flex: 1; padding: 28px 36px 100px;
+    width: calc(100% - 268px); max-width: 1600px; min-width: 0; }
+  .topbar { display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .topbar h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.8px;
     background: linear-gradient(135deg, var(--green-900), var(--green-600));
-    background-clip: text;
-    -webkit-background-clip: text;
-    color: transparent;
-  }
-
-  .topbar h2 span {
-    color: var(--text-soft);
-    font-size: 13.5px;
-    font-weight: 400;
-    display: block;
-    margin-top: 6px;
-    background: none;
-    -webkit-text-fill-color: var(--text-soft);
-  }
-
-  .topbar-actions {
-    display: flex; align-items: center; gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .sesmt-badge {
-    background: linear-gradient(135deg, rgba(46,139,87,0.12), rgba(255,201,60,0.12));
-    color: var(--green-700);
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 700;
-    border: 1px solid rgba(46,139,87,0.2);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-
-  .menu-toggle {
-    display: none;
-    width: 42px; height: 42px;
-    border-radius: 12px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    align-items: center; justify-content: center;
-    cursor: pointer;
-    font-size: 20px;
-    transition: all 0.2s;
-  }
+    background-clip: text; -webkit-background-clip: text; color: transparent; }
+  .topbar h2 span { color: var(--text-soft); font-size: 13.5px;
+    font-weight: 400; display: block; margin-top: 6px; background: none;
+    -webkit-text-fill-color: var(--text-soft); }
+  .topbar-actions { display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap; }
+  .sesmt-badge { background: linear-gradient(135deg, rgba(46,139,87,0.12), rgba(255,201,60,0.12));
+    color: var(--green-700); padding: 8px 16px; border-radius: 30px;
+    font-size: 12px; font-weight: 700; border: 1px solid rgba(46,139,87,0.2);
+    display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .menu-toggle { display: none; width: 42px; height: 42px;
+    border-radius: 12px; background: var(--card);
+    border: 1.5px solid var(--border); align-items: center;
+    justify-content: center; cursor: pointer; font-size: 20px;
+    transition: all 0.2s; }
   .menu-toggle:hover { background: var(--bg-alt); }
 
-  /* ============ ALERTA DE SISTEMA ============ */
-  .system-alert {
-    display: none;
-    padding: 16px 20px;
-    border-radius: var(--radius);
-    margin-bottom: 20px;
-    font-size: 13.5px;
-    font-weight: 600;
-    align-items: center;
-    gap: 12px;
-  }
-
+  .system-alert { display: none; padding: 16px 20px;
+    border-radius: var(--radius); margin-bottom: 20px;
+    font-size: 13.5px; font-weight: 600;
+    align-items: center; gap: 12px; }
   .system-alert.show { display: flex; }
+  .system-alert.warning { background: var(--warning-soft); color: #92400e;
+    border-left: 4px solid var(--warning); }
+  .system-alert.danger { background: var(--danger-soft); color: #991b1b;
+    border-left: 4px solid var(--danger); }
 
-  .system-alert.warning {
-    background: var(--warning-soft);
-    color: #92400e;
-    border-left: 4px solid var(--warning);
-  }
-
-  .system-alert.danger {
-    background: var(--danger-soft);
-    color: #991b1b;
-    border-left: 4px solid var(--danger);
-  }
-
-  /* ============ CARD DE GESTÃO ============ */
-  .gestao-card {
-    background: linear-gradient(135deg, var(--green-900), var(--green-700));
-    color: #fff;
-    border-radius: var(--radius-lg);
-    padding: 26px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    box-shadow: var(--shadow-md);
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .gestao-card::before {
-    content: '';
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 240px; height: 240px;
+  .gestao-card { background: linear-gradient(135deg, var(--green-900), var(--green-700));
+    color: #fff; border-radius: var(--radius-lg); padding: 26px;
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-md);
+    margin-bottom: 24px; position: relative; overflow: hidden; }
+  .gestao-card::before { content: ''; position: absolute;
+    top: -50px; right: -50px; width: 240px; height: 240px;
     background: radial-gradient(circle, rgba(255,201,60,0.15) 0%, transparent 70%);
-    border-radius: 50%;
-  }
-
-  .gestao-card-info {
-    display: flex; align-items: center; gap: 18px;
-    position: relative; z-index: 1;
-    flex: 1;
-    min-width: 240px;
-  }
-
-  .gestao-card-icon {
-    width: 64px; height: 64px;
+    border-radius: 50%; }
+  .gestao-card-info { display: flex; align-items: center; gap: 18px;
+    position: relative; z-index: 1; flex: 1; min-width: 240px; }
+  .gestao-card-icon { width: 64px; height: 64px;
     background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 18px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 30px;
-    color: var(--green-900);
-    box-shadow: 0 8px 20px rgba(255,201,60,0.4);
-    flex-shrink: 0;
-  }
+    border-radius: 18px; display: flex; align-items: center;
+    justify-content: center; font-size: 30px; color: var(--green-900);
+    box-shadow: 0 8px 20px rgba(255,201,60,0.4); flex-shrink: 0; }
+  .gestao-card-text h3 { font-size: 21px; font-weight: 800;
+    margin-bottom: 5px; display: flex; align-items: center;
+    gap: 10px; flex-wrap: wrap; }
+  .gestao-card-badge { background: rgba(16,185,129,0.2); color: #6ee7b7;
+    padding: 5px 12px; border-radius: 20px; font-size: 10.5px;
+    font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+  .gestao-card-badge.encerrada { background: rgba(148,163,184,0.25);
+    color: #cbd5e1; }
+  .gestao-card-text p { font-size: 13.5px; color: rgba(255,255,255,0.75); }
+  .gestao-card-actions { display: flex; gap: 10px; flex-wrap: wrap;
+    position: relative; z-index: 1; }
+  .btn-ghost { background: rgba(255,255,255,0.12); color: #fff;
+    border: 1px solid rgba(255,255,255,0.15); padding: 11px 20px;
+    border-radius: 11px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; display: inline-flex;
+    align-items: center; gap: 8px; font-family: inherit; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.22);
+    transform: translateY(-2px); }
 
-  .gestao-card-text h3 {
-    font-size: 21px;
-    font-weight: 800;
-    margin-bottom: 5px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .gestao-card-badge {
-    background: rgba(16,185,129,0.2);
-    color: #6ee7b7;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .gestao-card-badge.encerrada {
-    background: rgba(148,163,184,0.25);
-    color: #cbd5e1;
-  }
-
-  .gestao-card-text p {
-    font-size: 13.5px;
-    color: rgba(255,255,255,0.75);
-  }
-
-  .gestao-card-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    position: relative; z-index: 1;
-  }
-
-  .btn-ghost {
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 11px 20px;
-    border-radius: 11px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: inherit;
-  }
-
-  .btn-ghost:hover {
-    background: rgba(255,255,255,0.22);
-    transform: translateY(-2px);
-  }
-
-  /* ============ KPIs ============ */
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-
-  .kpi {
-    background: var(--card);
-    padding: 22px;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-sm);
-    border: 1.5px solid var(--border);
-    transition: all 0.25s;
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-
-  .kpi::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 4px;
-    height: 100%;
-    background: var(--green-600);
-  }
-
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px; margin-bottom: 24px; }
+  .kpi { background: var(--card); padding: 22px; border-radius: var(--radius);
+    box-shadow: var(--shadow-sm); border: 1.5px solid var(--border);
+    transition: all 0.25s; position: relative; overflow: hidden;
+    cursor: pointer; }
+  .kpi::before { content: ''; position: absolute; top: 0; left: 0;
+    width: 4px; height: 100%; background: var(--green-600); }
   .kpi.warning::before { background: var(--warning); }
   .kpi.danger::before  { background: var(--danger); }
   .kpi.info::before    { background: var(--info); }
   .kpi.muted::before   { background: var(--text-muted); }
-
-  .kpi:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-strong);
-  }
-
-  .kpi-header {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 14px;
-  }
-
-  .kpi-icon {
-    width: 44px; height: 44px;
-    border-radius: 12px;
+  .kpi:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg);
+    border-color: var(--border-strong); }
+  .kpi-header { display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 14px; }
+  .kpi-icon { width: 44px; height: 44px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    background: rgba(46,139,87,0.1);
-  }
-
+    font-size: 20px; background: rgba(46,139,87,0.1); }
   .kpi.warning .kpi-icon { background: rgba(245,158,11,0.12); }
   .kpi.danger  .kpi-icon { background: rgba(239,68,68,0.12); }
   .kpi.info    .kpi-icon { background: rgba(59,130,246,0.12); }
   .kpi.muted   .kpi-icon { background: rgba(100,116,139,0.1); }
-
-  .kpi-value {
-    font-size: 32px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-
-  .kpi-label {
-    font-size: 13px;
-    color: var(--text-soft);
-    font-weight: 500;
-  }
-
-  .kpi-trend {
-    font-size: 11.5px;
-    font-weight: 600;
-    margin-top: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 20px;
-  }
-
+  .kpi-value { font-size: 32px; font-weight: 800; letter-spacing: -1px;
+    line-height: 1; margin-bottom: 6px; }
+  .kpi-label { font-size: 13px; color: var(--text-soft); font-weight: 500; }
+  .kpi-trend { font-size: 11.5px; font-weight: 600; margin-top: 12px;
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 20px; }
   .trend-up      { background: rgba(16,185,129,0.12); color: var(--success); }
   .trend-down    { background: rgba(239,68,68,0.12);  color: var(--danger); }
   .trend-neutral { background: rgba(100,116,139,0.12); color: var(--text-soft); }
 
-  /* ============ ATALHOS ============ */
-  .grid-3 {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-
-  .atalho-card {
-    background: var(--card);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-    border: 1.5px solid var(--border);
-    cursor: pointer;
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px; margin-bottom: 24px; }
+  .atalho-card { background: var(--card); border-radius: var(--radius-lg);
+    padding: 24px; box-shadow: var(--shadow-sm);
+    border: 1.5px solid var(--border); cursor: pointer;
     transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .atalho-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-lg);
-    border-color: var(--green-600);
-  }
-
-  .atalho-card::after {
-    content: '→';
-    position: absolute;
-    right: 22px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    color: var(--text-soft);
-    opacity: 0.3;
-    transition: all 0.25s;
-  }
-
-  .atalho-card:hover::after {
-    opacity: 1;
-    color: var(--green-600);
-    transform: translateY(-50%) translateX(6px);
-  }
-
-  .atalho-icon {
-    width: 56px; height: 56px;
-    border-radius: 16px;
+    display: flex; align-items: center; gap: 16px;
+    position: relative; overflow: hidden; }
+  .atalho-card:hover { transform: translateY(-5px);
+    box-shadow: var(--shadow-lg); border-color: var(--green-600); }
+  .atalho-card::after { content: '→'; position: absolute; right: 22px;
+    top: 50%; transform: translateY(-50%); font-size: 20px;
+    color: var(--text-soft); opacity: 0.3; transition: all 0.25s; }
+  .atalho-card:hover::after { opacity: 1; color: var(--green-600);
+    transform: translateY(-50%) translateX(6px); }
+  .atalho-icon { width: 56px; height: 56px; border-radius: 16px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 26px;
-    flex-shrink: 0;
-    transition: transform 0.3s;
-  }
-
+    font-size: 26px; flex-shrink: 0; transition: transform 0.3s; }
   .atalho-card:hover .atalho-icon { transform: scale(1.1) rotate(-5deg); }
-
   .atalho-icon.membros    { background: linear-gradient(135deg, rgba(46,139,87,0.15), rgba(46,139,87,0.25)); }
   .atalho-icon.checklists { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.25)); }
   .atalho-icon.inspecoes  { background: linear-gradient(135deg, rgba(255,201,60,0.25), rgba(255,201,60,0.35)); }
-  .atalho-icon.cipeiro    { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.25)); }
-
   .atalho-info { flex: 1; min-width: 0; }
+  .atalho-info h4 { font-size: 15px; font-weight: 800; margin-bottom: 4px;
+    letter-spacing: -0.2px; }
+  .atalho-info p { font-size: 12.5px; color: var(--text-soft);
+    line-height: 1.4; }
 
-  .atalho-info h4 {
-    font-size: 15px;
-    font-weight: 800;
-    margin-bottom: 4px;
-    letter-spacing: -0.2px;
-  }
+  .grid-2 { display: grid; grid-template-columns: 1.7fr 1fr;
+    gap: 20px; margin-bottom: 24px; }
+  .card { background: var(--card); border-radius: var(--radius-lg);
+    padding: 26px; box-shadow: var(--shadow-sm);
+    border: 1.5px solid var(--border); }
+  .card-header { display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+  .card-header h3 { font-size: 16px; font-weight: 800;
+    letter-spacing: -0.3px; }
+  .card-header a { font-size: 12.5px; color: var(--green-600);
+    text-decoration: none; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap; }
+  .card-header a:hover { text-decoration: underline;
+    color: var(--green-700); }
 
-  .atalho-info p {
-    font-size: 12.5px;
-    color: var(--text-soft);
-    line-height: 1.4;
-  }
-
-  /* ============ CARDS ============ */
-  .grid-2 {
-    display: grid;
-    grid-template-columns: 1.7fr 1fr;
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-
-  .card {
-    background: var(--card);
-    border-radius: var(--radius-lg);
-    padding: 26px;
-    box-shadow: var(--shadow-sm);
-    border: 1.5px solid var(--border);
-  }
-
-  .card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .card-header h3 {
-    font-size: 16px;
-    font-weight: 800;
-    letter-spacing: -0.3px;
-  }
-
-  .card-header a {
-    font-size: 12.5px;
-    color: var(--green-600);
-    text-decoration: none;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .card-header a:hover {
-    text-decoration: underline;
-    color: var(--green-700);
-  }
-
-  /* ============ LISTA DE INSPEÇÕES ============ */
   .insp-list { list-style: none; }
-
-  .insp-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 13.5px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
+  .insp-item { display: flex; align-items: center; gap: 14px;
+    padding: 14px 0; border-bottom: 1px solid var(--border);
+    font-size: 13.5px; cursor: pointer; transition: all 0.2s; }
   .insp-item:last-child { border-bottom: none; }
   .insp-item:hover { padding-left: 6px; }
-
-  .insp-avatar {
-    width: 44px; height: 44px;
-    border-radius: 12px;
+  .insp-avatar { width: 44px; height: 44px; border-radius: 12px;
     background: linear-gradient(135deg, var(--green-500), var(--green-700));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 800;
-    font-size: 15px;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 800; font-size: 15px;
+    flex-shrink: 0; overflow: hidden; }
   .insp-info { flex: 1; min-width: 0; }
-  .insp-info strong {
-    display: block;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .insp-info small {
-    color: var(--text-soft);
-    font-size: 11.5px;
-    font-weight: 500;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: block;
-  }
-
-  .insp-result {
-    padding: 5px 11px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-    flex-shrink: 0;
-  }
-
+  .insp-info strong { display: block; font-size: 13.5px; font-weight: 700;
+    color: var(--text); margin-bottom: 2px; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+  .insp-info small { color: var(--text-soft); font-size: 11.5px;
+    font-weight: 500; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; display: block; }
+  .insp-result { padding: 5px 11px; border-radius: 20px;
+    font-size: 11px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.3px; flex-shrink: 0; }
   .insp-result.ok { background: var(--success-soft); color: #047857; }
   .insp-result.nok { background: var(--danger-soft); color: #991b1b; }
   .insp-result.parcial { background: var(--warning-soft); color: #92400e; }
 
-  /* ============ EMPTY STATE ============ */
-  .empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--text-soft);
-    width: 100%;
-  }
+  .empty-state { text-align: center; padding: 40px 20px;
+    color: var(--text-soft); width: 100%; }
+  .empty-state .icon { font-size: 46px; margin-bottom: 12px;
+    opacity: 0.4; }
+  .empty-state p { font-size: 13.5px; font-weight: 600;
+    margin-bottom: 4px; }
+  .empty-state small { font-size: 11.5px; color: var(--text-muted); }
 
-  .empty-state .icon {
-    font-size: 46px;
-    margin-bottom: 12px;
-    opacity: 0.4;
-  }
+  .link-cipeiro-input { flex: 1; min-width: 240px;
+    padding: 12px 16px; border: 1.5px solid var(--border);
+    border-radius: 11px; font-size: 13px; font-family: inherit;
+    background: var(--bg); color: var(--text-soft); font-weight: 600; }
 
-  .empty-state p {
-    font-size: 13.5px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
-
-  .empty-state small {
-    font-size: 11.5px;
-    color: var(--text-muted);
-  }
-
-  .empty-state a {
-    color: var(--green-600);
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-  }
-  .empty-state a:hover { text-decoration: underline; }
-
-  /* ============ TOAST ============ */
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
+  .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(120px);
-    background: var(--green-900);
-    color: #fff;
-    padding: 15px 26px;
-    border-radius: 14px;
-    font-size: 13.5px;
-    font-weight: 600;
+    background: var(--green-900); color: #fff;
+    padding: 15px 26px; border-radius: 14px;
+    font-size: 13.5px; font-weight: 600;
     box-shadow: 0 20px 50px rgba(11,18,32,0.35);
-    z-index: 400;
-    transition: transform 0.35s;
-    max-width: 90vw;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
+    z-index: 400; transition: transform 0.35s;
+    max-width: 90vw; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--danger); }
   .toast.success { background: var(--success); }
 
-  /* ============ RESPONSIVO ============ */
-  @media (max-width: 1024px) {
-    .grid-2 { grid-template-columns: 1fr; }
-  }
-
+  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
-    .main {
-      margin-left: 0;
-      width: 100%;
-      padding: 20px 16px 100px;
-    }
+    .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
     .topbar h2 { font-size: 22px; }
     .kpi-value { font-size: 26px; }
     .menu-toggle { display: flex; }
@@ -785,10 +333,7 @@
   <nav>
     <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
     <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
-    <a onclick="emBreve('Não Conformidades')">
-      <span class="icon">⚠️</span> Não Conformidades
-      <span class="badge-mini" id="badgeNC" style="display:none;">0</span>
-    </a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Inspeções</div>
@@ -817,7 +362,6 @@
 </aside>
 
 <main class="main">
-
   <div class="topbar">
     <h2>Painel SESMT
       <span id="saudacao">Bem-vindo ao centro de comando da CIPA.</span>
@@ -828,7 +372,6 @@
     </div>
   </div>
 
-  <!-- ALERTA DE SISTEMA (sem gestão / erro) -->
   <div class="system-alert warning" id="alertSemGestao">
     ⚠️ <strong>Nenhuma gestão ativa.</strong>
     Crie uma gestão em <a onclick="window.location.href='membros.html'" style="color:inherit; font-weight:800; text-decoration:underline; cursor:pointer;">Membros da CIPA</a> para começar.
@@ -839,7 +382,6 @@
     <span id="erroTexto">Verifique o console (F12).</span>
   </div>
 
-  <!-- CARD DE GESTÃO -->
   <div class="gestao-card" id="gestaoCard">
     <div class="gestao-card-info">
       <div class="gestao-card-icon" id="gestaoIcone">🏛️</div>
@@ -858,7 +400,6 @@
     </div>
   </div>
 
-  <!-- KPIs -->
   <section class="kpis">
     <div class="kpi" onclick="window.location.href='membros.html'">
       <div class="kpi-header"><div class="kpi-icon">👥</div></div>
@@ -889,7 +430,6 @@
     </div>
   </section>
 
-  <!-- ATALHOS RÁPIDOS -->
   <div class="grid-3">
     <div class="atalho-card" onclick="window.location.href='membros.html'">
       <div class="atalho-icon membros">👥</div>
@@ -916,7 +456,6 @@
     </div>
   </div>
 
-  <!-- GRID 2 — ÚLTIMAS INSPEÇÕES -->
   <section class="grid-2" id="secaoInspecoes" style="display:none;">
     <div class="card" style="grid-column: 1 / -1;">
       <div class="card-header">
@@ -927,7 +466,6 @@
     </div>
   </section>
 
-  <!-- CARD — LINK DO CIPEIRO -->
   <section class="card" style="margin-bottom:24px;">
     <div class="card-header">
       <h3>🔗 Link do Cipeiro (Inspeções de Campo)</h3>
@@ -936,8 +474,7 @@
       Envie este link para os cipeiros. Eles abrem direto, escolhem o nome e fazem a inspeção — <strong>sem precisar de login</strong>.
     </p>
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input type="text" id="linkCipeiro" readonly
-        style="flex:1; min-width:240px; padding:12px 16px; border:1.5px solid var(--border); border-radius:11px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text-soft); font-weight:600;"
+      <input type="text" id="linkCipeiro" readonly class="link-cipeiro-input"
         value="https://cockpitformularios.github.io/CIPA-ATIVA/checklistsCIPEIROS.html">
       <button class="btn-ghost" style="background:var(--green-600); border-color:var(--green-600);" onclick="copiarLink()">
         📋 Copiar
@@ -947,7 +484,6 @@
       </button>
     </div>
   </section>
-
 </main>
 
 <div class="toast" id="toast"></div>
@@ -960,11 +496,9 @@
 </script>
 
 <script>
-  // ============ ESTADO GLOBAL ============
   let usuario = null;
   const log = (...args) => console.log('🔎 [DASHBOARD]', ...args);
 
-  // ============ TOAST ============
   let toastTimer;
   function mostrarToast(msg, tipo = '') {
     const t = document.getElementById('toast');
@@ -975,10 +509,7 @@
   }
 
   function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
-
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-  }
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
   function copiarLink() {
     const input = document.getElementById('linkCipeiro');
@@ -988,20 +519,10 @@
     });
   }
 
-  // ============ AUTENTICAÇÃO ============
   async function verificarLogin() {
     const { data: { session }, error } = await db.auth.getSession();
-
-    if (error) {
-      log('Erro ao buscar sessão:', error);
-      return false;
-    }
-
-    if (!session) {
-      window.location.href = 'index.html';
-      return false;
-    }
-
+    if (error) { log('Erro sessão:', error); return false; }
+    if (!session) { window.location.href = 'index.html'; return false; }
     usuario = {
       id: session.user.id,
       email: session.user.email,
@@ -1012,14 +533,8 @@
 
   function aplicarUsuario() {
     if (!usuario) return;
-
-    const iniciais = usuario.nome
-      .split(/[\s._-]+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map(n => n[0].toUpperCase())
-      .join('');
-
+    const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
     document.getElementById('userAvatar').textContent = iniciais || '?';
     document.getElementById('userName').textContent =
       usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
@@ -1035,44 +550,27 @@
     window.location.href = 'index.html';
   }
 
-  // ============ HELPERS DE UI ============
-  function mostrarAlerta(id, mensagem) {
+  function mostrarAlerta(id, msg) {
     const el = document.getElementById(id);
     if (el) {
-      if (mensagem && id === 'alertErro') {
-        document.getElementById('erroTexto').textContent = mensagem;
+      if (msg && id === 'alertErro') {
+        document.getElementById('erroTexto').textContent = msg;
       }
       el.classList.add('show');
     }
   }
-
   function esconderAlerta(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove('show');
   }
 
-  function definirKpi(id, valor) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = valor;
-  }
-
-  function definirTrend(id, texto) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = texto;
-  }
-
-  // ============ CARREGAR DADOS ============
   async function carregarDados() {
     try {
       log('Carregando dados...');
 
-      // ===== 1. GESTÕES =====
-      const { data: gestoes, error: errGestoes } = await db
-        .from('gestoes')
-        .select('*')
-        .order('ano_inicio', { ascending: false });
-
-      if (errGestoes) throw new Error('Erro ao carregar gestões: ' + errGestoes.message);
+      const { data: gestoes, error: errG } = await db
+        .from('gestoes').select('*').order('ano_inicio', { ascending: false });
+      if (errG) throw new Error('Erro ao carregar gestões: ' + errG.message);
 
       const temGestao = gestoes && gestoes.length > 0;
       let gestaoAtiva = null;
@@ -1083,86 +581,62 @@
 
         document.getElementById('gestaoTitulo').textContent = gestaoAtiva.titulo;
         document.getElementById('gestaoPeriodo').textContent =
-          `${gestaoAtiva.ano_inicio} — ${gestaoAtual_anoFim(gestaoAtiva)}${gestaoAtiva.empresa ? ' • ' + gestaoAtiva.empresa : ''}`;
+          `${gestaoAtiva.ano_inicio} — ${gestaoAtiva.ano_fim}${gestaoAtiva.empresa ? ' • ' + gestaoAtiva.empresa : ''}`;
 
         const badge = document.getElementById('gestaoBadge');
         badge.textContent = emVigor ? 'EM VIGOR' : 'ENCERRADA';
         badge.classList.toggle('encerrada', !emVigor);
 
-        const icone = document.getElementById('gestaoIcone');
-        icone.textContent = emVigor ? '🏛️' : '📁';
-
+        document.getElementById('gestaoIcone').textContent = emVigor ? '🏛️' : '📁';
         esconderAlerta('alertSemGestao');
 
-        // Contar membros
         const { count: countMembros } = await db
-          .from('members')
-          .select('*', { count: 'exact', head: true })
-          .eq('gestao_id', gestaoAtiva.id)
-          .eq('ativo', true);
+          .from('members').select('*', { count: 'exact', head: true })
+          .eq('gestao_id', gestaoAtiva.id).eq('ativo', true);
 
-        definirKpi('kpiMembros', countMembros || 0);
-        definirTrend('kpiMembrosTrend',
-          countMembros > 0 ? `✅ ${countMembros} cadastrados` : '⚠️ Nenhum cadastrado');
+        document.getElementById('kpiMembros').textContent = countMembros || 0;
+        document.getElementById('kpiMembrosTrend').textContent =
+          countMembros > 0 ? `✅ ${countMembros} cadastrados` : '⚠️ Nenhum cadastrado';
       } else {
-        // SEM GESTÃO
         document.getElementById('gestaoTitulo').textContent = 'Nenhuma gestão';
         document.getElementById('gestaoPeriodo').textContent = 'Crie a primeira gestão para começar';
-
         const badge = document.getElementById('gestaoBadge');
         badge.textContent = 'SEM GESTÃO';
         badge.classList.add('encerrada');
-
         document.getElementById('gestaoIcone').textContent = '⚠️';
-
         mostrarAlerta('alertSemGestao');
-
-        definirKpi('kpiMembros', '0');
-        definirTrend('kpiMembrosTrend', 'Sem gestão ativa');
+        document.getElementById('kpiMembros').textContent = '0';
+        document.getElementById('kpiMembrosTrend').textContent = 'Sem gestão ativa';
       }
 
-      // ===== 2. CHECKLISTS =====
-      const { count: countChecklists, error: errChk } = await db
-        .from('checklists')
-        .select('*', { count: 'exact', head: true })
+      const { count: countChecklists } = await db
+        .from('checklists').select('*', { count: 'exact', head: true })
         .eq('ativo', true);
 
-      if (errChk) log('Erro checklists:', errChk);
+      document.getElementById('kpiChecklists').textContent = countChecklists || 0;
+      document.getElementById('kpiChecklistsTrend').textContent =
+        countChecklists > 0 ? `📋 ${countChecklists} modelo${countChecklists > 1 ? 's' : ''}` : '⚠️ Nenhum criado';
 
-      definirKpi('kpiChecklists', countChecklists || 0);
-      definirTrend('kpiChecklistsTrend',
-        countChecklists > 0 ? `📋 ${countChecklists} modelo${countChecklists > 1 ? 's' : ''}` : '⚠️ Nenhum criado');
+      const { count: countInspecoes } = await db
+        .from('inspecoes').select('*', { count: 'exact', head: true });
 
-      // ===== 3. INSPEÇÕES =====
-      const { count: countInspecoes, error: errInsp } = await db
-        .from('inspecoes')
-        .select('*', { count: 'exact', head: true });
+      document.getElementById('kpiInspecoes').textContent = countInspecoes || 0;
+      document.getElementById('kpiInspecoesTrend').textContent =
+        countInspecoes > 0 ? `✅ ${countInspecoes} realizada${countInspecoes > 1 ? 's' : ''}` : '📭 Nenhuma ainda';
 
-      if (errInsp) log('Erro inspeções:', errInsp);
-
-      definirKpi('kpiInspecoes', countInspecoes || 0);
-      definirTrend('kpiInspecoesTrend',
-        countInspecoes > 0 ? `✅ ${countInspecoes} realizada${countInspecoes > 1 ? 's' : ''}` : '📭 Nenhuma ainda');
-
-      // Badge no menu
       if (countInspecoes > 0) {
         const b = document.getElementById('badgeInsp');
         b.textContent = countInspecoes > 99 ? '99+' : countInspecoes;
         b.style.display = 'inline-block';
       }
 
-      // ===== 4. ÚLTIMAS INSPEÇÕES =====
       if (countInspecoes > 0) {
         const { data: ultimas } = await db
-          .from('inspecoes')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(5);
+          .from('inspecoes').select('*')
+          .order('created_at', { ascending: false }).limit(5);
 
         if (ultimas && ultimas.length > 0) {
-          const secao = document.getElementById('secaoInspecoes');
-          secao.style.display = 'block';
-
+          document.getElementById('secaoInspecoes').style.display = 'block';
           const lista = document.getElementById('listaInspecoes');
           lista.innerHTML = '';
 
@@ -1172,16 +646,12 @@
             if (pct < 70) cls = 'nok';
             else if (pct < 90) cls = 'parcial';
 
-            const data = new Date(i.created_at);
-            const dataFmt = data.toLocaleDateString('pt-BR');
-
+            const dataFmt = new Date(i.created_at).toLocaleDateString('pt-BR');
             const li = document.createElement('li');
             li.className = 'insp-item';
             li.onclick = () => window.location.href = 'inspecoes.html';
             li.innerHTML = `
-              <div class="insp-avatar">
-                ${(i.cipeiro_nome || 'XX').substring(0, 2).toUpperCase()}
-              </div>
+              <div class="insp-avatar">${(i.cipeiro_nome || 'XX').substring(0, 2).toUpperCase()}</div>
               <div class="insp-info">
                 <strong>${i.cipeiro_nome || '—'}</strong>
                 <small>${i.checklist_titulo || '—'} • ${i.local_inspecionado || 'Sem local'} • ${dataFmt}</small>
@@ -1193,50 +663,30 @@
         }
       }
 
-      // Esconder skeletons que sobraram
       document.querySelectorAll('.skeleton').forEach(s => s.remove());
-
       log('✅ Dados carregados.');
-
     } catch (err) {
-      log('❌ Erro geral:', err);
+      log('❌ Erro:', err);
       mostrarAlerta('alertErro', err.message || 'Erro desconhecido');
-      // Remove skeletons
       document.querySelectorAll('.skeleton').forEach(s => s.remove());
     }
   }
 
-  // Helper: ano fim (suporta campo ano_fim mesmo se vier string)
-  function gestaoAtual_anoFim(g) {
-    return g.ano_fim || (parseInt(g.ano_inicio) + 1);
-  }
-
-  // ============ INIT ============
   (async function init() {
     log('Iniciando dashboard...');
-
     const logado = await verificarLogin();
     if (!logado) return;
-
     aplicarUsuario();
     await carregarDados();
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
 
-    setTimeout(() => {
-      document.getElementById('loadingOverlay').classList.add('hidden');
-    }, 400);
-
-    // Verifica sessão a cada 5 min (para auto-logout se expirar)
     setInterval(async () => {
       const { data: { session } } = await db.auth.getSession();
-      if (!session) {
-        log('Sessão expirada — redirecionando');
-        window.location.href = 'index.html';
-      }
+      if (!session) window.location.href = 'index.html';
     }, 5 * 60 * 1000);
 
     log('✅ Pronto.');
   })();
 </script>
-
 </body>
 </html>
