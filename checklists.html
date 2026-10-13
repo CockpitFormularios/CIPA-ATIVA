@@ -438,4 +438,615 @@
   <!-- FILTROS -->
   <div class="filtros">
     <div class="filtro-categoria" id="filtroCategorias">
-      <button class="cat-pill active
+      <button class="cat-pill active" data-cat="todos" onclick="filtrarPorCategoria('todos', this)">
+        📋 Todos
+      </button>
+    </div>
+    <div class="search-box">
+      <input type="text" id="busca" placeholder="Buscar checklist..." oninput="renderizar()">
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="checklists-grid" id="gridChecklists"></div>
+
+  <!-- ESTADO VAZIO -->
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <div class="empty-icon">📋</div>
+    <h3>Nenhum checklist criado ainda</h3>
+    <p>Crie seu primeiro modelo de inspeção para começar. Você pode fazer checklists de EPI, 5S, RAC, elétrica, extintores e muito mais.</p>
+    <button class="btn btn-gold" onclick="abrirModalChecklist()">
+      ➕ Criar Primeiro Checklist
+    </button>
+  </div>
+
+</main>
+
+<!-- ============ MODAL CRIAR/EDITAR CHECKLIST ============ -->
+<div class="modal-overlay" id="modalChecklist">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalChecklistTitle">Novo Checklist</h3>
+      <button class="close-btn" onclick="fecharModalChecklist()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label>Título do Checklist <span>*</span></label>
+        <input type="text" class="form-control" id="checklistTitulo" placeholder="Ex: Inspeção de EPI, 5S, RAC...">
+      </div>
+
+      <div class="form-group">
+        <label>Descrição</label>
+        <textarea class="form-control" id="checklistDescricao" placeholder="Breve descrição do objetivo deste checklist..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoria</label>
+          <input type="text" class="form-control" id="checklistCategoria" placeholder="Ex: EPI, Organização, Elétrica" list="categoriasList">
+          <datalist id="categoriasList">
+            <option value="EPI">
+            <option value="5S">
+            <option value="RAC">
+            <option value="Elétrica">
+            <option value="Extintores">
+            <option value="Ergonomia">
+            <option value="Ambiental">
+            <option value="Máquinas">
+            <option value="Organização">
+            <option value="Segurança">
+          </datalist>
+        </div>
+        <div class="form-group">
+          <label>Cor do Cartão</label>
+          <div class="color-picker" id="colorPicker">
+            <button type="button" class="color-option active" data-cor="#2e8b57" style="background:#2e8b57" onclick="escolherCor(this)"></button>
+            <button type="button" class="color-option" data-cor="#3b82f6" style="background:#3b82f6" onclick="escolherCor(this)"></button>
+            <button type="button" class="color-option" data-cor="#f59e0b" style="background:#f59e0b" onclick="escolherCor(this)"></button>
+            <button type="button" class="color-option" data-cor="#e11d48" style="background:#e11d48" onclick="escolherCor(this)"></button>
+            <button type="button" class="color-option" data-cor="#8b5cf6" style="background:#8b5cf6" onclick="escolherCor(this)"></button>
+            <button type="button" class="color-option" data-cor="#06b6d4" style="background:#06b6d4" onclick="escolherCor(this)"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Ícone</label>
+        <div class="icon-picker" id="iconPicker">
+          <button type="button" class="icon-option active" data-icon="📋" onclick="escolherIcone(this)">📋</button>
+          <button type="button" class="icon-option" data-icon="🦺" onclick="escolherIcone(this)">🦺</button>
+          <button type="button" class="icon-option" data-icon="🧹" onclick="escolherIcone(this)">🧹</button>
+          <button type="button" class="icon-option" data-icon="⚡" onclick="escolherIcone(this)">⚡</button>
+          <button type="button" class="icon-option" data-icon="🔥" onclick="escolherIcone(this)">🔥</button>
+          <button type="button" class="icon-option" data-icon="🏭" onclick="escolherIcone(this)">🏭</button>
+          <button type="button" class="icon-option" data-icon="🔧" onclick="escolherIcone(this)">🔧</button>
+          <button type="button" class="icon-option" data-icon="🚧" onclick="escolherIcone(this)">🚧</button>
+          <button type="button" class="icon-option" data-icon="🧯" onclick="escolherIcone(this)">🧯</button>
+          <button type="button" class="icon-option" data-icon="⚠️" onclick="escolherIcone(this)">⚠️</button>
+          <button type="button" class="icon-option" data-icon="🚨" onclick="escolherIcone(this)">🚨</button>
+          <button type="button" class="icon-option" data-icon="🔬" onclick="escolherIcone(this)">🔬</button>
+          <button type="button" class="icon-option" data-icon="🧪" onclick="escolherIcone(this)">🧪</button>
+          <button type="button" class="icon-option" data-icon="🛡️" onclick="escolherIcone(this)">🛡️</button>
+          <button type="button" class="icon-option" data-icon="💧" onclick="escolherIcone(this)">💧</button>
+          <button type="button" class="icon-option" data-icon="🌱" onclick="escolherIcone(this)">🌱</button>
+        </div>
+      </div>
+
+      <div class="itens-section">
+        <div class="itens-header">
+          <h4>Itens do Checklist</h4>
+          <span class="itens-count-badge" id="itensCount">0 itens</span>
+        </div>
+
+        <div id="listaItens"></div>
+
+        <button type="button" class="add-item-btn" onclick="adicionarItem()">
+          ➕ Adicionar Pergunta
+        </button>
+      </div>
+
+      <input type="hidden" id="editingChecklistId">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalChecklist()">Cancelar</button>
+      <button class="btn btn-save" id="btnSalvarChecklist" onclick="salvarChecklist()">💾 Salvar Checklist</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL EXCLUIR ============ -->
+<div class="modal-overlay" id="modalExcluir">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header" style="background:linear-gradient(135deg,#fef2f2,#fff);">
+      <h3 style="color:var(--danger);">🗑️ Excluir Checklist</h3>
+      <button class="close-btn" onclick="fecharModalExcluir()">✕</button>
+    </div>
+    <div style="padding:24px 28px; text-align:center;">
+      <div style="width:80px; height:80px; margin:0 auto 20px; background:linear-gradient(135deg,#fee2e2,#fecaca); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:40px;">🗑️</div>
+      <h4 style="font-size:18px; font-weight:800; margin-bottom:10px;">Excluir este checklist?</h4>
+      <p style="font-size:13.5px; color:var(--text-soft); line-height:1.6; margin-bottom:20px;">
+        O checklist <strong id="excluirNome">—</strong> será removido permanentemente.
+      </p>
+      <input type="text" class="form-control" id="inputExcluirChecklist" placeholder="Digite EXCLUIR" style="text-align:center; font-weight:700; letter-spacing:2px; text-transform:uppercase;" oninput="verificarExcluirChecklist()">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmarExcluirChecklist" onclick="confirmarExcluirChecklist()" disabled>🗑️ Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<script>
+  // ============ ESTADO ============
+  let usuario = null;
+  let checklists = [];
+  let categoriaFiltro = 'todos';
+  let itensTemp = [];
+  let corSelecionada = '#2e8b57';
+  let iconeSelecionado = '📋';
+  let checklistParaExcluir = null;
+
+  const log = (...args) => console.log('🔎 [CIPA]', ...args);
+
+  // ============ HELPERS ============
+  let toastTimer;
+  function mostrarToast(msg, erro = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', erro);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
+
+  function gerarId() {
+    return 'item-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8);
+  }
+
+  // ============ LOGIN ============
+  async function verificarLogin() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      window.location.href = 'index.html';
+      return false;
+    }
+    usuario = {
+      id: session.user.id,
+      email: session.user.email,
+      nome: session.user.email.split('@')[0]
+    };
+    return true;
+  }
+
+  function aplicarUsuario() {
+    const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+    document.getElementById('userAvatar').textContent = iniciais || '?';
+    document.getElementById('userName').textContent =
+      usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
+    document.getElementById('userRole').textContent = '🔑 SESMT';
+  }
+
+  async function fazerLogout() {
+    if (!confirm('Deseja sair?')) return;
+    await db.auth.signOut();
+    sessionStorage.removeItem('cipa_user');
+    window.location.href = 'index.html';
+  }
+
+  // ============ CARREGAR ============
+  async function carregarChecklists() {
+    const { data, error } = await db
+      .from('checklists')
+      .select('*')
+      .eq('ativo', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      log('Erro:', error);
+      mostrarToast('❌ Erro ao carregar: ' + error.message, true);
+      return;
+    }
+
+    checklists = data || [];
+    atualizarFiltroCategorias();
+    renderizar();
+  }
+
+  // ============ FILTRO CATEGORIAS ============
+  function atualizarFiltroCategorias() {
+    const cats = [...new Set(checklists.map(c => c.categoria).filter(Boolean))];
+    const container = document.getElementById('filtroCategorias');
+    const icons = {
+      'EPI': '🦺', '5S': '🧹', 'RAC': '🧯', 'Elétrica': '⚡',
+      'Extintores': '🔥', 'Ergonomia': '🪑', 'Ambiental': '🌱',
+      'Máquinas': '🏭', 'Organização': '📦', 'Segurança': '🛡️'
+    };
+
+    container.innerHTML = `
+      <button class="cat-pill ${categoriaFiltro === 'todos' ? 'active' : ''}"
+        data-cat="todos" onclick="filtrarPorCategoria('todos', this)">
+        📋 Todos (${checklists.length})
+      </button>
+    `;
+
+    cats.forEach(cat => {
+      const count = checklists.filter(c => c.categoria === cat).length;
+      const btn = document.createElement('button');
+      btn.className = 'cat-pill' + (categoriaFiltro === cat ? ' active' : '');
+      btn.innerHTML = `${icons[cat] || '📌'} ${cat} (${count})`;
+      btn.onclick = function() { filtrarPorCategoria(cat, this); };
+      container.appendChild(btn);
+    });
+  }
+
+  function filtrarPorCategoria(cat, el) {
+    categoriaFiltro = cat;
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    if (el) el.classList.add('active');
+    renderizar();
+  }
+
+  // ============ RENDERIZAR ============
+  function renderizar() {
+    const busca = (document.getElementById('busca').value || '').toLowerCase().trim();
+    const grid = document.getElementById('gridChecklists');
+    const emptyState = document.getElementById('emptyState');
+
+    let lista = checklists;
+
+    if (categoriaFiltro !== 'todos') {
+      lista = lista.filter(c => c.categoria === categoriaFiltro);
+    }
+
+    if (busca) {
+      lista = lista.filter(c =>
+        c.titulo.toLowerCase().includes(busca) ||
+        (c.descricao || '').toLowerCase().includes(busca) ||
+        (c.categoria || '').toLowerCase().includes(busca)
+      );
+    }
+
+    if (lista.length === 0) {
+      grid.innerHTML = '';
+      grid.style.display = 'none';
+
+      if (checklists.length === 0) {
+        emptyState.style.display = 'block';
+        emptyState.querySelector('h3').textContent = 'Nenhum checklist criado ainda';
+        emptyState.querySelector('p').textContent = 'Crie seu primeiro modelo de inspeção para começar. Você pode fazer checklists de EPI, 5S, RAC, elétrica, extintores e muito mais.';
+        emptyState.querySelector('.btn').textContent = '➕ Criar Primeiro Checklist';
+      } else {
+        emptyState.style.display = 'block';
+        emptyState.querySelector('h3').textContent = 'Nenhum resultado encontrado';
+        emptyState.querySelector('p').textContent = 'Tente outra busca ou categoria.';
+        emptyState.querySelector('.btn').textContent = '➕ Criar Novo Checklist';
+      }
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    grid.style.display = 'grid';
+    grid.innerHTML = '';
+
+    lista.forEach(c => {
+      const totalItens = Array.isArray(c.itens) ? c.itens.length : 0;
+      const card = document.createElement('div');
+      card.className = 'checklist-card';
+      card.style.setProperty('--cor', c.cor || '#2e8b57');
+      card.innerHTML = `
+        <div class="checklist-card-header">
+          <div class="checklist-icon" style="background:linear-gradient(135deg, ${hexToRgba(c.cor, 0.1)}, ${hexToRgba(c.cor, 0.2)});">
+            ${c.icone || '📋'}
+          </div>
+          <div class="checklist-actions">
+            <button class="checklist-action-btn" title="Duplicar" onclick="event.stopPropagation(); duplicarChecklist('${c.id}')">📄</button>
+            <button class="checklist-action-btn" title="Editar" onclick="event.stopPropagation(); editarChecklist('${c.id}')">✏️</button>
+            <button class="checklist-action-btn danger" title="Excluir" onclick="event.stopPropagation(); abrirModalExcluir('${c.id}')">🗑️</button>
+          </div>
+        </div>
+        ${c.categoria ? `<span class="checklist-categoria" style="background:${hexToRgba(c.cor, 0.1)}; color:${c.cor};">${c.categoria}</span>` : ''}
+        <h3>${c.titulo}</h3>
+        <p>${c.descricao || 'Sem descrição'}</p>
+        <div class="checklist-footer">
+          <span class="checklist-itens-count">
+            📝 <strong>${totalItens}</strong> ${totalItens === 1 ? 'item' : 'itens'}
+          </span>
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); aplicarChecklist('${c.id}')">
+            ▶️ Aplicar
+          </button>
+        </div>
+      `;
+      card.onclick = () => editarChecklist(c.id);
+      grid.appendChild(card);
+    });
+  }
+
+  function hexToRgba(hex, alpha) {
+    if (!hex) hex = '#2e8b57';
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
+
+  // ============ MODAL CRIAR/EDITAR ============
+  function abrirModalChecklist(checklist = null) {
+    itensTemp = checklist?.itens ? JSON.parse(JSON.stringify(checklist.itens)) : [];
+    corSelecionada = checklist?.cor || '#2e8b57';
+    iconeSelecionado = checklist?.icone || '📋';
+
+    document.getElementById('modalChecklistTitle').textContent =
+      checklist ? 'Editar Checklist' : 'Novo Checklist';
+    document.getElementById('checklistTitulo').value = checklist?.titulo || '';
+    document.getElementById('checklistDescricao').value = checklist?.descricao || '';
+    document.getElementById('checklistCategoria').value = checklist?.categoria || '';
+    document.getElementById('editingChecklistId').value = checklist?.id || '';
+
+    // Aplica cor
+    document.querySelectorAll('.color-option').forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.cor === corSelecionada);
+    });
+
+    // Aplica ícone
+    document.querySelectorAll('.icon-option').forEach(opt => {
+      opt.classList.toggle('active', opt.dataset.icon === iconeSelecionado);
+    });
+
+    renderizarItens();
+    document.getElementById('modalChecklist').classList.add('open');
+
+    if (itensTemp.length === 0) {
+      // Adiciona 1 item em branco por padrão
+      adicionarItem();
+    }
+  }
+
+  function fecharModalChecklist() {
+    document.getElementById('modalChecklist').classList.remove('open');
+  }
+
+  function escolherCor(el) {
+    document.querySelectorAll('.color-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    corSelecionada = el.dataset.cor;
+  }
+
+  function escolherIcone(el) {
+    document.querySelectorAll('.icon-option').forEach(o => o.classList.remove('active'));
+    el.classList.add('active');
+    iconeSelecionado = el.dataset.icon;
+  }
+
+  // ============ ITENS ============
+  function adicionarItem() {
+    itensTemp.push({
+      id: gerarId(),
+      pergunta: '',
+      tipo: 'conforme'
+    });
+    renderizarItens();
+  }
+
+  function removerItem(id) {
+    itensTemp = itensTemp.filter(i => i.id !== id);
+    renderizarItens();
+  }
+
+  function atualizarItem(id, campo, valor) {
+    const item = itensTemp.find(i => i.id === id);
+    if (item) item[campo] = valor;
+  }
+
+  function renderizarItens() {
+    const lista = document.getElementById('listaItens');
+    const count = document.getElementById('itensCount');
+
+    count.textContent = `${itensTemp.length} ${itensTemp.length === 1 ? 'item' : 'itens'}`;
+
+    if (itensTemp.length === 0) {
+      lista.innerHTML = `
+        <div style="text-align:center; padding:30px 20px; color:var(--text-soft); background:var(--bg); border-radius:12px;">
+          <div style="font-size:36px; margin-bottom:8px; opacity:0.5;">📝</div>
+          <p style="font-size:13px;">Nenhum item ainda. Clique em "Adicionar Pergunta" abaixo.</p>
+        </div>
+      `;
+      return;
+    }
+
+    lista.innerHTML = '';
+    itensTemp.forEach((item, idx) => {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
+        <div class="item-number">${idx + 1}</div>
+        <div class="item-fields">
+          <input type="text" placeholder="Digite a pergunta..." value="${(item.pergunta || '').replace(/"/g, '&quot;')}"
+            oninput="atualizarItem('${item.id}', 'pergunta', this.value)">
+          <div class="row-2">
+            <select onchange="atualizarItem('${item.id}', 'tipo', this.value)">
+              <option value="conforme" ${item.tipo === 'conforme' ? 'selected' : ''}>✅ Conforme / Não Conforme</option>
+              <option value="sim_nao" ${item.tipo === 'sim_nao' ? 'selected' : ''}>👍 Sim / Não</option>
+              <option value="nota" ${item.tipo === 'nota' ? 'selected' : ''}>⭐ Nota (0-10)</option>
+              <option value="texto" ${item.tipo === 'texto' ? 'selected' : ''}>📝 Texto livre</option>
+            </select>
+            <button class="btn-remove-item" title="Remover" onclick="removerItem('${item.id}')">✕</button>
+          </div>
+        </div>
+      `;
+      lista.appendChild(row);
+    });
+  }
+
+  // ============ SALVAR ============
+  async function salvarChecklist() {
+    const titulo = document.getElementById('checklistTitulo').value.trim();
+    const descricao = document.getElementById('checklistDescricao').value.trim();
+    const categoria = document.getElementById('checklistCategoria').value.trim();
+    const id = document.getElementById('editingChecklistId').value;
+
+    if (!titulo) {
+      mostrarToast('⚠️ Digite o título do checklist!', true);
+      return;
+    }
+
+    if (itensTemp.length === 0) {
+      mostrarToast('⚠️ Adicione pelo menos 1 item!', true);
+      return;
+    }
+
+    // Valida se todos os itens têm pergunta
+    const semPergunta = itensTemp.find(i => !i.pergunta.trim());
+    if (semPergunta) {
+      mostrarToast('⚠️ Preencha todas as perguntas!', true);
+      return;
+    }
+
+    const btn = document.getElementById('btnSalvarChecklist');
+    btn.disabled = true;
+    btn.textContent = '⏳ Salvando...';
+
+    try {
+      const dados = {
+        titulo, descricao, categoria,
+        icone: iconeSelecionado,
+        cor: corSelecionada,
+        itens: itensTemp,
+        updated_at: new Date().toISOString()
+      };
+
+      let error;
+      if (id) {
+        ({ error } = await db.from('checklists').update(dados).eq('id', id));
+      } else {
+        dados.created_by = usuario.id;
+        ({ error } = await db.from('checklists').insert([dados]));
+      }
+
+      if (error) throw error;
+
+      fecharModalChecklist();
+      mostrarToast(id ? '✅ Checklist atualizado!' : '✅ Checklist criado!');
+      await carregarChecklists();
+    } catch (err) {
+      log('Erro:', err);
+      mostrarToast('❌ ' + (err.message || 'Erro'), true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '💾 Salvar Checklist';
+    }
+  }
+
+  // ============ EDITAR / DUPLICAR / EXCLUIR ============
+  function editarChecklist(id) {
+    const c = checklists.find(x => x.id === id);
+    if (c) abrirModalChecklist(c);
+  }
+
+  async function duplicarChecklist(id) {
+    const c = checklists.find(x => x.id === id);
+    if (!c) return;
+
+    if (!confirm(`Duplicar "${c.titulo}"?`)) return;
+
+    try {
+      const { error } = await db.from('checklists').insert([{
+        titulo: c.titulo + ' (cópia)',
+        descricao: c.descricao,
+        categoria: c.categoria,
+        icone: c.icone,
+        cor: c.cor,
+        itens: c.itens,
+        created_by: usuario.id
+      }]);
+
+      if (error) throw error;
+      mostrarToast('📄 Checklist duplicado!');
+      await carregarChecklists();
+    } catch (err) {
+      mostrarToast('❌ ' + err.message, true);
+    }
+  }
+
+  function abrirModalExcluir(id) {
+    const c = checklists.find(x => x.id === id);
+    if (!c) return;
+    checklistParaExcluir = c;
+    document.getElementById('excluirNome').textContent = c.titulo;
+    document.getElementById('inputExcluirChecklist').value = '';
+    document.getElementById('btnConfirmarExcluirChecklist').disabled = true;
+    document.getElementById('modalExcluir').classList.add('open');
+  }
+
+  function fecharModalExcluir() {
+    document.getElementById('modalExcluir').classList.remove('open');
+  }
+
+  function verificarExcluirChecklist() {
+    const val = document.getElementById('inputExcluirChecklist').value.trim().toUpperCase();
+    document.getElementById('btnConfirmarExcluirChecklist').disabled = val !== 'EXCLUIR';
+  }
+
+  async function confirmarExcluirChecklist() {
+    if (!checklistParaExcluir) return;
+    const btn = document.getElementById('btnConfirmarExcluirChecklist');
+    btn.disabled = true;
+    btn.textContent = '⏳ Excluindo...';
+
+    try {
+      const { error } = await db.from('checklists').delete().eq('id', checklistParaExcluir.id);
+      if (error) throw error;
+      fecharModalExcluir();
+      mostrarToast('🗑️ Checklist excluído.');
+      await carregarChecklists();
+    } catch (err) {
+      mostrarToast('❌ ' + err.message, true);
+      btn.disabled = false;
+      btn.textContent = '🗑️ Excluir';
+    }
+  }
+
+  // ============ APLICAR (placeholder) ============
+  function aplicarChecklist(id) {
+    const c = checklists.find(x => x.id === id);
+    if (!c) return;
+    mostrarToast(`🚧 Aplicar "${c.titulo}" — em construção!`);
+  }
+
+  // ============ INIT ============
+  (async function init() {
+    log('Iniciando checklists...');
+
+    const logado = await verificarLogin();
+    if (!logado) return;
+
+    aplicarUsuario();
+    await carregarChecklists();
+
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
+
+    document.getElementById('modalChecklist').addEventListener('click', e => {
+      if (e.target.id === 'modalChecklist') fecharModalChecklist();
+    });
+    document.getElementById('modalExcluir').addEventListener('click', e => {
+      if (e.target.id === 'modalExcluir') fecharModalExcluir();
+    });
+
+    log('✅ Pronto.');
+  })();
+</script>
+
+</body>
+</html>
