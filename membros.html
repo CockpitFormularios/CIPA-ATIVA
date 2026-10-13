@@ -295,7 +295,7 @@
     box-shadow: none !important;
   }
 
-  /* ============ BARRA DE GESTÃO (REDESENHADA) ============ */
+  /* ============ BARRA DE GESTÃO ============ */
   .gestao-bar {
     background: linear-gradient(135deg, #ffffff 0%, #fbfdff 100%);
     border: 1.5px solid var(--border);
@@ -474,6 +474,96 @@
   }
   .aviso-encerrada.show { display: flex; }
 
+  /* ============ ESTADO VAZIO ============ */
+  .empty-state-container {
+    background: linear-gradient(135deg, #ffffff 0%, #fbfdff 100%);
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 80px 40px;
+    text-align: center;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .empty-state-container::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(46,139,87,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .empty-state-container::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,201,60,0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .empty-icon {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 28px;
+    background: linear-gradient(135deg, var(--green-100), #d1fae5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 12px 40px rgba(46,139,87,0.15);
+  }
+
+  .empty-icon.warning {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    box-shadow: 0 12px 40px rgba(245,158,11,0.2);
+  }
+
+  .empty-state-container h3 {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .empty-state-container p {
+    font-size: 14.5px;
+    color: var(--text-soft);
+    max-width: 480px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+
+  .empty-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .empty-actions .btn {
+    padding: 13px 26px;
+    font-size: 14px;
+  }
+
   /* ============ ORGANOGRAMA ============ */
   .org-chart-wrapper {
     background: #fff;
@@ -528,7 +618,6 @@
     letter-spacing: 0.3px;
   }
 
-  /* ============ MEMBER CARD (REDESENHADO) ============ */
   .member-card {
     background: #fff;
     border: 2.5px solid var(--text);
@@ -641,7 +730,6 @@
     box-shadow: 0 5px 14px rgba(225,29,72,0.5);
   }
 
-  /* ============ LABELS E CONECTORES ============ */
   .label-box {
     background: #fff;
     border: 2.5px solid var(--green-900);
@@ -859,7 +947,6 @@
     font-family: inherit;
   }
 
-  /* ============ PHOTO UPLOAD ============ */
   .photo-upload {
     display: flex;
     align-items: center;
@@ -936,10 +1023,7 @@
     box-shadow: 0 10px 24px rgba(46,139,87,0.45);
   }
 
-  /* ============ MODAL DANGER ============ */
-  .modal-danger {
-    max-width: 480px;
-  }
+  .modal-danger { max-width: 480px; }
 
   .modal-danger .modal-header {
     background: linear-gradient(135deg, #fef2f2, #fff);
@@ -1043,6 +1127,9 @@
     .gestao-controles { width: 100%; }
     .select-gestao { width: 100%; min-width: unset; }
     .gestao-controles .btn { flex: 1; justify-content: center; }
+    .empty-state-container { padding: 50px 20px; }
+    .empty-icon { width: 90px; height: 90px; font-size: 44px; }
+    .empty-state-container h3 { font-size: 20px; }
   }
 </style>
 </head>
@@ -1105,10 +1192,10 @@
 
   <div class="topbar">
     <h2>Membros da CIPA
-      <span>Organograma oficial • Gestão: <strong id="gestaoAtualTitulo">—</strong></span>
+      <span>Organograma oficial • Gestão: <strong id="gestaoAtualTitulo">Carregando...</strong></span>
     </h2>
     <div class="topbar-actions">
-      <button class="btn btn-secondary" onclick="baixarOrganograma()">
+      <button class="btn btn-secondary" onclick="baixarOrganograma()" id="btnBaixar">
         📸 Baixar Organograma
       </button>
       <button class="btn btn-gold" id="btnCadastrar" onclick="abrirModalMembro()">
@@ -1152,11 +1239,28 @@
   </div>
 
   <!-- BANNER NR-6 / ISO -->
-  <div class="info-banner">
+  <div class="info-banner" id="infoBanner">
     <span style="font-size:22px;">📋</span>
     <div>
       <strong>Conformidade NR-6 e ISO 14001</strong> — Cadastre os cipeiros com todos os dados
       (matrícula, ocupação, cargo) para garantir a rastreabilidade exigida em auditorias.
+    </div>
+  </div>
+
+  <!-- ============ ESTADO VAZIO (sem gestão) ============ -->
+  <div class="empty-state-container" id="emptyState" style="display:none;">
+    <div class="empty-icon" id="emptyIcon">🏛️</div>
+    <h3 id="emptyTitle">Nenhuma gestão ativa</h3>
+    <p id="emptyMessage">
+      Para começar a cadastrar membros, você precisa criar uma gestão da CIPA.
+    </p>
+    <div class="empty-actions">
+      <button class="btn btn-gold" id="btnEmptyCriar" onclick="abrirModalGestao()">
+        ➕ Criar Gestão
+      </button>
+      <button class="btn btn-secondary" id="btnVerEncerradas" onclick="irParaEncerradas()" style="display:none;">
+        📁 Ver Gestões Encerradas
+      </button>
     </div>
   </div>
 
@@ -1319,7 +1423,7 @@
     </div>
     <div class="modal-body">
 
-      <div style="background:linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.08)); border-left:4px solid var(--warning); padding:14px 18px; border-radius:12px; margin-bottom:22px; font-size:12.5px; color:#92400e; line-height:1.5;">
+      <div style="background:linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.08)); border-left:4px solid var(--warning); padding:14px 18px; border-radius:12px; margin-bottom:22px; font-size:12.5px; color:#92400e; line-height:1.5;" id="avisoGestao">
         ⚠️ Ao criar uma nova gestão, a gestão atual será <strong>encerrada automaticamente</strong> e ficará disponível apenas para consulta.
       </div>
 
@@ -1495,12 +1599,8 @@
     select.innerHTML = '';
 
     if (gestoes.length === 0) {
-      select.innerHTML = '<option>Nenhuma gestão cadastrada</option>';
+      select.innerHTML = '<option>Nenhuma gestão</option>';
       gestaoSelecionada = null;
-      document.getElementById('btnCadastrar').style.display = 'none';
-      document.getElementById('btnEncerrarGestao').style.display = 'none';
-      document.getElementById('btnExcluirGestao').style.display = 'none';
-      document.getElementById('btnNovaGestao').style.display = 'inline-flex';
       return;
     }
 
@@ -1522,11 +1622,50 @@
     carregarMembros();
   }
 
-  // ============ UI GESTÃO ============
+  // ============ UI GESTÃO (com estado vazio) ============
   function atualizarUIGestao() {
-    if (!gestaoSelecionada) return;
+    const gestaoBar = document.getElementById('gestaoBar');
+    const orgWrapper = document.getElementById('orgWrapper');
+    const emptyState = document.getElementById('emptyState');
+    const avisoEncerrada = document.getElementById('avisoEncerrada');
+    const infoBanner = document.getElementById('infoBanner');
+    const topbarActions = document.querySelector('.topbar-actions');
+
+    // ============ CASO 1: Nenhuma gestão existe ============
+    if (!gestaoSelecionada) {
+      gestaoBar.style.display = 'none';
+      orgWrapper.style.display = 'none';
+      infoBanner.style.display = 'none';
+      avisoEncerrada.classList.remove('show');
+      topbarActions.style.display = 'none';
+
+      emptyState.style.display = 'block';
+      document.getElementById('emptyIcon').textContent = '🏛️';
+      document.getElementById('emptyIcon').className = 'empty-icon';
+      document.getElementById('emptyTitle').textContent = 'Nenhuma gestão cadastrada';
+      document.getElementById('emptyMessage').textContent =
+        'Para começar a cadastrar os membros da CIPA, crie a primeira gestão. Você poderá definir o período, a empresa e adicionar todos os cipeiros.';
+      document.getElementById('btnEmptyCriar').textContent = '➕ Criar Primeira Gestão';
+      document.getElementById('btnVerEncerradas').style.display = 'none';
+
+      document.getElementById('gestaoAtualTitulo').textContent = 'Nenhuma gestão';
+      return;
+    }
+
+    // ============ CASO 2: Existe pelo menos uma gestão ============
     const g = gestaoSelecionada;
     const emVigor = g.em_vigor;
+    const temEncerradas = gestoes.some(x => !x.em_vigor);
+
+    // Se a gestão selecionada NÃO está em vigor, mas existe uma em vigor
+    // Podemos mostrar tela vazia "com aviso" só se não houver em vigor de fato
+    const nenhumaEmVigor = !gestoes.some(x => x.em_vigor);
+
+    gestaoBar.style.display = 'flex';
+    orgWrapper.style.display = 'block';
+    emptyState.style.display = 'none';
+    infoBanner.style.display = 'flex';
+    topbarActions.style.display = 'flex';
 
     document.getElementById('gestaoAtualTitulo').textContent = g.titulo;
     document.getElementById('gestaoTitulo').textContent = g.titulo;
@@ -1539,27 +1678,50 @@
     flag.textContent = emVigor ? '🏛️' : '📁';
     flag.className = 'gestao-flag' + (emVigor ? '' : ' encerrada');
 
-    const gestaoBar = document.getElementById('gestaoBar');
     gestaoBar.classList.toggle('encerrada', !emVigor);
 
     const badge = document.getElementById('gestaoBadge');
     badge.textContent = `CIPA ATIVA — GESTÃO ${g.ano_inicio}/${g.ano_fim}`;
     badge.classList.toggle('encerrada', !emVigor);
 
-    document.getElementById('avisoEncerrada').classList.toggle('show', !emVigor);
+    avisoEncerrada.classList.toggle('show', !emVigor);
 
     // Botões
     document.getElementById('btnCadastrar').style.display = emVigor ? 'inline-flex' : 'none';
     document.getElementById('btnEncerrarGestao').style.display = emVigor ? 'inline-flex' : 'none';
     document.getElementById('btnExcluirGestao').style.display = 'inline-flex';
     document.getElementById('btnNovaGestao').style.display = 'inline-flex';
+
+    // Ajusta texto do modal de nova gestão
+    const avisoGestao = document.getElementById('avisoGestao');
+    if (nenhumaEmVigor) {
+      avisoGestao.innerHTML = '✅ Nenhuma gestão em vigor no momento. A nova gestão será ativada automaticamente.';
+      avisoGestao.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(209,250,229,0.3))';
+      avisoGestao.style.borderLeftColor = 'var(--success)';
+      avisoGestao.style.color = '#047857';
+    } else {
+      avisoGestao.innerHTML = '⚠️ Ao criar uma nova gestão, a gestão atual será <strong>encerrada automaticamente</strong> e ficará disponível apenas para consulta.';
+      avisoGestao.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.08))';
+      avisoGestao.style.borderLeftColor = 'var(--warning)';
+      avisoGestao.style.color = '#92400e';
+    }
+  }
+
+  // ============ IR PARA ENCERRADAS ============
+  function irParaEncerradas() {
+    const encerrada = gestoes.find(g => !g.em_vigor);
+    if (encerrada) {
+      gestaoSelecionada = encerrada;
+      document.getElementById('selectGestao').value = encerrada.id;
+      atualizarUIGestao();
+      carregarMembros();
+    }
   }
 
   // ============ CARREGAR MEMBROS ============
   async function carregarMembros() {
     if (!gestaoSelecionada) {
       membros = [];
-      renderizarOrganograma();
       return;
     }
 
@@ -1943,7 +2105,6 @@
     btn.textContent = '⏳ Excluindo...';
 
     try {
-      // 1. Excluir todos os membros desta gestão
       const { error: errMembros } = await db
         .from('members')
         .delete()
@@ -1951,7 +2112,6 @@
 
       if (errMembros) throw errMembros;
 
-      // 2. Excluir a gestão
       const { error: errGestao } = await db
         .from('gestoes')
         .delete()
@@ -1975,8 +2135,13 @@
 
   // ============ DOWNLOAD ============
   function baixarOrganograma() {
+    if (!gestaoSelecionada) {
+      mostrarToast('⚠️ Nenhuma gestão para baixar.', true);
+      return;
+    }
+
     const el = document.getElementById('orgChart');
-    const titulo = gestaoSelecionada?.titulo || 'cipa';
+    const titulo = gestaoSelecionada.titulo;
     mostrarToast('📸 Gerando imagem...');
 
     html2canvas(el, {
@@ -2006,7 +2171,10 @@
     aplicarUsuario();
     await carregarGestoes();
     atualizarUIGestao();
-    await carregarMembros();
+
+    if (gestaoSelecionada) {
+      await carregarMembros();
+    }
 
     setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
 
