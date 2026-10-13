@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspeções Realizadas | CIPA Ativa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+  :root {
+    --green-900: #0a1f13;
+    --green-800: #0d2818;
+    --green-700: #1e5f3f;
+    --green-600: #2e8b57;
+    --green-500: #3fb878;
+    --green-100: #e8f5ed;
+    --yellow: #ffc93c;
+    --yellow-dark: #e8b324;
+    --bg: #f7f9fb;
+    --bg-alt: #eef2f6;
+    --card: #ffffff;
+    --text: #0b1220;
+    --text-soft: #64748b;
+    --text-muted: #94a3b8;
+    --border: #e5eaf0;
+    --border-strong: #cbd5e1;
+    --danger: #e11d48;
+    --danger-soft: #fee2e2;
+    --warning: #f59e0b;
+    --warning-soft: #fef3c7;
+    --success: #10b981;
+    --success-soft: #d1fae5;
+    --info: #3b82f6;
+    --info-soft: #dbeafe;
+    --shadow-sm: 0 2px 6px rgba(15,23,42,0.05);
+    --shadow-md: 0 6px 18px rgba(15,23,42,0.08);
+    --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
+    --radius: 14px;
+    --radius-lg: 20px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+  }
+
+  /* ============ LOADING ============ */
+  .loading-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--green-900), var(--green-700));
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px;
+    z-index: 9999; color: #fff;
+    transition: opacity 0.4s;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner-lg {
+    width: 54px; height: 54px;
+    border: 4px solid rgba(255,201,60,0.2);
+    border-top-color: var(--yellow);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ SIDEBAR ============ */
+  .sidebar {
+    width: 268px;
+    background: linear-gradient(180deg, var(--green-900) 0%, var(--green-800) 100%);
+    color: #fff;
+    padding: 24px 16px;
+    position: fixed; height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex; flex-direction: column;
+  }
+
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 8px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+  }
+
+  .brand-icon {
+    width: 46px; height: 46px;
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 21px; color: var(--green-900);
+    box-shadow: 0 6px 16px rgba(255,201,60,0.35);
+    flex-shrink: 0;
+  }
+
+  .brand-text h1 { font-size: 17px; font-weight: 700; }
+  .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
+
+  .nav-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    color: rgba(255,255,255,0.35);
+    padding: 14px 12px 8px;
+    font-weight: 700;
+  }
+
+  .sidebar nav a {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 13.5px; font-weight: 500;
+    border-radius: 11px;
+    margin-bottom: 2px;
+    transition: all 0.18s ease;
+    cursor: pointer;
+  }
+
+  .sidebar nav a:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+    transform: translateX(2px);
+  }
+
+  .sidebar nav a.active {
+    background: linear-gradient(90deg, var(--green-600), var(--green-700));
+    color: #fff;
+    box-shadow: 0 6px 14px rgba(46,139,87,0.4);
+  }
+
+  .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
+
+  .sidebar-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+    padding-left: 8px;
+  }
+
+  .avatar-sm {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer .info { flex: 1; min-width: 0; }
+  .sidebar-footer .info small {
+    display: block;
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+  }
+  .sidebar-footer .info strong {
+    font-size: 13px; font-weight: 600;
+    display: block;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .btn-logout {
+    background: rgba(255,255,255,0.08);
+    border: none; color: #fff;
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    cursor: pointer; font-size: 14px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .btn-logout:hover { background: var(--danger); }
+
+  /* ============ MAIN ============ */
+  .main {
+    margin-left: 268px;
+    flex: 1;
+    padding: 28px 36px 100px;
+    width: calc(100% - 268px);
+    max-width: 1600px;
+  }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
+  }
+
+  .topbar h2 {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    background: linear-gradient(135deg, var(--green-900), var(--green-600));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .topbar h2 span {
+    color: var(--text-soft);
+    font-size: 13.5px;
+    font-weight: 400;
+    display: block;
+    margin-top: 6px;
+    background: none;
+    -webkit-text-fill-color: var(--text-soft);
+  }
+
+  .topbar-actions {
+    display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 11px 20px;
+    border-radius: 11px;
+    border: none;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green-600), var(--green-700));
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(46,139,87,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(46,139,87,0.45);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    color: var(--green-900);
+    box-shadow: 0 4px 14px rgba(255,201,60,0.4);
+    font-weight: 700;
+  }
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255,201,60,0.55);
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-secondary:hover {
+    background: var(--bg-alt);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .btn-danger {
+    background: rgba(225,29,72,0.08);
+    color: var(--danger);
+    border: 1.5px solid rgba(225,29,72,0.2);
+  }
+  .btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .btn-sm { padding: 8px 14px; font-size: 12px; border-radius: 9px; }
+
+  /* ============ ESTATÍSTICAS ============ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    border: 1.5px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--green-600);
+  }
+
+  .stat-card.ok::before { background: var(--success); }
+  .stat-card.warn::before { background: var(--warning); }
+  .stat-card.danger::before { background: var(--danger); }
+  .stat-card.info::before { background: var(--info); }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-soft);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+
+  .stat-card.ok .stat-value { color: #047857; }
+  .stat-card.warn .stat-value { color: #92400e; }
+  .stat-card.danger .stat-value { color: #991b1b; }
+  .stat-card.info .stat-value { color: #1e40af; }
+
+  /* ============ FILTROS ============ */
+  .filtros {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .search-box { position: relative; flex: 1; min-width: 220px; }
+
+  .search-box input {
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1.5px solid var(--border);
+    border-radius: 11px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .search-box input:focus {
+    border-color: var(--green-600);
+    box-shadow: 0 0 0 4px rgba(46,139,87,0.1);
+  }
+
+  .search-box::before {
+    content: '🔍';
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  .filtros select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 11px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .filtros select:focus { border-color: var(--green-600); }
+
+  /* ============ TABELA ============ */
+  .table-wrap {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    color: var(--text-soft);
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    border-bottom: 1.5px solid var(--border);
+    background: var(--bg);
+  }
+
+  td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+
+  .row-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+
+  .icon-btn {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .icon-btn:hover {
+    background: var(--bg-alt);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .icon-btn.pdf:hover {
+    background: var(--danger-soft);
+    border-color: var(--danger);
+  }
+
+  /* ============ BADGES ============ */
+  .badge {
+    font-size: 11px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .badge.ok { background: var(--success-soft); color: #047857; }
+  .badge.nok { background: var(--danger-soft); color: #991b1b; }
+  .badge.parcial { background: var(--warning-soft); color: #92400e; }
+
+  .progress-mini {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+  }
+
+  .progress-mini-bar {
+    width: 60px; height: 6px;
+    background: var(--bg-alt);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .progress-mini-fill {
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.3s;
+  }
+
+  .progress-mini-fill.ok { background: linear-gradient(90deg, var(--green-500), var(--green-700)); }
+  .progress-mini-fill.parcial { background: linear-gradient(90deg, var(--yellow), var(--warning)); }
+  .progress-mini-fill.nok { background: linear-gradient(90deg, #f87171, var(--danger)); }
+
+  /* ============ EMPTY ============ */
+  .empty-state {
+    text-align: center;
+    padding: 80px 30px;
+  }
+
+  .empty-state .icon {
+    font-size: 70px;
+    margin-bottom: 20px;
+    opacity: 0.4;
+  }
+
+  .empty-state h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: var(--text-soft);
+    max-width: 460px;
+    margin: 0 auto 24px;
+    line-height: 1.6;
+  }
+
+  /* ============ MODAL DETALHES ============ */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(11,18,32,0.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 22px;
+    width: 100%;
+    max-width: 780px;
+    box-shadow: 0 30px 80px rgba(11,18,32,0.35);
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: slideUp 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .modal-header {
+    padding: 24px 28px;
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 2;
+    border-radius: 22px 22px 0 0;
+  }
+
+  .modal-header h3 {
+    font-size: 19px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .close-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg-alt);
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--text-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .close-btn:hover {
+    background: var(--danger-soft);
+    color: var(--danger);
+    transform: rotate(90deg);
+  }
+
+  .modal-body { padding: 24px 28px; }
+
+  .info-line {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+  }
+
+  .info-line:last-child { border-bottom: none; }
+
+  .info-line strong {
+    min-width: 150px;
+    color: var(--text-soft);
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding-top: 2px;
+  }
+
+  .resp-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .resp-item:last-child { border-bottom: none; }
+
+  .resp-status {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .resp-status.ok { background: var(--success); }
+  .resp-status.nok { background: var(--danger); }
+  .resp-status.na { background: var(--text-muted); }
+
+  .resp-info { flex: 1; }
+  .resp-info strong {
+    display: block;
+    font-size: 13.5px;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .resp-info small {
+    color: var(--text-soft);
+    font-size: 12px;
+    display: block;
+  }
+  .resp-info .obs {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 12.5px;
+    color: var(--text-soft);
+    line-height: 1.5;
+    border-left: 3px solid var(--yellow);
+  }
+
+  .modal-footer {
+    padding: 20px 28px;
+    border-top: 1.5px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    background: linear-gradient(180deg, #fafbfc, #f5f7fa);
+    border-radius: 0 0 22px 22px;
+    position: sticky;
+    bottom: 0;
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--green-900);
+    color: #fff;
+    padding: 15px 26px;
+    border-radius: 14px;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 20px 50px rgba(11,18,32,0.35);
+    z-index: 400;
+    transition: transform 0.35s;
+    max-width: 90vw;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+
+  /* ============ RESPONSIVO ============ */
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
+    .topbar h2 { font-size: 22px; }
+    .info-line { flex-direction: column; gap: 4px; }
+    .info-line strong { min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-lg"></div>
+  <p style="font-weight:600;">Carregando inspeções...</p>
+</div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">C</div>
+    <div class="brand-text">
+      <h1>CIPA Ativa</h1>
+      <span>Painel SESMT</span>
+    </div>
+  </div>
+
+  <div class="nav-label">Visão Geral</div>
+  <nav>
+    <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
+    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
+  </nav>
+
+  <div class="nav-label">Gestão CIPA</div>
+  <nav>
+    <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
+    <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+  </nav>
+
+  <div class="nav-label">Inspeções</div>
+  <nav>
+    <a class="active"><span class="icon">🔍</span> Ver Inspeções</a>
+    <a onclick="window.location.href='checklists.html'"><span class="icon">📋</span> Checklists</a>
+  </nav>
+
+  <div class="nav-label">Sistema</div>
+  <nav>
+    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
+    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="avatar-sm" id="userAvatar">?</div>
+    <div class="info">
+      <strong id="userName">—</strong>
+      <small id="userRole">SESMT</small>
+    </div>
+    <button class="btn-logout" onclick="fazerLogout()" title="Sair">🚪</button>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <h2>Inspeções Realizadas
+      <span>Consulte, filtre e exporte as respostas dos cipeiros</span>
+    </h2>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" onclick="carregarInspecoes()">🔄 Atualizar</button>
+      <button class="btn btn-secondary" onclick="exportarCSV()">📊 CSV</button>
+      <button class="btn btn-gold" onclick="exportarRelatorioPDF()">📄 Relatório PDF</button>
+    </div>
+  </div>
+
+  <!-- ESTATÍSTICAS -->
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card info">
+      <div class="stat-label">Total de Inspeções</div>
+      <div class="stat-value" id="statTotal">0</div>
+    </div>
+    <div class="stat-card ok">
+      <div class="stat-label">Conformidade Média</div>
+      <div class="stat-value" id="statMedia">0%</div>
+    </div>
+    <div class="stat-card warn">
+      <div class="stat-label">Inspeções este Mês</div>
+      <div class="stat-value" id="statMes">0</div>
+    </div>
+    <div class="stat-card danger">
+      <div class="stat-label">Não Conformes (Total)</div>
+      <div class="stat-value" id="statNaoConformes">0</div>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="filtros">
+    <div class="search-box">
+      <input type="text" id="busca" placeholder="Buscar por cipeiro, checklist ou local..." oninput="renderizar()">
+    </div>
+    <select id="filtroChecklist" onchange="renderizar()">
+      <option value="">Todos os checklists</option>
+    </select>
+    <select id="filtroCipeiro" onchange="renderizar()">
+      <option value="">Todos os cipeiros</option>
+    </select>
+    <select id="filtroPeriodo" onchange="renderizar()">
+      <option value="todos">Todo período</option>
+      <option value="7">Últimos 7 dias</option>
+      <option value="30">Últimos 30 dias</option>
+      <option value="90">Últimos 90 dias</option>
+      <option value="365">Último ano</option>
+    </select>
+    <select id="filtroResultado" onchange="renderizar()">
+      <option value="">Todos os resultados</option>
+      <option value="ok">✅ Alta conformidade (≥90%)</option>
+      <option value="parcial">⚠️ Média (70-89%)</option>
+      <option value="nok">❌ Baixa (&lt;70%)</option>
+    </select>
+  </div>
+
+  <!-- TABELA -->
+  <div class="table-wrap" id="tableWrap" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Cipeiro</th>
+          <th>Checklist</th>
+          <th>Local Inspecionado</th>
+          <th>Conformidade</th>
+          <th>Resultado</th>
+          <th style="text-align:right;">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyInspecoes"></tbody>
+    </table>
+  </div>
+
+  <!-- EMPTY -->
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📭</div>
+    <h3>Nenhuma inspeção realizada ainda</h3>
+    <p>Quando os cipeiros responderem os checklists no link <strong>checklistsCIPEIROS.html</strong>, as respostas aparecerão aqui automaticamente.</p>
+  </div>
+
+</main>
+
+<!-- MODAL DETALHES -->
+<div class="modal-overlay" id="modalDetalhes">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔍 Detalhes da Inspeção</h3>
+      <button class="close-btn" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal()">Fechar</button>
+      <button class="btn btn-gold" id="btnExportarAtual" onclick="exportarPDFIndividual()">
+        📄 Baixar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<script>
+  // ============ ESTADO ============
+  let usuario = null;
+  let inspecoes = [];
+  let inspecaoSelecionada = null;
+  let listaFiltrada = [];
+
+  const log = (...args) => console.log('🔎 [INSPEÇÕES]', ...args);
+
+  // ============ HELPERS ============
+  let toastTimer;
+  function mostrarToast(msg, erro = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.toggle('error', erro);
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
+
+  function formatarData(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', {
+      hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function classeConformidade(pct) {
+    if (pct >= 90) return 'ok';
+    if (pct >= 70) return 'parcial';
+    return 'nok';
+  }
+
+  // ============ LOGIN ============
+  async function verificarLogin() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) {
+      window.location.href = 'index.html';
+      return false;
+    }
+    usuario = {
+      id: session.user.id,
+      email: session.user.email,
+      nome: session.user.email.split('@')[0]
+    };
+    return true;
+  }
+
+  function aplicarUsuario() {
+    const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+    document.getElementById('userAvatar').textContent = iniciais || '?';
+    document.getElementById('userName').textContent =
+      usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
+  }
+
+  async function fazerLogout() {
+    if (!confirm('Deseja sair?')) return;
+    await db.auth.signOut();
+    sessionStorage.removeItem('cipa_user');
+    window.location.href = 'index.html';
+  }
+
+  // ============ CARREGAR ============
+  async function carregarInspecoes() {
+    log('Carregando inspeções...');
+
+    const { data, error } = await db
+      .from('inspecoes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      log('Erro:', error);
+      mostrarToast('❌ ' + error.message, true);
+      return;
+    }
+
+    inspecoes = data || [];
+    log('Total:', inspecoes.length);
+
+    atualizarEstatisticas();
+    atualizarFiltros();
+    renderizar();
+  }
+
+  // ============ ESTATÍSTICAS ============
+  function atualizarEstatisticas() {
+    const total = inspecoes.length;
+    document.getElementById('statTotal').textContent = total;
+
+    if (total === 0) {
+      document.getElementById('statMedia').textContent = '0%';
+      document.getElementById('statMes').textContent = '0';
+      document.getElementById('statNaoConformes').textContent = '0';
+      return;
+    }
+
+    // Média de conformidade
+    const soma = inspecoes.reduce((acc, i) => acc + (parseFloat(i.percentual_conformidade) || 0), 0);
+    document.getElementById('statMedia').textContent = (soma / total).toFixed(1) + '%';
+
+    // Este mês
+    const agora = new Date();
+    const mesAtual = inspecoes.filter(i => {
+      const d = new Date(i.created_at);
+      return d.getMonth() === agora.getMonth() && d.getFullYear() === agora.getFullYear();
+    }).length;
+    document.getElementById('statMes').textContent = mesAtual;
+
+    // Total de não conformes
+    const totalNC = inspecoes.reduce((acc, i) => acc + (parseInt(i.total_nao_conformes) || 0), 0);
+    document.getElementById('statNaoConformes').textContent = totalNC;
+  }
+
+  // ============ FILTROS ============
+  function atualizarFiltros() {
+    const selChecklist = document.getElementById('filtroChecklist');
+    const selCipeiro = document.getElementById('filtroCipeiro');
+
+    const titulos = [...new Set(inspecoes.map(i => i.checklist_titulo))].sort();
+    const nomes = [...new Set(inspecoes.map(i => i.cipeiro_nome))].sort();
+
+    selChecklist.innerHTML = '<option value="">Todos os checklists</option>';
+    titulos.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = t;
+      selChecklist.appendChild(opt);
+    });
+
+    selCipeiro.innerHTML = '<option value="">Todos os cipeiros</option>';
+    nomes.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n;
+      opt.textContent = n;
+      selCipeiro.appendChild(opt);
+    });
+  }
+
+  // ============ RENDERIZAR ============
+  function renderizar() {
+    const busca = (document.getElementById('busca').value || '').toLowerCase().trim();
+    const filtroChk = document.getElementById('filtroChecklist').value;
+    const filtroCip = document.getElementById('filtroCipeiro').value;
+    const filtroPer = document.getElementById('filtroPeriodo').value;
+    const filtroRes = document.getElementById('filtroResultado').value;
+
+    let lista = [...inspecoes];
+
+    if (busca) {
+      lista = lista.filter(i =>
+        (i.cipeiro_nome || '').toLowerCase().includes(busca) ||
+        (i.checklist_titulo || '').toLowerCase().includes(busca) ||
+        (i.local_inspecionado || '').toLowerCase().includes(busca)
+      );
+    }
+
+    if (filtroChk) lista = lista.filter(i => i.checklist_titulo === filtroChk);
+    if (filtroCip) lista = lista.filter(i => i.cipeiro_nome === filtroCip);
+
+    if (filtroPer !== 'todos') {
+      const dias = parseInt(filtroPer);
+      const limite = new Date();
+      limite.setDate(limite.getDate() - dias);
+      lista = lista.filter(i => new Date(i.created_at) >= limite);
+    }
+
+    if (filtroRes) {
+      lista = lista.filter(i => {
+        const pct = parseFloat(i.percentual_conformidade) || 0;
+        if (filtroRes === 'ok') return pct >= 90;
+        if (filtroRes === 'parcial') return pct >= 70 && pct < 90;
+        if (filtroRes === 'nok') return pct < 70;
+        return true;
+      });
+    }
+
+    listaFiltrada = lista;
+
+    const wrap = document.getElementById('tableWrap');
+    const empty = document.getElementById('emptyState');
+
+    if (lista.length === 0) {
+      wrap.style.display = 'none';
+      empty.style.display = 'block';
+      if (inspecoes.length === 0) {
+        empty.querySelector('h3').textContent = 'Nenhuma inspeção realizada ainda';
+        empty.querySelector('p').innerHTML =
+          'Quando os cipeiros responderem os checklists no link <strong>checklistsCIPEIROS.html</strong>, as respostas aparecerão aqui automaticamente.';
+      } else {
+        empty.querySelector('h3').textContent = 'Nenhum resultado encontrado';
+        empty.querySelector('p').textContent = 'Tente ajustar os filtros.';
+      }
+      return;
+    }
+
+    wrap.style.display = 'block';
+    empty.style.display = 'none';
+
+    const tbody = document.getElementById('tbodyInspecoes');
+    tbody.innerHTML = '';
+
+    lista.forEach(i => {
+      const pct = parseFloat(i.percentual_conformidade) || 0;
+      const cls = classeConformidade(pct);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${formatarData(i.created_at)}</strong></td>
+        <td>
+          <div style="font-weight:700;">${i.cipeiro_nome || '—'}</div>
+          <small style="color:var(--text-soft); font-size:11.5px;">${i.cipeiro_matricula || ''}</small>
+        </td>
+        <td>${i.checklist_titulo || '—'}</td>
+        <td>${i.local_inspecionado || '—'}</td>
+        <td>
+          <div class="progress-mini">
+            <div class="progress-mini-bar">
+              <div class="progress-mini-fill ${cls}" style="width:${pct}%"></div>
+            </div>
+            <strong style="font-size:12.5px;">${pct.toFixed(0)}%</strong>
+          </div>
+        </td>
+        <td>
+          <span class="badge ${cls}">
+            ${i.total_conformes || 0} ✅ / ${i.total_nao_conformes || 0} ❌
+          </span>
+        </td>
+        <td>
+          <div class="row-actions">
+            <button class="icon-btn" title="Ver detalhes" onclick="abrirDetalhes('${i.id}')">👁️</button>
+            <button class="icon-btn pdf" title="Baixar PDF" onclick="exportarPDFIndividual('${i.id}')">📄</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ============ MODAL DETALHES ============
+  function abrirDetalhes(id) {
+    const i = inspecoes.find(x => x.id === id);
+    if (!i) return;
+
+    inspecaoSelecionada = i;
+    const respostas = i.respostas || [];
+
+    let respostasHtml = '';
+    respostas.forEach((r, idx) => {
+      const v = r.resposta;
+      let status = 'na', label = '—';
+
+      if (v === 'conforme' || v === 'sim') {
+        status = 'ok'; label = v === 'sim' ? 'Sim' : 'Conforme';
+      } else if (v === 'nao_conforme' || v === 'nao') {
+        status = 'nok'; label = v === 'nao' ? 'Não' : 'Não Conforme';
+      } else if (typeof v === 'number') {
+        status = v >= 7 ? 'ok' : 'nok';
+        label = `Nota: ${v}/10`;
+      } else if (v) {
+        label = 'Texto';
+      }
+
+      const statusIcon = status === 'ok' ? '✓' : status === 'nok' ? '✗' : '·';
+
+      respostasHtml += `
+        <div class="resp-item">
+          <div class="resp-status ${status}">${statusIcon}</div>
+          <div class="resp-info">
+            <strong>${idx + 1}. ${r.pergunta || '—'}</strong>
+            <small><strong>Resposta:</strong> ${label}</small>
+            ${r.observacao ? `<div class="obs">💬 ${r.observacao}</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    const pct = parseFloat(i.percentual_conformidade) || 0;
+    const cls = classeConformidade(pct);
+
+    document.getElementById('modalBody').innerHTML = `
+      <div class="info-line">
+        <strong>Cipeiro</strong>
+        <div>${i.cipeiro_nome || '—'} ${i.cipeiro_matricula ? `(${i.cipeiro_matricula})` : ''}</div>
+      </div>
+      <div class="info-line">
+        <strong>Checklist</strong>
+        <div>${i.checklist_titulo || '—'} ${i.checklist_categoria ? `• ${i.checklist_categoria}` : ''}</div>
+      </div>
+      <div class="info-line">
+        <strong>Local inspecionado</strong>
+        <div>${i.local_inspecionado || '—'}</div>
+      </div>
+      <div class="info-line">
+        <strong>Data/Hora</strong>
+        <div>${formatarData(i.created_at)}</div>
+      </div>
+      <div class="info-line">
+        <strong>Resultado</strong>
+        <div>
+          <span class="badge ${cls}" style="margin-right:8px;">${pct.toFixed(1)}%</span>
+          <span style="color:var(--text-soft); font-size:12.5px;">
+            ${i.total_conformes || 0} conformes • ${i.total_nao_conformes || 0} não conformes • ${i.total_itens || 0} itens
+          </span>
+        </div>
+      </div>
+      ${i.observacoes ? `
+      <div class="info-line">
+        <strong>Observações</strong>
+        <div>${i.observacoes}</div>
+      </div>
+      ` : ''}
+
+      <h4 style="margin-top:24px; margin-bottom:12px; font-size:15px; font-weight:800;">
+        📝 Respostas (${respostas.length})
+      </h4>
+      ${respostasHtml || '<p style="color:var(--text-soft); text-align:center; padding:20px;">Nenhuma resposta registrada.</p>'}
+    `;
+
+    document.getElementById('modalDetalhes').classList.add('open');
+  }
+
+  function fecharModal() {
+    document.getElementById('modalDetalhes').classList.remove('open');
+    inspecaoSelecionada = null;
+  }
+
+  // ============ EXPORTAR CSV ============
+  function exportarCSV() {
+    if (listaFiltrada.length === 0) {
+      mostrarToast('⚠️ Nada para exportar', true);
+      return;
+    }
+
+    const header = ['Data', 'Cipeiro', 'Matrícula', 'Checklist', 'Categoria',
+                    'Local', 'Conformes', 'Não Conformes', 'Total', 'Conformidade %'];
+    const rows = listaFiltrada.map(i => [
+      formatarData(i.created_at),
+      i.cipeiro_nome || '',
+      i.cipeiro_matricula || '',
+      i.checklist_titulo || '',
+      i.checklist_categoria || '',
+      i.local_inspecionado || '',
+      i.total_conformes || 0,
+      i.total_nao_conformes || 0,
+      i.total_itens || 0,
+      i.percentual_conformidade || 0
+    ]);
+
+    const csv = [header, ...rows].map(r =>
+      r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `inspecoes-cipa-${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    mostrarToast('📊 CSV exportado!');
+  }
+
+  // ============ EXPORTAR PDF INDIVIDUAL ============
+  function exportarPDFIndividual(id) {
+    const insp = id ? inspecoes.find(x => x.id === id) : inspecaoSelecionada;
+    if (!insp) {
+      mostrarToast('⚠️ Inspeção não encontrada', true);
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const largura = doc.internal.pageSize.getWidth();
+    let y = 0;
+
+    // ===== CABEÇALHO =====
+    doc.setFillColor(10, 31, 19);
+    doc.rect(0, 0, largura, 32, 'F');
+
+    doc.setFillColor(255, 201, 60);
+    doc.circle(18, 16, 7, 'F');
+    doc.setTextColor(10, 31, 19);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('C', 15.5, 18.5);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CIPA Ativa', 30, 14);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Relatório de Inspeção de Segurança do Trabalho', 30, 20);
+
+    doc.setFontSize(8);
+    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 14, { align: 'right' });
+    doc.text(`Emissor: ${usuario.nome}`, largura - 12, 20, { align: 'right' });
+
+    y = 42;
+
+    // ===== INFORMAÇÕES =====
+    doc.setFillColor(247, 249, 251);
+    doc.rect(10, y, largura - 20, 40, 'F');
+
+    doc.setTextColor(100, 116, 139);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text('INFORMAÇÕES DA INSPEÇÃO', 15, y + 7);
+
+    doc.setTextColor(11, 18, 32);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Cipeiro:', 15, y + 16);
+    doc.text('Checklist:', 15, y + 24);
+    doc.text('Local:', 15, y + 32);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${insp.cipeiro_nome || '—'} ${insp.cipeiro_matricula ? `(${insp.cipeiro_matricula})` : ''}`, 45, y + 16);
+    doc.text(`${insp.checklist_titulo || '—'} ${insp.checklist_categoria ? `• ${insp.checklist_categoria}` : ''}`, 45, y + 24);
+    doc.text(`${insp.local_inspecionado || '—'}`, 45, y + 32);
+
+    // Data e resultado do lado direito
+    doc.setFont('helvetica', 'bold');
+    doc.text('Data:', largura - 90, y + 16);
+    doc.text('Resultado:', largura - 90, y + 24);
+    doc.text('Conformidade:', largura - 90, y + 32);
+
+    doc.setFont('helvetica', 'normal');
+    doc.text(formatarData(insp.created_at), largura - 55, y + 16);
+    doc.text(`${insp.total_conformes || 0} OK  •  ${insp.total_nao_conformes || 0} NC`, largura - 55, y + 24);
+
+    const pct = parseFloat(insp.percentual_conformidade) || 0;
+    if (pct >= 90) doc.setTextColor(4, 120, 87);
+    else if (pct >= 70) doc.setTextColor(146, 64, 14);
+    else doc.setTextColor(153, 27, 27);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(`${pct.toFixed(1)}%`, largura - 55, y + 32);
+
+    y += 48;
+
+    // ===== OBSERVAÇÕES GERAIS =====
+    if (insp.observacoes) {
+      doc.setTextColor(11, 18, 32);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Observações Gerais:', 15, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const obsLines = doc.splitTextToSize(insp.observacoes, largura - 30);
+      doc.text(obsLines, 15, y);
+      y += obsLines.length * 5 + 6;
+    }
+
+    // ===== ITENS =====
+    doc.setTextColor(11, 18, 32);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ITENS INSPECIONADOS', 15, y);
+    y += 4;
+
+    // Linha decorativa
+    doc.setDrawColor(46, 139, 87);
+    doc.setLineWidth(0.8);
+    doc.line(15, y, 60, y);
+    y += 6;
+
+    const respostas = insp.respostas || [];
+
+    respostas.forEach((r, idx) => {
+      // Verifica se precisa nova página
+      if (y > 260) {
+        doc.addPage();
+        y = 20;
+      }
+
+      const v = r.resposta;
+      let resultado = 'N/A';
+      let corFundo = [148, 163, 184]; // cinza
+
+      if (v === 'conforme' || v === 'sim') {
+        resultado = 'CONFORME';
+        corFundo = [16, 185, 129];
+      } else if (v === 'nao_conforme' || v === 'nao') {
+        resultado = 'NÃO CONFORME';
+        corFundo = [225, 29, 72];
+      } else if (typeof v === 'number') {
+        if (v >= 7) { resultado = `NOTA ${v}/10`; corFundo = [16, 185, 129]; }
+        else { resultado = `NOTA ${v}/10`; corFundo = [225, 29, 72]; }
+      } else if (v) {
+        resultado = 'TEXTO';
+        corFundo = [59, 130, 246];
+      }
+
+      // Caixa do item
+      const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${r.pergunta || '—'}`, largura - 60);
+      const alturaItem = Math.max(14, perguntaLines.length * 4.5 + 8);
+
+      doc.setDrawColor(229, 234, 240);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(15, y, largura - 30, alturaItem, 2, 2);
+
+      // Badge de status
+      doc.setFillColor(...corFundo);
+      doc.roundedRect(18, y + 3, 26, 6, 1.5, 1.5, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+      doc.text(resultado, 31, y + 7, { align: 'center' });
+
+      // Pergunta
+      doc.setTextColor(11, 18, 32);
+      doc.setFontSize(9.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text(perguntaLines, 48, y + 7);
+
+      y += alturaItem + 2;
+
+      // Observação do item
+      if (r.observacao) {
+        if (y > 260) { doc.addPage(); y = 20; }
+        doc.setFillColor(255, 251, 235);
+        const obsLines = doc.splitTextToSize(`Observação: ${r.observacao}`, largura - 60);
+        const alturaObs = obsLines.length * 4 + 4;
+        doc.roundedRect(48, y, largura - 63, alturaObs, 1.5, 1.5, 'F');
+        doc.setTextColor(146, 64, 14);
+        doc.setFontSize(8);
+        doc.text(obsLines, 50, y + 4);
+        y += alturaObs + 2;
+      }
+    });
+
+    // ===== RODAPÉ =====
+    const totalPaginas = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPaginas; i++) {
+      doc.setPage(i);
+      const alturaPag = doc.internal.pageSize.getHeight();
+
+      doc.setDrawColor(229, 234, 240);
+      doc.setLineWidth(0.3);
+      doc.line(15, alturaPag - 15, largura - 15, alturaPag - 15);
+
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        `CIPA Ativa • Conformidade NR-6 / ISO 14001 • Página ${i} de ${totalPaginas}`,
+        largura / 2, alturaPag - 9, { align: 'center' }
+      );
+    }
+
+    // ===== SALVAR =====
+    const nomeArquivo = `inspecao-${(insp.cipeiro_nome || 'cipeiro').replace(/\s+/g, '-').toLowerCase()}-${new Date(insp.created_at).toISOString().slice(0,10)}.pdf`;
+    doc.save(nomeArquivo);
+    mostrarToast('📄 PDF gerado!');
+  }
+
+  // ============ EXPORTAR RELATÓRIO COMPLETO PDF ============
+  function exportarRelatorioPDF() {
+    if (listaFiltrada.length === 0) {
+      mostrarToast('⚠️ Nada para exportar', true);
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    const largura = doc.internal.pageSize.getWidth();
+
+    // ===== CAPA =====
+    doc.setFillColor(10, 31, 19);
+    doc.rect(0, 0, largura, 60, 'F');
+
+    doc.setFillColor(255, 201, 60);
+    doc.circle(25, 30, 10, 'F');
+    doc.setTextColor(10, 31, 19);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('C', 21, 34);
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CIPA Ativa', 42, 26);
+
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Relatório Consolidado de Inspeções', 42, 36);
+
+    doc.setFontSize(10);
+    doc.text('Conformidade NR-6 / ISO 14001', 42, 44);
+
+    doc.setFontSize(9);
+    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 15, 50, { align: 'right' });
+    doc.text(`Emissor: ${usuario.nome}`, largura - 15, 55, { align: 'right' });
+
+    // ===== RESUMO =====
+    let y = 75;
+    doc.setTextColor(11, 18, 32);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Estatístico', 15, y);
+    y += 8;
+
+    const total = listaFiltrada.length;
+    const somaPct = listaFiltrada.reduce((acc, i) => acc + (parseFloat(i.percentual_conformidade) || 0), 0);
+    const mediaPct = total > 0 ? (somaPct / total).toFixed(1) : '0';
+    const totalNC = listaFiltrada.reduce((acc, i) => acc + (parseInt(i.total_nao_conformes) || 0), 0);
+    const totalConf = listaFiltrada.reduce((acc, i) => acc + (parseInt(i.total_conformes) || 0), 0);
+
+    // Cards de resumo
+    const cardW = (largura - 40) / 4;
+    const cards = [
+      { label: 'Total', valor: total.toString(), cor: [59, 130, 246] },
+      { label: 'Conformidade', valor: mediaPct + '%', cor: [16, 185, 129] },
+      { label: 'Conformes', valor: totalConf.toString(), cor: [46, 139, 87] },
+      { label: 'Não Conf.', valor: totalNC.toString(), cor: [225, 29, 72] }
+    ];
+
+    cards.forEach((c, i) => {
+      const x = 15 + i * (cardW + 3.33);
+      doc.setFillColor(247, 249, 251);
+      doc.roundedRect(x, y, cardW, 22, 2, 2, 'F');
+
+      doc.setFillColor(...c.cor);
+      doc.rect(x, y, 2, 22, 'F');
+
+      doc.setTextColor(100, 116, 139);
+      doc.setFontSize(7);
+      doc.setFont('helvetica', 'bold');
+      doc.text(c.label.toUpperCase(), x + 5, y + 7);
+
+      doc.setTextColor(...c.cor);
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'bold');
+      doc.text(c.valor, x + 5, y + 17);
+    });
+
+    y += 32;
+
+    // ===== TABELA DE INSPEÇÕES =====
+    doc.setTextColor(11, 18, 32);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Inspeções Realizadas', 15, y);
+    y += 6;
+
+    const tableData = listaFiltrada.map(i => [
+      formatarData(i.created_at).slice(0, 10),
+      i.cipeiro_nome || '—',
+      i.checklist_titulo || '—',
+      i.local_inspecionado || '—',
+      `${i.total_conformes || 0}/${i.total_itens || 0}`,
+      `${(parseFloat(i.percentual_conformidade) || 0).toFixed(1)}%`
+    ]);
+
+    doc.autoTable({
+      startY: y,
+      head: [['Data', 'Cipeiro', 'Checklist', 'Local', 'OK/Total', 'Conform.']],
+      body: tableData,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [30, 95, 63],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 8.5,
+        halign: 'left'
+      },
+      bodyStyles: {
+        fontSize: 8.5,
+        textColor: [11, 18, 32]
+      },
+      alternateRowStyles: { fillColor: [247, 249, 251] },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 40 },
+        3: { cellWidth: 40 },
+        4: { cellWidth: 18, halign: 'center' },
+        5: { cellWidth: 20, halign: 'center', fontStyle: 'bold' }
+      },
+      margin: { left: 15, right: 15 }
+    });
+
+    // ===== RODAPÉ EM TODAS AS PÁGINAS =====
+    const totalPag = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPag; i++) {
+      doc.setPage(i);
+      const alturaPag = doc.internal.pageSize.getHeight();
+      doc.setDrawColor(229, 234, 240);
+      doc.setLineWidth(0.3);
+      doc.line(15, alturaPag - 15, largura - 15, alturaPag - 15);
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(7.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text(
+        `CIPA Ativa • Relatório de Inspeções • Página ${i} de ${totalPag}`,
+        largura / 2, alturaPag - 9, { align: 'center' }
+      );
+    }
+
+    const nomeArquivo = `relatorio-inspecoes-cipa-${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(nomeArquivo);
+    mostrarToast('📄 Relatório PDF gerado!');
+  }
+
+  // ============ INIT ============
+  (async function init() {
+    log('Iniciando inspeções.html...');
+
+    const logado = await verificarLogin();
+    if (!logado) return;
+
+    aplicarUsuario();
+    await carregarInspecoes();
+
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
+
+    document.getElementById('modalDetalhes').addEventListener('click', e => {
+      if (e.target.id === 'modalDetalhes') fecharModal();
+    });
+
+    log('✅ Pronto.');
+  })();
+</script>
+
+</body>
+</html>
