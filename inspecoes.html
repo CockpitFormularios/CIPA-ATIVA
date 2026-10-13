@@ -130,7 +130,6 @@
     border: 1.5px solid rgba(225,29,72,0.2); }
   .btn-danger:hover { background: var(--danger); color: #fff;
     transform: translateY(-2px); }
-  .btn-sm { padding: 8px 14px; font-size: 12px; border-radius: 9px; }
 
   /* STATS */
   .stats-grid { display: grid;
@@ -201,6 +200,9 @@
     border-color: var(--border-strong); transform: translateY(-2px); }
   .icon-btn.pdf:hover { background: var(--danger-soft);
     border-color: var(--danger); }
+  .icon-btn.delete { color: var(--danger);
+    border-color: rgba(225,29,72,0.3); }
+  .icon-btn.delete:hover { background: var(--danger); color: #fff; }
 
   .badge { font-size: 11px; padding: 5px 11px; border-radius: 20px;
     font-weight: 700; display: inline-block; text-transform: uppercase;
@@ -284,6 +286,32 @@
     justify-content: flex-end; gap: 10px;
     background: linear-gradient(180deg, #fafbfc, #f5f7fa);
     border-radius: 0 0 22px 22px; position: sticky; bottom: 0; }
+
+  /* FOTOS NO MODAL */
+  .fotos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .foto-modal {
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    aspect-ratio: 1;
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .foto-modal:hover {
+    border-color: var(--green-600);
+    transform: scale(1.03);
+    box-shadow: var(--shadow-md);
+  }
+  .foto-modal img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
 
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%;
@@ -654,6 +682,8 @@
     lista.forEach(i => {
       const pct = parseFloat(i.percentual_conformidade) || 0;
       const cls = classeConformidade(pct);
+      const temFotos = i.fotos && i.fotos.length > 0;
+      const nomeEscapado = (i.cipeiro_nome || '').replace(/'/g, "\\'");
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -674,11 +704,13 @@
         </td>
         <td>
           <span class="badge ${cls}">${i.total_conformes || 0} ✅ / ${i.total_nao_conformes || 0} ❌</span>
+          ${temFotos ? `<span style="font-size:11px; color:var(--info); font-weight:700; margin-left:6px;">📸 ${i.fotos.length}</span>` : ''}
         </td>
         <td>
           <div class="row-actions">
             <button class="icon-btn" title="Ver detalhes" onclick="abrirDetalhes('${i.id}')">👁️</button>
             <button class="icon-btn pdf" title="Baixar PDF" onclick="exportarPDFIndividual('${i.id}')">📄</button>
+            <button class="icon-btn delete" title="Excluir" onclick="confirmarExcluirInspecao('${i.id}', '${nomeEscapado}')">🗑️</button>
           </div>
         </td>
       `;
@@ -692,6 +724,7 @@
 
     inspecaoSelecionada = i;
     const respostas = i.respostas || [];
+    const fotos = i.fotos || [];
 
     let respostasHtml = '';
     respostas.forEach((r, idx) => {
@@ -704,6 +737,17 @@
 
       const statusIcon = status === 'ok' ? '✓' : status === 'nok' ? '✗' : '·';
 
+      // Fotos por item (se existirem)
+      const fotosItem = r.fotos && r.fotos.length > 0 ? `
+        <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+          ${r.fotos.map(url => `
+            <a href="${url}" target="_blank" style="display:block; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1.5px solid var(--border);">
+              <img src="${url}" style="width:100%; height:100%; object-fit:cover;">
+            </a>
+          `).join('')}
+        </div>
+      ` : '';
+
       respostasHtml += `
         <div class="resp-item">
           <div class="resp-status ${status}">${statusIcon}</div>
@@ -711,6 +755,7 @@
             <strong>${idx + 1}. ${r.pergunta || '—'}</strong>
             <small><strong>Resposta:</strong> ${label}</small>
             ${r.observacao ? `<div class="obs">💬 ${r.observacao}</div>` : ''}
+            ${fotosItem}
           </div>
         </div>
       `;
@@ -741,6 +786,20 @@
         </div>
       </div>
       ${i.observacoes ? `<div class="info-line"><strong>Observações</strong><div>${i.observacoes}</div></div>` : ''}
+
+      ${fotos.length > 0 ? `
+        <h4 style="margin-top:24px; margin-bottom:12px; font-size:15px; font-weight:800;">
+          📸 Fotos da Inspeção (${fotos.length})
+        </h4>
+        <div class="fotos-grid">
+          ${fotos.map(url => `
+            <a href="${url}" target="_blank" class="foto-modal">
+              <img src="${url}" loading="lazy">
+            </a>
+          `).join('')}
+        </div>
+      ` : ''}
+
       <h4 style="margin-top:24px; margin-bottom:12px; font-size:15px; font-weight:800;">
         📝 Respostas (${respostas.length})
       </h4>
@@ -755,6 +814,72 @@
     inspecaoSelecionada = null;
   }
 
+  // ============ EXCLUIR INSPEÇÃO ============
+  async function confirmarExcluirInspecao(id, nome) {
+    const insp = inspecoes.find(x => x.id === id);
+    if (!insp) return;
+
+    const confirmacao = prompt(
+      `⚠️ ATENÇÃO!\n\n` +
+      `Excluir a inspeção de "${nome}"?\n` +
+      `Checklist: ${insp.checklist_titulo}\n` +
+      `Local: ${insp.local_inspecionado}\n` +
+      `Data: ${formatarData(insp.created_at)}\n\n` +
+      `Digite EXCLUIR para confirmar:`
+    );
+
+    if (confirmacao !== 'EXCLUIR') {
+      mostrarToast('❌ Operação cancelada.');
+      return;
+    }
+
+    try {
+      mostrarToast('⏳ Excluindo...');
+
+      // Remove fotos do storage
+      const fotosParaRemover = [];
+
+      // Fotos gerais
+      if (insp.fotos && Array.isArray(insp.fotos)) {
+        insp.fotos.forEach(url => {
+          const partes = url.split('/cipa-inspecoes/');
+          if (partes.length > 1) fotosParaRemover.push(partes[1]);
+        });
+      }
+
+      // Fotos de itens
+      if (insp.respostas && Array.isArray(insp.respostas)) {
+        insp.respostas.forEach(r => {
+          if (r.fotos && Array.isArray(r.fotos)) {
+            r.fotos.forEach(url => {
+              const partes = url.split('/cipa-inspecoes/');
+              if (partes.length > 1) fotosParaRemover.push(partes[1]);
+            });
+          }
+        });
+      }
+
+      // Remove do storage
+      if (fotosParaRemover.length > 0) {
+        try {
+          await db.storage.from('cipa-inspecoes').remove(fotosParaRemover);
+        } catch (e) {
+          log('Erro ao remover fotos:', e);
+        }
+      }
+
+      // Remove do banco
+      const { error } = await db.from('inspecoes').delete().eq('id', id);
+      if (error) throw error;
+
+      mostrarToast('🗑️ Inspeção excluída!');
+      await carregarInspecoes();
+    } catch (err) {
+      log('Erro ao excluir:', err);
+      mostrarToast('❌ ' + err.message, true);
+    }
+  }
+
   function exportarCSV() {
     if (listaFiltrada.length === 0) {
       mostrarToast('⚠️ Nada para exportar', true);
@@ -762,7 +887,7 @@
     }
 
     const header = ['Data', 'Cipeiro', 'Matrícula', 'Checklist', 'Categoria',
-                    'Local', 'Conformes', 'Não Conformes', 'Total', 'Conformidade %'];
+                    'Local', 'Conformes', 'Não Conformes', 'Total', 'Conformidade %', 'Fotos'];
     const rows = listaFiltrada.map(i => [
       formatarData(i.created_at),
       i.cipeiro_nome || '',
@@ -773,7 +898,8 @@
       i.total_conformes || 0,
       i.total_nao_conformes || 0,
       i.total_itens || 0,
-      i.percentual_conformidade || 0
+      i.percentual_conformidade || 0,
+      (i.fotos && i.fotos.length) || 0
     ]);
 
     const csv = [header, ...rows].map(r =>
@@ -933,6 +1059,24 @@
         y += alturaObs + 2;
       }
     });
+
+    // Fotos no final (lista de URLs)
+    if (insp.fotos && insp.fotos.length > 0) {
+      if (y > 230) { doc.addPage(); y = 20; }
+      doc.setTextColor(11, 18, 32);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`FOTOS ANEXADAS (${insp.fotos.length})`, 15, y);
+      y += 6;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      insp.fotos.forEach((url, i) => {
+        if (y > 280) { doc.addPage(); y = 20; }
+        doc.text(`${i + 1}. ${url}`, 15, y);
+        y += 5;
+      });
+    }
 
     const totalPaginas = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPaginas; i++) {
