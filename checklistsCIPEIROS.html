@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inspeções | CIPA Ativa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+  :root {
+    --green-900: #0a1f13; --green-800: #0d2818; --green-700: #1e5f3f;
+    --green-600: #2e8b57; --green-500: #3fb878; --green-100: #e8f5ed;
+    --yellow: #ffc93c; --yellow-dark: #e8b324;
+    --bg: #f7f9fb; --bg-alt: #eef2f6; --card: #fff;
+    --text: #0b1220; --text-soft: #64748b; --text-muted: #94a3b8;
+    --border: #e5eaf0; --border-strong: #cbd5e1;
+    --danger: #e11d48; --danger-soft: #fee2e2;
+    --warning: #f59e0b; --warning-soft: #fef3c7;
+    --success: #10b981; --success-soft: #d1fae5;
+    --info: #3b82f6; --info-soft: #dbeafe;
+    --shadow-sm: 0 2px 6px rgba(15,23,42,0.05);
+    --shadow-md: 0 6px 18px rgba(15,23,42,0.08);
+    --shadow-lg: 0 16px 40px rgba(15,23,42,0.12);
+    --radius: 14px; --radius-lg: 20px;
+  }
+  body { background: var(--bg); color: var(--text); min-height: 100vh;
+    font-size: 14px; -webkit-font-smoothing: antialiased; display: flex; }
+
+  .loading-overlay { position: fixed; inset: 0;
+    background: linear-gradient(135deg, var(--green-900), var(--green-700));
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 20px; z-index: 9999;
+    color: #fff; transition: opacity 0.4s; }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner-lg { width: 54px; height: 54px;
+    border: 4px solid rgba(255,201,60,0.2); border-top-color: var(--yellow);
+    border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SIDEBAR */
+  .sidebar { width: 268px;
+    background: linear-gradient(180deg, var(--green-900) 0%, var(--green-800) 100%);
+    color: #fff; padding: 24px 16px; position: fixed; height: 100vh;
+    overflow-y: auto; z-index: 100; display: flex; flex-direction: column; }
+  .brand { display: flex; align-items: center; gap: 12px;
+    padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px; }
+  .brand-icon { width: 46px; height: 46px;
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    border-radius: 13px; display: flex; align-items: center;
+    justify-content: center; font-weight: 800; font-size: 21px;
+    color: var(--green-900); box-shadow: 0 6px 16px rgba(255,201,60,0.35); }
+  .brand-text h1 { font-size: 17px; font-weight: 700; }
+  .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
+  .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px;
+    color: rgba(255,255,255,0.35); padding: 14px 12px 8px; font-weight: 700; }
+  .sidebar nav a { display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; color: rgba(255,255,255,0.75);
+    text-decoration: none; font-size: 13.5px; font-weight: 500;
+    border-radius: 11px; margin-bottom: 2px;
+    transition: all 0.18s; cursor: pointer; }
+  .sidebar nav a:hover { background: rgba(255,255,255,0.07); color: #fff; }
+  .sidebar nav a.active { background: linear-gradient(90deg, var(--green-600), var(--green-700));
+    color: #fff; box-shadow: 0 6px 14px rgba(46,139,87,0.4); }
+  .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
+  .sidebar-footer { margin-top: auto; padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px; padding-left: 8px; }
+  .avatar-sm { width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--green-500), var(--green-600));
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .sidebar-footer .info { flex: 1; min-width: 0; }
+  .sidebar-footer .info small { display: block;
+    color: rgba(255,255,255,0.5); font-size: 11px; }
+  .sidebar-footer .info strong { font-size: 13px; font-weight: 600;
+    display: block; overflow: hidden; text-overflow: ellipsis;
+    white-space: nowrap; }
+  .btn-logout { background: rgba(255,255,255,0.08); border: none;
+    color: #fff; width: 34px; height: 34px; border-radius: 10px;
+    cursor: pointer; font-size: 14px; flex-shrink: 0; }
+  .btn-logout:hover { background: var(--danger); }
+
+  /* MAIN */
+  .main { margin-left: 268px; flex: 1; padding: 28px 36px 100px;
+    width: calc(100% - 268px); max-width: 1600px; }
+  .topbar { display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .topbar h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.8px;
+    background: linear-gradient(135deg, var(--green-900), var(--green-600));
+    background-clip: text; -webkit-background-clip: text; color: transparent; }
+  .topbar h2 span { color: var(--text-soft); font-size: 13.5px;
+    font-weight: 400; display: block; margin-top: 6px;
+    background: none; -webkit-text-fill-color: var(--text-soft); }
+
+  .btn { padding: 11px 20px; border-radius: 11px; border: none;
+    font-weight: 600; font-size: 13px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: all 0.22s; font-family: inherit; white-space: nowrap; }
+  .btn-gold { background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+    color: var(--green-900); font-weight: 700;
+    box-shadow: 0 4px 14px rgba(255,201,60,0.4); }
+  .btn-gold:hover { transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(255,201,60,0.55); }
+  .btn-secondary { background: #fff; color: var(--text);
+    border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-alt); }
+
+  /* FILTROS */
+  .filtros { background: #fff; border: 1.5px solid var(--border);
+    border-radius: var(--radius-lg); padding: 18px 22px;
+    margin-bottom: 24px; display: flex; align-items: center;
+    gap: 14px; flex-wrap: wrap; box-shadow: var(--shadow-sm); }
+  .search-box { position: relative; flex: 1; min-width: 220px; }
+  .search-box input { width: 100%; padding: 10px 14px 10px 40px;
+    border: 1.5px solid var(--border); border-radius: 11px;
+    font-size: 13px; font-family: inherit; outline: none; }
+  .search-box input:focus { border-color: var(--green-600);
+    box-shadow: 0 0 0 4px rgba(46,139,87,0.1); }
+  .search-box::before { content: '🔍'; position: absolute;
+    left: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 14px; pointer-events: none; }
+  .filtros select { padding: 10px 14px; border: 1.5px solid var(--border);
+    border-radius: 11px; font-size: 13px; font-family: inherit;
+    font-weight: 600; background: #fff; cursor: pointer; outline: none; }
+
+  /* TABELA */
+  .table-wrap { background: #fff; border-radius: var(--radius-lg);
+    border: 1.5px solid var(--border); box-shadow: var(--shadow-sm);
+    overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; padding: 14px 16px; color: var(--text-soft);
+    font-weight: 700; font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.6px; border-bottom: 1.5px solid var(--border);
+    background: var(--bg); }
+  td { padding: 16px; border-bottom: 1px solid var(--border);
+    font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); cursor: pointer; }
+
+  .badge { font-size: 11px; padding: 5px 11px; border-radius: 20px;
+    font-weight: 700; display: inline-block; text-transform: uppercase;
+    letter-spacing: 0.3px; }
+  .badge.ok { background: var(--success-soft); color: #047857; }
+  .badge.nok { background: var(--danger-soft); color: #991b1b; }
+  .badge.parcial { background: var(--warning-soft); color: #92400e; }
+
+  .progress-mini { display: flex; align-items: center; gap: 8px; }
+  .progress-mini-bar { width: 60px; height: 6px; background: var(--bg-alt);
+    border-radius: 20px; overflow: hidden; }
+  .progress-mini-fill { height: 100%; background: linear-gradient(90deg, var(--green-500), var(--green-700));
+    border-radius: 20px; }
+
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 80px 30px; }
+  .empty-state .icon { font-size: 70px; margin-bottom: 20px; opacity: 0.4; }
+  .empty-state h3 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .empty-state p { font-size: 14px; color: var(--text-soft);
+    max-width: 460px; margin: 0 auto 24px; line-height: 1.6; }
+
+  /* MODAL DETALHES */
+  .modal-overlay { position: fixed; inset: 0;
+    background: rgba(11,18,32,0.55); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center;
+    z-index: 200; padding: 20px; overflow-y: auto; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 22px; width: 100%;
+    max-width: 720px; box-shadow: 0 30px 80px rgba(11,18,32,0.35);
+    max-height: 92vh; overflow-y: auto; }
+  .modal-header { padding: 24px 28px; border-bottom: 1.5px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; background: #fff; z-index: 2; }
+  .modal-header h3 { font-size: 19px; font-weight: 800; }
+  .close-btn { width: 38px; height: 38px; border-radius: 50%;
+    border: none; background: var(--bg-alt); cursor: pointer;
+    font-size: 18px; color: var(--text-soft); }
+  .close-btn:hover { background: var(--danger-soft); color: var(--danger); }
+
+  .modal-body { padding: 24px 28px; }
+  .info-line { display: flex; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--border); font-size: 13.5px; }
+  .info-line strong { min-width: 140px; color: var(--text-soft);
+    font-weight: 600; font-size: 12.5px; text-transform: uppercase;
+    letter-spacing: 0.3px; }
+
+  .resp-item { display: flex; gap: 12px; padding: 14px 0;
+    border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .resp-item:last-child { border-bottom: none; }
+  .resp-status { width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; color: #fff; font-weight: 700; }
+  .resp-status.ok { background: var(--success); }
+  .resp-status.nok { background: var(--danger); }
+  .resp-status.na { background: var(--text-muted); }
+  .resp-info { flex: 1; }
+  .resp-info strong { display: block; font-size: 13.5px; margin-bottom: 3px; }
+  .resp-info small { color: var(--text-soft); font-size: 12px; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: var(--green-900); color: #fff;
+    padding: 15px 26px; border-radius: 14px;
+    font-size: 13.5px; font-weight: 600; z-index: 400;
+    transition: transform 0.35s; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; width: 100%; padding: 20px 16px 100px; }
+    .topbar h2 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-lg"></div>
+  <p style="font-weight:600;">Carregando inspeções...</p>
+</div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-icon">C</div>
+    <div class="brand-text">
+      <h1>CIPA Ativa</h1>
+      <span>Painel SESMT</span>
+    </div>
+  </div>
+  <div class="nav-label">Visão Geral</div>
+  <nav>
+    <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
+    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
+  </nav>
+  <div class="nav-label">Gestão CIPA</div>
+  <nav>
+    <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
+    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
+  </nav>
+  <div class="nav-label">Inspeções</div>
+  <nav>
+    <a class="active"><span class="icon">🔍</span> Ver Inspeções</a>
+    <a onclick="window.location.href='checklists.html'"><span class="icon">📋</span> Checklists</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="avatar-sm" id="userAvatar">?</div>
+    <div class="info">
+      <strong id="userName">—</strong>
+      <small id="userRole">SESMT</small>
+    </div>
+    <button class="btn-logout" onclick="fazerLogout()">🚪</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <h2>Inspeções Realizadas
+      <span>Veja as respostas enviadas pelos cipeiros</span>
+    </h2>
+    <div class="topbar-actions">
+      <button class="btn btn-secondary" onclick="carregarInspecoes()">🔄 Atualizar</button>
+      <button class="btn btn-gold" onclick="exportarCSV()">📊 Exportar CSV</button>
+    </div>
+  </div>
+
+  <div class="filtros">
+    <div class="search-box">
+      <input type="text" id="busca" placeholder="Buscar por cipeiro, checklist ou local..." oninput="renderizar()">
+    </div>
+    <select id="filtroChecklist" onchange="renderizar()">
+      <option value="">Todos os checklists</option>
+    </select>
+    <select id="filtroPeriodo" onchange="renderizar()">
+      <option value="todos">Todo período</option>
+      <option value="7">Últimos 7 dias</option>
+      <option value="30">Últimos 30 dias</option>
+      <option value="90">Últimos 90 dias</option>
+    </select>
+  </div>
+
+  <div class="table-wrap" id="tableWrap" style="display:none;">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Cipeiro</th>
+          <th>Checklist</th>
+          <th>Local</th>
+          <th>Conformidade</th>
+          <th>Resultado</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyInspecoes"></tbody>
+    </table>
+  </div>
+
+  <div class="empty-state" id="emptyState">
+    <div class="icon">📭</div>
+    <h3>Nenhuma inspeção realizada ainda</h3>
+    <p>Quando os cipeiros responderem os checklists em <strong>checklistsCIPEIROS.html</strong>, as respostas aparecerão aqui.</p>
+  </div>
+</main>
+
+<!-- MODAL DETALHES -->
+<div class="modal-overlay" id="modalDetalhes">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>🔍 Detalhes da Inspeção</h3>
+      <button class="close-btn" onclick="fecharModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const SUPABASE_URL = 'https://rvtquhqeivrhcdoreghu.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kNF6eX_67yzNGWIyjwZvOw_0__qWSMW';
+  const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+</script>
+
+<script>
+  let usuario = null;
+  let inspecoes = [];
+
+  const log = (...args) => console.log('🔎 [SESMT]', ...args);
+
+  let toastTimer;
+  function mostrarToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function emBreve(s) { mostrarToast(`🚧 "${s}" em construção!`); }
+
+  async function verificarLogin() {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) { window.location.href = 'index.html'; return false; }
+    usuario = { id: session.user.id, email: session.user.email,
+      nome: session.user.email.split('@')[0] };
+    return true;
+  }
+
+  function aplicarUsuario() {
+    const ini = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
+      .map(n => n[0].toUpperCase()).join('');
+    document.getElementById('userAvatar').textContent = ini || '?';
+    document.getElementById('userName').textContent =
+      usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
+  }
+
+  async function fazerLogout() {
+    if (!confirm('Sair?')) return;
+    await db.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  async function carregarInspecoes() {
+    const { data, error } = await db
+      .from('inspecoes')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) { log(error); mostrarToast('❌ ' + error.message); return; }
+    inspecoes = data || [];
+
+    // Preenche filtro de checklists
+    const select = document.getElementById('filtroChecklist');
+    const titulos = [...new Set(inspecoes.map(i => i.checklist_titulo))];
+    select.innerHTML = '<option value="">Todos os checklists</option>';
+    titulos.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t; opt.textContent = t;
+      select.appendChild(opt);
+    });
+
+    renderizar();
+  }
+
+  function renderizar() {
+    const busca = (document.getElementById('busca').value || '').toLowerCase();
+    const filtroChk = document.getElementById('filtroChecklist').value;
+    const filtroPer = document.getElementById('filtroPeriodo').value;
+
+    let lista = [...inspecoes];
+
+    if (busca) {
+      lista = lista.filter(i =>
+        i.cipeiro_nome.toLowerCase().includes(busca) ||
+        i.checklist_titulo.toLowerCase().includes(busca) ||
+        (i.local_inspecionado || '').toLowerCase().includes(busca)
+      );
+    }
+    if (filtroChk) lista = lista.filter(i => i.checklist_titulo === filtroChk);
+
+    if (filtroPer !== 'todos') {
+      const dias = parseInt(filtroPer);
+      const limite = new Date();
+      limite.setDate(limite.getDate() - dias);
+      lista = lista.filter(i => new Date(i.created_at) >= limite);
+    }
+
+    const wrap = document.getElementById('tableWrap');
+    const empty = document.getElementById('emptyState');
+
+    if (lista.length === 0) {
+      wrap.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+
+    wrap.style.display = 'block';
+    empty.style.display = 'none';
+    const tbody = document.getElementById('tbodyInspecoes');
+    tbody.innerHTML = '';
+
+    lista.forEach(i => {
+      const data = new Date(i.created_at).toLocaleDateString('pt-BR');
+      const pct = parseFloat(i.percentual_conformidade) || 0;
+      let badgeClass = 'ok';
+      if (pct < 70) badgeClass = 'nok';
+      else if (pct < 90) badgeClass = 'parcial';
+
+      const tr = document.createElement('tr');
+      tr.onclick = () => abrirDetalhes(i.id);
+      tr.innerHTML = `
+        <td><strong>${data}</strong></td>
+        <td>
+          <div style="font-weight:700;">${i.cipeiro_nome}</div>
+          <small style="color:var(--text-soft);">${i.cipeiro_matricula || ''}</small>
+        </td>
+        <td>${i.checklist_titulo}</td>
+        <td>${i.local_inspecionado || '—'}</td>
+        <td>
+          <div class="progress-mini">
+            <div class="progress-mini-bar">
+              <div class="progress-mini-fill" style="width:${pct}%"></div>
+            </div>
+            <strong style="font-size:12.5px;">${pct.toFixed(0)}%</strong>
+          </div>
+        </td>
+        <td><span class="badge ${badgeClass}">${i.total_conformes} ✅ / ${i.total_nao_conformes} ❌</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function abrirDetalhes(id) {
+    const i = inspecoes.find(x => x.id === id);
+    if (!i) return;
+
+    const respostas = i.respostas || [];
+    const data = new Date(i.created_at).toLocaleString('pt-BR');
+
+    let respostasHtml = '';
+    respostas.forEach((r, idx) => {
+      const v = r.resposta;
+      let status = 'na', label = '—';
+      if (v === 'conforme' || v === 'sim' || (typeof v === 'number' && v >= 7)) {
+        status = 'ok'; label = typeof v === 'number' ? `Nota: ${v}` : v;
+      } else if (v === 'nao_conforme' || v === 'nao' || (typeof v === 'number' && v < 7)) {
+        status = 'nok'; label = typeof v === 'number' ? `Nota: ${v}` : v;
+      } else if (v) {
+        status = 'na'; label = 'Resposta';
+      }
+
+      const statusIcon = status === 'ok' ? '✓' : status === 'nok' ? '✗' : '·';
+
+      respostasHtml += `
+        <div class="resp-item">
+          <div class="resp-status ${status}">${statusIcon}</div>
+          <div class="resp-info">
+            <strong>${idx + 1}. ${r.pergunta}</strong>
+            <small><strong>Resposta:</strong> ${label}</small>
+            ${r.observacao ? `<div style="margin-top:6px; padding:8px 12px; background:var(--bg); border-radius:8px; font-size:12.5px; color:var(--text-soft);">💬 ${r.observacao}</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById('modalBody').innerHTML = `
+      <div class="info-line"><strong>Cipeiro:</strong> ${i.cipeiro_nome}</div>
+      <div class="info-line"><strong>Matrícula:</strong> ${i.cipeiro_matricula || '—'}</div>
+      <div class="info-line"><strong>Checklist:</strong> ${i.checklist_titulo}</div>
+      <div class="info-line"><strong>Local:</strong> ${i.local_inspecionado}</div>
+      <div class="info-line"><strong>Data:</strong> ${data}</div>
+      <div class="info-line"><strong>Conformidade:</strong> ${i.percentual_conformidade}%</div>
+      <div class="info-line"><strong>Resultado:</strong> ${i.total_conformes} conformes, ${i.total_nao_conformes} não conformes</div>
+      ${i.observacoes ? `<div class="info-line"><strong>Observações:</strong> ${i.observacoes}</div>` : ''}
+
+      <h4 style="margin-top:24px; margin-bottom:12px; font-size:15px; font-weight:800;">📝 Respostas</h4>
+      ${respostasHtml}
+    `;
+
+    document.getElementById('modalDetalhes').classList.add('open');
+  }
+
+  function fecharModal() {
+    document.getElementById('modalDetalhes').classList.remove('open');
+  }
+
+  function exportarCSV() {
+    if (inspecoes.length === 0) { mostrarToast('⚠️ Nada para exportar'); return; }
+
+    const header = ['Data', 'Cipeiro', 'Matrícula', 'Checklist', 'Local',
+                    'Conformes', 'Não Conformes', 'Conformidade%'];
+    const rows = inspecoes.map(i => [
+      new Date(i.created_at).toLocaleString('pt-BR'),
+      i.cipeiro_nome, i.cipeiro_matricula || '',
+      i.checklist_titulo, i.local_inspecionado || '',
+      i.total_conformes, i.total_nao_conformes,
+      i.percentual_conformidade
+    ]);
+
+    const csv = [header, ...rows].map(r =>
+      r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `inspecoes-cipa-${new Date().toISOString().slice(0,10)}.csv`;
+    link.click();
+    mostrarToast('📊 CSV exportado!');
+  }
+
+  (async function init() {
+    const logado = await verificarLogin();
+    if (!logado) return;
+    aplicarUsuario();
+    await carregarInspecoes();
+    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
+
+    document.getElementById('modalDetalhes').addEventListener('click', e => {
+      if (e.target.id === 'modalDetalhes') fecharModal();
+    });
+  })();
+</script>
+
+</body>
+</html>
