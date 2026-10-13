@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel SESMT | CIPA Ativa</title>
+<title>Dashboard | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦺</text></svg>">
 <style>
@@ -48,6 +48,7 @@
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
     display: flex;
+    overflow-x: hidden;
   }
 
   /* ============ LOADING ============ */
@@ -68,6 +69,22 @@
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ============ SKELETON (loading nos KPIs) ============ */
+  .skeleton {
+    display: inline-block;
+    width: 60px;
+    height: 32px;
+    background: linear-gradient(90deg, #e5eaf0 25%, #eef2f6 50%, #e5eaf0 75%);
+    background-size: 200% 100%;
+    border-radius: 8px;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
 
   /* ============ SIDEBAR ============ */
   .sidebar {
@@ -162,7 +179,6 @@
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: 13px;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
 
   .sidebar-footer .info { flex: 1; min-width: 0; }
@@ -186,7 +202,7 @@
     transition: all 0.2s;
     flex-shrink: 0;
   }
-  .btn-logout:hover { background: var(--danger); transform: scale(1.05); }
+  .btn-logout:hover { background: var(--danger); }
 
   /* ============ MAIN ============ */
   .main {
@@ -195,12 +211,13 @@
     padding: 28px 36px 100px;
     width: calc(100% - 268px);
     max-width: 1600px;
+    min-width: 0;
   }
 
   /* ============ TOPBAR ============ */
   .topbar {
     display: flex; justify-content: space-between; align-items: flex-start;
-    margin-bottom: 28px; flex-wrap: wrap; gap: 16px;
+    margin-bottom: 24px; flex-wrap: wrap; gap: 16px;
   }
 
   .topbar h2 {
@@ -225,6 +242,7 @@
 
   .topbar-actions {
     display: flex; align-items: center; gap: 10px;
+    flex-wrap: wrap;
   }
 
   .sesmt-badge {
@@ -238,17 +256,46 @@
     display: flex;
     align-items: center;
     gap: 6px;
+    white-space: nowrap;
   }
 
   .menu-toggle {
     display: none;
-    width: 40px; height: 40px;
-    border-radius: 50%;
+    width: 42px; height: 42px;
+    border-radius: 12px;
     background: var(--card);
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     align-items: center; justify-content: center;
     cursor: pointer;
-    font-size: 18px;
+    font-size: 20px;
+    transition: all 0.2s;
+  }
+  .menu-toggle:hover { background: var(--bg-alt); }
+
+  /* ============ ALERTA DE SISTEMA ============ */
+  .system-alert {
+    display: none;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    font-weight: 600;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .system-alert.show { display: flex; }
+
+  .system-alert.warning {
+    background: var(--warning-soft);
+    color: #92400e;
+    border-left: 4px solid var(--warning);
+  }
+
+  .system-alert.danger {
+    background: var(--danger-soft);
+    color: #991b1b;
+    border-left: 4px solid var(--danger);
   }
 
   /* ============ CARD DE GESTÃO ============ */
@@ -280,6 +327,8 @@
   .gestao-card-info {
     display: flex; align-items: center; gap: 18px;
     position: relative; z-index: 1;
+    flex: 1;
+    min-width: 240px;
   }
 
   .gestao-card-icon {
@@ -311,6 +360,7 @@
     font-size: 10.5px;
     font-weight: 700;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
   }
 
   .gestao-card-badge.encerrada {
@@ -383,6 +433,7 @@
   .kpi.warning::before { background: var(--warning); }
   .kpi.danger::before  { background: var(--danger); }
   .kpi.info::before    { background: var(--info); }
+  .kpi.muted::before   { background: var(--text-muted); }
 
   .kpi:hover {
     transform: translateY(-4px);
@@ -406,6 +457,7 @@
   .kpi.warning .kpi-icon { background: rgba(245,158,11,0.12); }
   .kpi.danger  .kpi-icon { background: rgba(239,68,68,0.12); }
   .kpi.info    .kpi-icon { background: rgba(59,130,246,0.12); }
+  .kpi.muted   .kpi-icon { background: rgba(100,116,139,0.1); }
 
   .kpi-value {
     font-size: 32px;
@@ -497,7 +549,9 @@
   .atalho-icon.membros    { background: linear-gradient(135deg, rgba(46,139,87,0.15), rgba(46,139,87,0.25)); }
   .atalho-icon.checklists { background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.25)); }
   .atalho-icon.inspecoes  { background: linear-gradient(135deg, rgba(255,201,60,0.25), rgba(255,201,60,0.35)); }
-  .atalho-icon.nc         { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.25)); }
+  .atalho-icon.cipeiro    { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(139,92,246,0.25)); }
+
+  .atalho-info { flex: 1; min-width: 0; }
 
   .atalho-info h4 {
     font-size: 15px;
@@ -533,6 +587,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .card-header h3 {
@@ -548,6 +604,7 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
+    white-space: nowrap;
   }
 
   .card-header a:hover {
@@ -601,6 +658,10 @@
     color: var(--text-soft);
     font-size: 11.5px;
     font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
   }
 
   .insp-result {
@@ -642,6 +703,14 @@
     color: var(--text-muted);
   }
 
+  .empty-state a {
+    color: var(--green-600);
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .empty-state a:hover { text-decoration: underline; }
+
   /* ============ TOAST ============ */
   .toast {
     position: fixed;
@@ -658,9 +727,14 @@
     z-index: 400;
     transition: transform 0.35s;
     max-width: 90vw;
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
 
   .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--danger); }
+  .toast.success { background: var(--success); }
 
   /* ============ RESPONSIVO ============ */
   @media (max-width: 1024px) {
@@ -679,6 +753,8 @@
     .kpi-value { font-size: 26px; }
     .menu-toggle { display: flex; }
     .gestao-card { flex-direction: column; align-items: flex-start; }
+    .gestao-card-actions { width: 100%; }
+    .gestao-card-actions .btn-ghost { flex: 1; justify-content: center; }
   }
 </style>
 </head>
@@ -748,28 +824,36 @@
     </h2>
     <div class="topbar-actions">
       <span class="sesmt-badge">🔒 SESMT</span>
-      <button class="menu-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     </div>
+  </div>
+
+  <!-- ALERTA DE SISTEMA (sem gestão / erro) -->
+  <div class="system-alert warning" id="alertSemGestao">
+    ⚠️ <strong>Nenhuma gestão ativa.</strong>
+    Crie uma gestão em <a onclick="window.location.href='membros.html'" style="color:inherit; font-weight:800; text-decoration:underline; cursor:pointer;">Membros da CIPA</a> para começar.
+  </div>
+
+  <div class="system-alert danger" id="alertErro">
+    ❌ <strong>Erro de conexão.</strong>
+    <span id="erroTexto">Verifique o console (F12).</span>
   </div>
 
   <!-- CARD DE GESTÃO -->
   <div class="gestao-card" id="gestaoCard">
     <div class="gestao-card-info">
-      <div class="gestao-card-icon">🏛️</div>
+      <div class="gestao-card-icon" id="gestaoIcone">🏛️</div>
       <div class="gestao-card-text">
         <h3>
           <span id="gestaoTitulo">Carregando...</span>
-          <span class="gestao-card-badge" id="gestaoBadge">EM VIGOR</span>
+          <span class="gestao-card-badge" id="gestaoBadge">—</span>
         </h3>
         <p id="gestaoPeriodo">—</p>
       </div>
     </div>
-    <div class="gestao-card-actions">
+    <div class="gestao-card-actions" id="gestaoActions">
       <button class="btn-ghost" onclick="window.location.href='membros.html'">
         👥 Gerenciar Membros
-      </button>
-      <button class="btn-ghost" onclick="emBreve('Histórico de Gestões')">
-        🏛️ Ver Gestões
       </button>
     </div>
   </div>
@@ -778,30 +862,30 @@
   <section class="kpis">
     <div class="kpi" onclick="window.location.href='membros.html'">
       <div class="kpi-header"><div class="kpi-icon">👥</div></div>
-      <div class="kpi-value" id="kpiMembros">—</div>
+      <div class="kpi-value" id="kpiMembros"><span class="skeleton"></span></div>
       <div class="kpi-label">Membros na gestão atual</div>
       <span class="kpi-trend trend-neutral" id="kpiMembrosTrend">Carregando...</span>
     </div>
 
     <div class="kpi info" onclick="window.location.href='checklists.html'">
       <div class="kpi-header"><div class="kpi-icon">📋</div></div>
-      <div class="kpi-value" id="kpiChecklists">—</div>
+      <div class="kpi-value" id="kpiChecklists"><span class="skeleton"></span></div>
       <div class="kpi-label">Checklists disponíveis</div>
       <span class="kpi-trend trend-neutral" id="kpiChecklistsTrend">Carregando...</span>
     </div>
 
     <div class="kpi" onclick="window.location.href='inspecoes.html'">
       <div class="kpi-header"><div class="kpi-icon">🔍</div></div>
-      <div class="kpi-value" id="kpiInspecoes">—</div>
+      <div class="kpi-value" id="kpiInspecoes"><span class="skeleton"></span></div>
       <div class="kpi-label">Inspeções realizadas</div>
       <span class="kpi-trend trend-neutral" id="kpiInspecoesTrend">Carregando...</span>
     </div>
 
-    <div class="kpi warning" onclick="emBreve('Não Conformidades')">
+    <div class="kpi muted" onclick="emBreve('Não Conformidades')">
       <div class="kpi-header"><div class="kpi-icon">⚠️</div></div>
-      <div class="kpi-value" id="kpiNC">0</div>
+      <div class="kpi-value">—</div>
       <div class="kpi-label">Não conformidades abertas</div>
-      <span class="kpi-trend trend-neutral">Aguardando módulo</span>
+      <span class="kpi-trend trend-neutral">Em breve</span>
     </div>
   </section>
 
@@ -827,43 +911,40 @@
       <div class="atalho-icon inspecoes">🔍</div>
       <div class="atalho-info">
         <h4>Ver Inspeções</h4>
-        <p>Respostas dos cipeiros + PDF</p>
+        <p>Respostas + exportar PDF</p>
       </div>
     </div>
   </div>
 
-  <!-- GRID 2 -->
-  <section class="grid-2">
-    <div class="card">
+  <!-- GRID 2 — ÚLTIMAS INSPEÇÕES -->
+  <section class="grid-2" id="secaoInspecoes" style="display:none;">
+    <div class="card" style="grid-column: 1 / -1;">
       <div class="card-header">
         <h3>🔍 Últimas Inspeções</h3>
         <a onclick="window.location.href='inspecoes.html'">Ver todas →</a>
       </div>
-      <ul class="insp-list" id="listaInspecoes">
-        <li>
-          <div class="empty-state">
-            <div class="icon">📭</div>
-            <p>Nenhuma inspeção ainda</p>
-            <small>Os cipeiros enviam pelo link direto</small>
-          </div>
-        </li>
-      </ul>
+      <ul class="insp-list" id="listaInspecoes"></ul>
     </div>
+  </section>
 
-    <div class="card">
-      <div class="card-header">
-        <h3>⚠️ Não Conformidades</h3>
-        <a onclick="emBreve('Não Conformidades')">Ver todas →</a>
-      </div>
-      <ul class="insp-list">
-        <li>
-          <div class="empty-state">
-            <div class="icon">📭</div>
-            <p>Nenhuma NC registrada</p>
-            <small>Aparecem quando houver itens reprovados</small>
-          </div>
-        </li>
-      </ul>
+  <!-- CARD — LINK DO CIPEIRO -->
+  <section class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+      <h3>🔗 Link do Cipeiro (Inspeções de Campo)</h3>
+    </div>
+    <p style="color:var(--text-soft); font-size:13.5px; margin-bottom:16px; line-height:1.6;">
+      Envie este link para os cipeiros. Eles abrem direto, escolhem o nome e fazem a inspeção — <strong>sem precisar de login</strong>.
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <input type="text" id="linkCipeiro" readonly
+        style="flex:1; min-width:240px; padding:12px 16px; border:1.5px solid var(--border); border-radius:11px; font-size:13px; font-family:inherit; background:var(--bg); color:var(--text-soft); font-weight:600;"
+        value="https://cockpitformularios.github.io/CIPA-ATIVA/checklistsCIPEIROS.html">
+      <button class="btn-ghost" style="background:var(--green-600); border-color:var(--green-600);" onclick="copiarLink()">
+        📋 Copiar
+      </button>
+      <button class="btn-ghost" style="background:var(--card); color:var(--text); border:1.5px solid var(--border);" onclick="window.open(document.getElementById('linkCipeiro').value, '_blank')">
+        🔗 Abrir
+      </button>
     </div>
   </section>
 
@@ -879,38 +960,66 @@
 </script>
 
 <script>
+  // ============ ESTADO GLOBAL ============
   let usuario = null;
-  const log = (...args) => console.log('🔎 [CIPA]', ...args);
+  const log = (...args) => console.log('🔎 [DASHBOARD]', ...args);
 
+  // ============ TOAST ============
   let toastTimer;
-  function mostrarToast(msg) {
+  function mostrarToast(msg, tipo = '') {
     const t = document.getElementById('toast');
     t.textContent = msg;
-    t.classList.add('show');
+    t.className = 'toast show ' + tipo;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
   function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
 
-  // ============ LOGIN SIMPLES ============
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function copiarLink() {
+    const input = document.getElementById('linkCipeiro');
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      mostrarToast('📋 Link copiado!', 'success');
+    });
+  }
+
+  // ============ AUTENTICAÇÃO ============
   async function verificarLogin() {
-    const { data: { session } } = await db.auth.getSession();
+    const { data: { session }, error } = await db.auth.getSession();
+
+    if (error) {
+      log('Erro ao buscar sessão:', error);
+      return false;
+    }
+
     if (!session) {
       window.location.href = 'index.html';
       return false;
     }
+
     usuario = {
       id: session.user.id,
       email: session.user.email,
-      nome: session.user.email.split('@')[0]
+      nome: (session.user.email || 'user').split('@')[0]
     };
     return true;
   }
 
   function aplicarUsuario() {
-    const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
-      .map(n => n[0].toUpperCase()).join('');
+    if (!usuario) return;
+
+    const iniciais = usuario.nome
+      .split(/[\s._-]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(n => n[0].toUpperCase())
+      .join('');
+
     document.getElementById('userAvatar').textContent = iniciais || '?';
     document.getElementById('userName').textContent =
       usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
@@ -920,92 +1029,151 @@
   }
 
   async function fazerLogout() {
-    if (!confirm('Deseja sair?')) return;
+    if (!confirm('Deseja sair do sistema?')) return;
     await db.auth.signOut();
     sessionStorage.removeItem('cipa_user');
     window.location.href = 'index.html';
   }
 
+  // ============ HELPERS DE UI ============
+  function mostrarAlerta(id, mensagem) {
+    const el = document.getElementById(id);
+    if (el) {
+      if (mensagem && id === 'alertErro') {
+        document.getElementById('erroTexto').textContent = mensagem;
+      }
+      el.classList.add('show');
+    }
+  }
+
+  function esconderAlerta(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('show');
+  }
+
+  function definirKpi(id, valor) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = valor;
+  }
+
+  function definirTrend(id, texto) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = texto;
+  }
+
   // ============ CARREGAR DADOS ============
   async function carregarDados() {
     try {
-      // ===== GESTÕES =====
-      const { data: gestoes } = await db
-        .from('gestoes').select('*').order('ano_inicio', { ascending: false });
+      log('Carregando dados...');
 
-      if (gestoes && gestoes.length > 0) {
-        const atual = gestoes.find(g => g.em_vigor) || gestoes[0];
-        const emVigor = atual.em_vigor;
+      // ===== 1. GESTÕES =====
+      const { data: gestoes, error: errGestoes } = await db
+        .from('gestoes')
+        .select('*')
+        .order('ano_inicio', { ascending: false });
 
-        document.getElementById('gestaoTitulo').textContent = atual.titulo;
+      if (errGestoes) throw new Error('Erro ao carregar gestões: ' + errGestoes.message);
+
+      const temGestao = gestoes && gestoes.length > 0;
+      let gestaoAtiva = null;
+
+      if (temGestao) {
+        gestaoAtiva = gestoes.find(g => g.em_vigor) || gestoes[0];
+        const emVigor = gestaoAtiva.em_vigor;
+
+        document.getElementById('gestaoTitulo').textContent = gestaoAtiva.titulo;
         document.getElementById('gestaoPeriodo').textContent =
-          `${atual.ano_inicio} — ${atual.ano_fim}${atual.empresa ? ' • ' + atual.empresa : ''}`;
+          `${gestaoAtiva.ano_inicio} — ${gestaoAtual_anoFim(gestaoAtiva)}${gestaoAtiva.empresa ? ' • ' + gestaoAtiva.empresa : ''}`;
 
         const badge = document.getElementById('gestaoBadge');
         badge.textContent = emVigor ? 'EM VIGOR' : 'ENCERRADA';
         badge.classList.toggle('encerrada', !emVigor);
 
-        // Contar membros ativos
+        const icone = document.getElementById('gestaoIcone');
+        icone.textContent = emVigor ? '🏛️' : '📁';
+
+        esconderAlerta('alertSemGestao');
+
+        // Contar membros
         const { count: countMembros } = await db
           .from('members')
           .select('*', { count: 'exact', head: true })
-          .eq('gestao_id', atual.id)
+          .eq('gestao_id', gestaoAtiva.id)
           .eq('ativo', true);
 
-        document.getElementById('kpiMembros').textContent = countMembros || 0;
-        document.getElementById('kpiMembrosTrend').textContent =
-          countMembros > 0 ? `✅ ${countMembros} cadastrados` : '⚠️ Nenhum cadastrado';
+        definirKpi('kpiMembros', countMembros || 0);
+        definirTrend('kpiMembrosTrend',
+          countMembros > 0 ? `✅ ${countMembros} cadastrados` : '⚠️ Nenhum cadastrado');
       } else {
+        // SEM GESTÃO
         document.getElementById('gestaoTitulo').textContent = 'Nenhuma gestão';
         document.getElementById('gestaoPeriodo').textContent = 'Crie a primeira gestão para começar';
-        document.getElementById('gestaoBadge').textContent = 'SEM GESTÃO';
-        document.getElementById('gestaoBadge').classList.add('encerrada');
-        document.getElementById('kpiMembros').textContent = '0';
-        document.getElementById('kpiMembrosTrend').textContent = 'Sem gestão ativa';
+
+        const badge = document.getElementById('gestaoBadge');
+        badge.textContent = 'SEM GESTÃO';
+        badge.classList.add('encerrada');
+
+        document.getElementById('gestaoIcone').textContent = '⚠️';
+
+        mostrarAlerta('alertSemGestao');
+
+        definirKpi('kpiMembros', '0');
+        definirTrend('kpiMembrosTrend', 'Sem gestão ativa');
       }
 
-      // ===== CHECKLISTS =====
-      const { count: countChecklists } = await db
+      // ===== 2. CHECKLISTS =====
+      const { count: countChecklists, error: errChk } = await db
         .from('checklists')
         .select('*', { count: 'exact', head: true })
         .eq('ativo', true);
 
-      document.getElementById('kpiChecklists').textContent = countChecklists || 0;
-      document.getElementById('kpiChecklistsTrend').textContent =
-        countChecklists > 0 ? `📋 ${countChecklists} modelos` : '⚠️ Nenhum criado';
+      if (errChk) log('Erro checklists:', errChk);
 
-      // ===== INSPEÇÕES =====
-      const { count: countInspecoes } = await db
+      definirKpi('kpiChecklists', countChecklists || 0);
+      definirTrend('kpiChecklistsTrend',
+        countChecklists > 0 ? `📋 ${countChecklists} modelo${countChecklists > 1 ? 's' : ''}` : '⚠️ Nenhum criado');
+
+      // ===== 3. INSPEÇÕES =====
+      const { count: countInspecoes, error: errInsp } = await db
         .from('inspecoes')
         .select('*', { count: 'exact', head: true });
 
-      document.getElementById('kpiInspecoes').textContent = countInspecoes || 0;
-      document.getElementById('kpiInspecoesTrend').textContent =
-        countInspecoes > 0 ? `✅ ${countInspecoes} realizadas` : '📭 Nenhuma ainda';
+      if (errInsp) log('Erro inspeções:', errInsp);
+
+      definirKpi('kpiInspecoes', countInspecoes || 0);
+      definirTrend('kpiInspecoesTrend',
+        countInspecoes > 0 ? `✅ ${countInspecoes} realizada${countInspecoes > 1 ? 's' : ''}` : '📭 Nenhuma ainda');
 
       // Badge no menu
       if (countInspecoes > 0) {
         const b = document.getElementById('badgeInsp');
-        b.textContent = countInspecoes;
+        b.textContent = countInspecoes > 99 ? '99+' : countInspecoes;
         b.style.display = 'inline-block';
       }
 
-      // ===== ÚLTIMAS 4 INSPEÇÕES =====
+      // ===== 4. ÚLTIMAS INSPEÇÕES =====
       if (countInspecoes > 0) {
         const { data: ultimas } = await db
           .from('inspecoes')
           .select('*')
           .order('created_at', { ascending: false })
-          .limit(4);
+          .limit(5);
 
         if (ultimas && ultimas.length > 0) {
+          const secao = document.getElementById('secaoInspecoes');
+          secao.style.display = 'block';
+
           const lista = document.getElementById('listaInspecoes');
           lista.innerHTML = '';
+
           ultimas.forEach(i => {
             const pct = parseFloat(i.percentual_conformidade) || 0;
             let cls = 'ok';
             if (pct < 70) cls = 'nok';
             else if (pct < 90) cls = 'parcial';
+
+            const data = new Date(i.created_at);
+            const dataFmt = data.toLocaleDateString('pt-BR');
 
             const li = document.createElement('li');
             li.className = 'insp-item';
@@ -1016,7 +1184,7 @@
               </div>
               <div class="insp-info">
                 <strong>${i.cipeiro_nome || '—'}</strong>
-                <small>${i.checklist_titulo || '—'} • ${i.local_inspecionado || 'Sem local'}</small>
+                <small>${i.checklist_titulo || '—'} • ${i.local_inspecionado || 'Sem local'} • ${dataFmt}</small>
               </div>
               <div class="insp-result ${cls}">${pct.toFixed(0)}%</div>
             `;
@@ -1025,9 +1193,22 @@
         }
       }
 
+      // Esconder skeletons que sobraram
+      document.querySelectorAll('.skeleton').forEach(s => s.remove());
+
+      log('✅ Dados carregados.');
+
     } catch (err) {
-      log('Erro ao carregar:', err);
+      log('❌ Erro geral:', err);
+      mostrarAlerta('alertErro', err.message || 'Erro desconhecido');
+      // Remove skeletons
+      document.querySelectorAll('.skeleton').forEach(s => s.remove());
     }
+  }
+
+  // Helper: ano fim (suporta campo ano_fim mesmo se vier string)
+  function gestaoAtual_anoFim(g) {
+    return g.ano_fim || (parseInt(g.ano_inicio) + 1);
   }
 
   // ============ INIT ============
@@ -1040,7 +1221,18 @@
     aplicarUsuario();
     await carregarDados();
 
-    setTimeout(() => document.getElementById('loadingOverlay').classList.add('hidden'), 400);
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }, 400);
+
+    // Verifica sessão a cada 5 min (para auto-logout se expirar)
+    setInterval(async () => {
+      const { data: { session } } = await db.auth.getSession();
+      if (!session) {
+        log('Sessão expirada — redirecionando');
+        window.location.href = 'index.html';
+      }
+    }, 5 * 60 * 1000);
 
     log('✅ Pronto.');
   })();
