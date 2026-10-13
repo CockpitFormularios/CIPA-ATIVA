@@ -17,8 +17,8 @@
   body::after { content: ''; position: absolute; width: 500px; height: 500px;
     background: radial-gradient(circle, rgba(63,184,120,0.1) 0%, transparent 70%);
     bottom: -150px; left: -150px; border-radius: 50%; }
-  .login-container { width: 100%; max-width: 420px; position: relative;
-    z-index: 2; animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+  .login-container { width: 100%; max-width: 420px; position: relative; z-index: 2;
+    animation: fadeUp 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); } }
   .login-card { background: rgba(255, 255, 255, 0.98); border-radius: 24px;
@@ -72,6 +72,8 @@
   .footer-note { text-align: center; margin-top: 24px;
     font-size: 11.5px; color: #94a3b8; }
   .footer-note strong { color: #2e8b57; }
+  .footer-note a { color: #2e8b57; font-weight: 700; text-decoration: none; }
+  .footer-note a:hover { text-decoration: underline; }
   .spinner { width: 16px; height: 16px;
     border: 2px solid rgba(13, 40, 24, 0.3); border-top-color: #0d2818;
     border-radius: 50%; animation: spin 0.7s linear infinite; }
@@ -114,7 +116,8 @@
     </form>
 
     <div class="footer-note">
-      Acesso restrito ao <strong>SESMT</strong>
+      Acesso restrito ao <strong>SESMT</strong><br>
+      <a href="checklistsCIPEIROS.html">Ir para a Área do Cipeiro →</a>
     </div>
   </div>
 </div>
@@ -141,16 +144,13 @@
 
   function setLoading(loading) {
     btnLogin.disabled = loading;
-    btnText.innerHTML = loading
-      ? '<span class="spinner"></span> Entrando...'
-      : 'ENTRAR';
+    btnText.innerHTML = loading ? '<span class="spinner"></span> Entrando...' : 'ENTRAR';
   }
 
   function toggleSenha() {
     passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
   }
 
-  // Se já tem sessão, vai direto
   (async () => {
     const { data: { session } } = await db.auth.getSession();
     if (session) window.location.href = 'dashboard.html';
@@ -188,7 +188,6 @@
         return;
       }
 
-      // Sucesso — salva e redireciona
       sessionStorage.setItem('cipa_user', JSON.stringify({
         id: data.user.id,
         email: data.user.email,
