@@ -126,10 +126,6 @@
     border: 1.5px solid var(--border); }
   .btn-secondary:hover { background: var(--bg-alt);
     border-color: var(--border-strong); transform: translateY(-1px); }
-  .btn-danger { background: rgba(225,29,72,0.08); color: var(--danger);
-    border: 1.5px solid rgba(225,29,72,0.2); }
-  .btn-danger:hover { background: var(--danger); color: #fff;
-    transform: translateY(-2px); }
 
   /* STATS */
   .stats-grid { display: grid;
@@ -303,6 +299,8 @@
     background: var(--bg);
     cursor: pointer;
     transition: all 0.2s;
+    padding: 0;
+    border: 2px solid var(--border);
   }
   .foto-modal:hover {
     border-color: var(--green-600);
@@ -313,6 +311,48 @@
     width: 100%; height: 100%; object-fit: cover; display: block;
   }
 
+  /* LIGHTBOX */
+  .foto-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    cursor: pointer;
+  }
+  .foto-lightbox.open { display: flex; }
+  .foto-lightbox img {
+    max-width: 95%;
+    max-height: 95%;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+  .foto-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+  }
+  .foto-lightbox-close:hover {
+    transform: scale(1.1) rotate(90deg);
+    background: var(--danger);
+    color: #fff;
+  }
+
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(120px);
@@ -320,10 +360,11 @@
     padding: 15px 26px; border-radius: 14px;
     font-size: 13.5px; font-weight: 600;
     box-shadow: 0 20px 50px rgba(11,18,32,0.35);
-    z-index: 400; transition: transform 0.35s;
+    z-index: 10000; transition: transform 0.35s;
     max-width: 90vw; display: flex; align-items: center; gap: 10px; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--danger); }
+  .toast.success { background: var(--success); }
 
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
@@ -484,6 +525,12 @@
   </div>
 </div>
 
+<!-- LIGHTBOX DE FOTOS -->
+<div class="foto-lightbox" id="fotoLightbox" onclick="fecharLightbox()">
+  <button class="foto-lightbox-close" onclick="event.stopPropagation(); fecharLightbox()">✕</button>
+  <img id="fotoLightboxImg" src="" alt="Foto ampliada" onclick="event.stopPropagation()">
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -528,6 +575,35 @@
     return 'nok';
   }
 
+  // ============ LIGHTBOX ============
+  function abrirLightbox(url) {
+    document.getElementById('fotoLightboxImg').src = url;
+    document.getElementById('fotoLightbox').classList.add('open');
+  }
+
+  function fecharLightbox() {
+    document.getElementById('fotoLightbox').classList.remove('open');
+  }
+
+  // ============ CONVERTER IMAGEM PARA BASE64 ============
+  async function urlParaBase64(url) {
+    try {
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      log('Erro ao carregar imagem:', err);
+      return null;
+    }
+  }
+
+  // ============ LOGIN ============
   async function verificarLogin() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = 'index.html'; return false; }
@@ -556,6 +632,7 @@
     window.location.href = 'index.html';
   }
 
+  // ============ CARREGAR ============
   async function carregarInspecoes() {
     log('Carregando inspeções...');
     const { data, error } = await db.from('inspecoes').select('*')
@@ -620,6 +697,7 @@
     });
   }
 
+  // ============ RENDERIZAR ============
   function renderizar() {
     const busca = (document.getElementById('busca').value || '').toLowerCase().trim();
     const filtroChk = document.getElementById('filtroChecklist').value;
@@ -718,6 +796,7 @@
     });
   }
 
+  // ============ MODAL DETALHES ============
   function abrirDetalhes(id) {
     const i = inspecoes.find(x => x.id === id);
     if (!i) return;
@@ -737,13 +816,13 @@
 
       const statusIcon = status === 'ok' ? '✓' : status === 'nok' ? '✗' : '·';
 
-      // Fotos por item (se existirem)
+      // Fotos por item (se existirem — retrocompatível)
       const fotosItem = r.fotos && r.fotos.length > 0 ? `
         <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
           ${r.fotos.map(url => `
-            <a href="${url}" target="_blank" style="display:block; width:60px; height:60px; border-radius:8px; overflow:hidden; border:1.5px solid var(--border);">
-              <img src="${url}" style="width:100%; height:100%; object-fit:cover;">
-            </a>
+            <button class="foto-modal" style="width:60px; height:60px;" onclick="abrirLightbox('${url}')">
+              <img src="${url}">
+            </button>
           `).join('')}
         </div>
       ` : '';
@@ -793,9 +872,9 @@
         </h4>
         <div class="fotos-grid">
           ${fotos.map(url => `
-            <a href="${url}" target="_blank" class="foto-modal">
+            <button class="foto-modal" onclick="abrirLightbox('${url}')">
               <img src="${url}" loading="lazy">
-            </a>
+            </button>
           `).join('')}
         </div>
       ` : ''}
@@ -814,7 +893,7 @@
     inspecaoSelecionada = null;
   }
 
-  // ============ EXCLUIR INSPEÇÃO ============
+  // ============ EXCLUIR ============
   async function confirmarExcluirInspecao(id, nome) {
     const insp = inspecoes.find(x => x.id === id);
     if (!insp) return;
@@ -836,10 +915,8 @@
     try {
       mostrarToast('⏳ Excluindo...');
 
-      // Remove fotos do storage
       const fotosParaRemover = [];
 
-      // Fotos gerais
       if (insp.fotos && Array.isArray(insp.fotos)) {
         insp.fotos.forEach(url => {
           const partes = url.split('/cipa-inspecoes/');
@@ -847,7 +924,6 @@
         });
       }
 
-      // Fotos de itens
       if (insp.respostas && Array.isArray(insp.respostas)) {
         insp.respostas.forEach(r => {
           if (r.fotos && Array.isArray(r.fotos)) {
@@ -859,7 +935,6 @@
         });
       }
 
-      // Remove do storage
       if (fotosParaRemover.length > 0) {
         try {
           await db.storage.from('cipa-inspecoes').remove(fotosParaRemover);
@@ -868,7 +943,6 @@
         }
       }
 
-      // Remove do banco
       const { error } = await db.from('inspecoes').delete().eq('id', id);
       if (error) throw error;
 
@@ -880,6 +954,7 @@
     }
   }
 
+  // ============ CSV ============
   function exportarCSV() {
     if (listaFiltrada.length === 0) {
       mostrarToast('⚠️ Nada para exportar', true);
@@ -914,15 +989,19 @@
     mostrarToast('📊 CSV exportado!');
   }
 
-  function exportarPDFIndividual(id) {
+  // ============ PDF INDIVIDUAL (COM FOTOS) ============
+  async function exportarPDFIndividual(id) {
     const insp = id ? inspecoes.find(x => x.id === id) : inspecaoSelecionada;
     if (!insp) { mostrarToast('⚠️ Inspeção não encontrada', true); return; }
+
+    mostrarToast('📄 Gerando PDF...');
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
     const largura = doc.internal.pageSize.getWidth();
     let y = 0;
 
+    // ===== CABEÇALHO =====
     doc.setFillColor(10, 31, 19);
     doc.rect(0, 0, largura, 32, 'F');
 
@@ -947,6 +1026,8 @@
     doc.text(`Emissor: ${usuario.nome}`, largura - 12, 20, { align: 'right' });
 
     y = 42;
+
+    // ===== INFORMAÇÕES =====
     doc.setFillColor(247, 249, 251);
     doc.rect(10, y, largura - 20, 40, 'F');
 
@@ -987,6 +1068,7 @@
 
     y += 48;
 
+    // ===== OBSERVAÇÕES =====
     if (insp.observacoes) {
       doc.setTextColor(11, 18, 32);
       doc.setFontSize(10);
@@ -1000,6 +1082,7 @@
       y += obsLines.length * 5 + 6;
     }
 
+    // ===== ITENS =====
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
@@ -1060,24 +1143,78 @@
       }
     });
 
-    // Fotos no final (lista de URLs)
+    // ===== FOTOS (COM IMAGENS REAIS) =====
     if (insp.fotos && insp.fotos.length > 0) {
-      if (y > 230) { doc.addPage(); y = 20; }
+      if (y > 200) { doc.addPage(); y = 20; }
+      else { y += 8; }
+
       doc.setTextColor(11, 18, 32);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(`FOTOS ANEXADAS (${insp.fotos.length})`, 15, y);
+      doc.text(`FOTOS DA INSPEÇÃO (${insp.fotos.length})`, 15, y);
+      y += 4;
+
+      doc.setDrawColor(46, 139, 87);
+      doc.setLineWidth(0.8);
+      doc.line(15, y, 80, y);
       y += 6;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(100, 116, 139);
-      insp.fotos.forEach((url, i) => {
-        if (y > 280) { doc.addPage(); y = 20; }
-        doc.text(`${i + 1}. ${url}`, 15, y);
-        y += 5;
-      });
+
+      const colunas = 2;
+      const gap = 6;
+      const larguraFoto = (largura - 30 - gap) / colunas;
+      const alturaFoto = larguraFoto;
+      let colunaAtual = 0;
+
+      for (let i = 0; i < insp.fotos.length; i++) {
+        const url = insp.fotos[i];
+
+        if (y + alturaFoto + 6 > 280) {
+          doc.addPage();
+          y = 20;
+          colunaAtual = 0;
+        }
+
+        const x = 15 + colunaAtual * (larguraFoto + gap);
+
+        const base64 = await urlParaBase64(url);
+
+        if (base64) {
+          try {
+            doc.addImage(base64, 'JPEG', x, y, larguraFoto, alturaFoto);
+            doc.setDrawColor(229, 234, 240);
+            doc.setLineWidth(0.3);
+            doc.rect(x, y, larguraFoto, alturaFoto);
+
+            doc.setFontSize(7);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Foto ${i + 1}`, x + 2, y + alturaFoto + 3);
+          } catch (err) {
+            log('Erro ao inserir imagem:', err);
+            doc.setDrawColor(229, 234, 240);
+            doc.rect(x, y, larguraFoto, alturaFoto);
+            doc.setFontSize(8);
+            doc.setTextColor(148, 163, 184);
+            doc.text('Erro ao carregar', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+          }
+        } else {
+          doc.setDrawColor(229, 234, 240);
+          doc.rect(x, y, larguraFoto, alturaFoto);
+          doc.setFontSize(8);
+          doc.setTextColor(148, 163, 184);
+          doc.text('Imagem indisponível', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+        }
+
+        colunaAtual++;
+        if (colunaAtual >= colunas) {
+          colunaAtual = 0;
+          y += alturaFoto + 8;
+        }
+      }
+
+      if (colunaAtual > 0) y += alturaFoto + 8;
     }
 
+    // ===== RODAPÉ =====
     const totalPaginas = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPaginas; i++) {
       doc.setPage(i);
@@ -1094,9 +1231,10 @@
 
     const nomeArquivo = `inspecao-${(insp.cipeiro_nome || 'cipeiro').replace(/\s+/g, '-').toLowerCase()}-${new Date(insp.created_at).toISOString().slice(0,10)}.pdf`;
     doc.save(nomeArquivo);
-    mostrarToast('📄 PDF gerado!');
+    mostrarToast('📄 PDF gerado com fotos!');
   }
 
+  // ============ PDF RELATÓRIO ============
   function exportarRelatorioPDF() {
     if (listaFiltrada.length === 0) {
       mostrarToast('⚠️ Nada para exportar', true);
@@ -1232,6 +1370,7 @@
     mostrarToast('📄 Relatório PDF gerado!');
   }
 
+  // ============ INIT ============
   (async function init() {
     log('Iniciando inspecoes.html...');
     const logado = await verificarLogin();
