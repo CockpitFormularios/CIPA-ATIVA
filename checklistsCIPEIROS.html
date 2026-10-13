@@ -251,70 +251,6 @@
   .obs-add textarea:focus { border-color: var(--green-600);
     box-shadow: 0 0 0 4px rgba(46,139,87,0.1); }
 
-  /* FOTOS */
-  .fotos-section { background: var(--bg);
-    border-radius: 14px; padding: 18px;
-    margin-bottom: 20px;
-    border: 1.5px dashed var(--border-strong); }
-  .fotos-section-title { font-size: 13px; font-weight: 800;
-    color: var(--text); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px; }
-  .fotos-section-hint { font-size: 12px; color: var(--text-soft);
-    margin-bottom: 12px; line-height: 1.5; }
-  .btn-add-foto { display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    width: 100%; padding: 14px; background: #fff;
-    border: 2px dashed var(--border-strong);
-    border-radius: 12px; cursor: pointer;
-    font-size: 13.5px; font-weight: 700;
-    color: var(--green-700); font-family: inherit;
-    transition: all 0.22s; }
-  .btn-add-foto:hover { border-color: var(--green-600);
-    background: var(--green-100); transform: translateY(-2px); }
-  .fotos-preview { display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 10px; margin-top: 12px; }
-  .foto-item { position: relative; aspect-ratio: 1;
-    border-radius: 10px; overflow: hidden;
-    border: 2px solid var(--border); background: #fff; }
-  .foto-item img { width: 100%; height: 100%;
-    object-fit: cover; display: block; }
-  .foto-remove { position: absolute; top: 4px; right: 4px;
-    width: 26px; height: 26px; border-radius: 50%;
-    background: var(--danger); color: #fff;
-    border: 2px solid #fff; cursor: pointer;
-    font-size: 12px; font-weight: 800;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    transition: all 0.2s; }
-  .foto-remove:hover { transform: scale(1.15);
-    box-shadow: 0 5px 12px rgba(225,29,72,0.5); }
-  .foto-item-uploading { position: absolute; inset: 0;
-    background: rgba(0,0,0,0.6); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; }
-
-  .item-foto-section { margin-top: 14px;
-    padding-top: 14px; border-top: 1px dashed var(--border); }
-  .btn-add-foto-item { display: inline-flex;
-    align-items: center; gap: 6px; padding: 8px 14px;
-    background: #fff; border: 1.5px solid var(--border);
-    border-radius: 9px; cursor: pointer;
-    font-size: 12px; font-weight: 700;
-    color: var(--green-700); font-family: inherit;
-    transition: all 0.2s; }
-  .btn-add-foto-item:hover { border-color: var(--green-600);
-    background: var(--green-100); }
-  .item-fotos-preview { display: flex; gap: 8px;
-    flex-wrap: wrap; margin-top: 10px; }
-  .item-foto-thumb { position: relative;
-    width: 70px; height: 70px; border-radius: 8px;
-    overflow: hidden; border: 1.5px solid var(--border); }
-  .item-foto-thumb img { width: 100%; height: 100%;
-    object-fit: cover; }
-  .item-foto-thumb .foto-remove { width: 20px; height: 20px;
-    font-size: 10px; top: 2px; right: 2px; }
-
   /* PROGRESSO */
   .progress-bar-wrap { background: #fff;
     border-radius: 14px; padding: 16px 20px;
@@ -398,6 +334,115 @@
   .resumo-item.nok { background: var(--danger-soft);
     border-color: var(--danger); }
   .resumo-item.nok .num { color: #991b1b; }
+
+  /* ============ SEÇÃO DE FOTOS FINAL ============ */
+  .fotos-final-section {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+
+  .fotos-final-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .fotos-final-hint {
+    font-size: 12.5px;
+    color: var(--text-soft);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+
+  .btn-add-foto-final {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    background: #fff;
+    border: 2px solid var(--green-600);
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--green-700);
+    font-family: inherit;
+    transition: all 0.22s;
+  }
+
+  .btn-add-foto-final:hover {
+    background: var(--green-600);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(46,139,87,0.3);
+  }
+
+  .fotos-final-preview {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .foto-final-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    background: var(--bg);
+  }
+
+  .foto-final-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .foto-final-remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    transition: all 0.2s;
+  }
+
+  .foto-final-remove:hover {
+    transform: scale(1.15);
+    box-shadow: 0 5px 12px rgba(225,29,72,0.5);
+  }
+
+  .foto-uploading-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+  }
 
   .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(120px);
@@ -498,6 +543,7 @@
       </div>
     </div>
 
+    <!-- DADOS DA INSPEÇÃO -->
     <div class="card">
       <div class="insp-info-grid">
         <div class="info-group">
@@ -513,19 +559,6 @@
         <label>Observações gerais (opcional)</label>
         <textarea id="inspObs" placeholder="Alguma observação sobre a inspeção como um todo..." rows="2"></textarea>
       </div>
-
-      <!-- FOTOS GERAIS -->
-      <div class="fotos-section" style="margin-top:20px;">
-        <div class="fotos-section-title">📸 Fotos Gerais da Inspeção</div>
-        <p class="fotos-section-hint">
-          Adicione fotos do local inspecionado, da equipe, dos equipamentos, etc.
-        </p>
-        <button type="button" class="btn-add-foto" onclick="document.getElementById('fotoGeralInput').click()">
-          ➕ Adicionar Foto
-        </button>
-        <input type="file" id="fotoGeralInput" accept="image/*" capture="environment" multiple hidden onchange="adicionarFotosGerais(event)">
-        <div class="fotos-preview" id="fotosGeraisPreview"></div>
-      </div>
     </div>
 
     <div class="progress-bar-wrap">
@@ -538,7 +571,23 @@
       </div>
     </div>
 
+    <!-- ITENS DO CHECKLIST -->
     <div id="itensContainer"></div>
+
+    <!-- ============ SEÇÃO DE FOTOS FINAL ============ -->
+    <div class="fotos-final-section">
+      <div class="fotos-final-title">📸 Fotos da Inspeção</div>
+      <p class="fotos-final-hint">
+        Anexe fotos do local, equipamentos, evidências de não conformidade, etc. (até 5MB por foto)
+      </p>
+
+      <button type="button" class="btn-add-foto-final" onclick="document.getElementById('fotoFinalInput').click()">
+        📷 Adicionar Foto
+      </button>
+      <input type="file" id="fotoFinalInput" accept="image/*" capture="environment" multiple hidden onchange="adicionarFotos(event)">
+      
+      <div class="fotos-final-preview" id="fotosFinalPreview"></div>
+    </div>
 
     <div class="actions-row">
       <button class="btn btn-secondary" onclick="voltarEtapa2()">← Voltar</button>
@@ -580,8 +629,7 @@
   let cipeiroSelecionado = null;
   let checklistSelecionado = null;
   let respostas = {};
-  let fotosGerais = [];
-  let fotosPorItem = {};
+  let fotos = [];
 
   const log = (...args) => console.log('🔎 [CIPEIRO]', ...args);
 
@@ -611,6 +659,7 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  // ============ CARREGAR CIPEIROS ============
   async function carregarCipeiros() {
     log('Carregando cipeiros...');
     const { data: gestao, error: errG } = await db
@@ -667,6 +716,7 @@
     });
   }
 
+  // ============ CARREGAR CHECKLISTS ============
   async function carregarChecklists() {
     log('Carregando checklists...');
     const { data, error } = await db
@@ -715,6 +765,7 @@
     });
   }
 
+  // ============ SELECIONAR ============
   function selecionarCipeiro(c) {
     cipeiroSelecionado = c;
     document.getElementById('userChip').style.display = 'flex';
@@ -726,8 +777,7 @@
   function selecionarChecklist(c) {
     checklistSelecionado = c;
     respostas = {};
-    fotosGerais = [];
-    fotosPorItem = {};
+    fotos = [];
 
     document.getElementById('inspTitulo').textContent = c.titulo;
     document.getElementById('inspCategoria').textContent = c.categoria || 'Sem categoria';
@@ -735,12 +785,13 @@
     document.getElementById('inspData').value = new Date().toISOString().slice(0, 10);
     document.getElementById('inspLocal').value = '';
     document.getElementById('inspObs').value = '';
-    document.getElementById('fotosGeraisPreview').innerHTML = '';
+    document.getElementById('fotosFinalPreview').innerHTML = '';
 
     renderizarItens();
     irParaEtapa(3);
   }
 
+  // ============ RENDERIZAR ITENS (sem foto por item) ============
   function renderizarItens() {
     const container = document.getElementById('itensContainer');
     container.innerHTML = '';
@@ -798,15 +849,6 @@
           <div class="item-pergunta">${item.pergunta}</div>
         </div>
         ${respostasHtml}
-
-        <div class="item-foto-section">
-          <button type="button" class="btn-add-foto-item" onclick="document.getElementById('fotoItem-${item.id}').click()">
-            📷 Adicionar Foto
-          </button>
-          <input type="file" id="fotoItem-${item.id}" accept="image/*" capture="environment" multiple hidden onchange="adicionarFotoItem('${item.id}', event)">
-          <div class="item-fotos-preview" id="fotos-item-${item.id}"></div>
-        </div>
-
         <details class="obs-add">
           <summary>Adicionar observação</summary>
           <textarea placeholder="Observação adicional sobre este item..."
@@ -820,6 +862,7 @@
     atualizarProgresso();
   }
 
+  // ============ RESPONDER ============
   function responder(itemId, valor, btn) {
     const block = document.getElementById('item-' + itemId);
     block.querySelectorAll('.resp-opt, .nota-btn').forEach(b => b.classList.remove('selected'));
@@ -865,7 +908,7 @@
     return data.publicUrl;
   }
 
-  async function adicionarFotosGerais(event) {
+  async function adicionarFotos(event) {
     const files = Array.from(event.target.files || []);
     if (files.length === 0) return;
 
@@ -875,16 +918,17 @@
         continue;
       }
 
+      const preview = document.getElementById('fotosFinalPreview');
       const tempId = 'temp-' + Date.now() + '-' + Math.random();
-      const preview = document.getElementById('fotosGeraisPreview');
       const tempDiv = document.createElement('div');
-      tempDiv.className = 'foto-item';
+      tempDiv.className = 'foto-final-item';
       tempDiv.id = tempId;
+
       const reader = new FileReader();
       reader.onload = e => {
         tempDiv.innerHTML = `
           <img src="${e.target.result}">
-          <div class="foto-item-uploading">⏳</div>
+          <div class="foto-uploading-overlay">⏳</div>
         `;
       };
       reader.readAsDataURL(file);
@@ -892,10 +936,11 @@
 
       try {
         const url = await uploadFoto(file);
-        fotosGerais.push(url);
+        fotos.push(url);
+
         tempDiv.innerHTML = `
           <img src="${url}">
-          <button type="button" class="foto-remove" onclick="removerFotoGeral('${url}', this)">✕</button>
+          <button type="button" class="foto-final-remove" onclick="removerFoto('${url}', this)">✕</button>
         `;
       } catch (err) {
         log('Erro upload:', err);
@@ -907,59 +952,12 @@
     event.target.value = '';
   }
 
-  function removerFotoGeral(url, btn) {
-    fotosGerais = fotosGerais.filter(u => u !== url);
-    btn.closest('.foto-item').remove();
+  function removerFoto(url, btn) {
+    fotos = fotos.filter(u => u !== url);
+    btn.closest('.foto-final-item').remove();
   }
 
-  async function adicionarFotoItem(itemId, event) {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-
-    if (!fotosPorItem[itemId]) fotosPorItem[itemId] = [];
-
-    for (const file of files) {
-      if (file.size > 5 * 1024 * 1024) {
-        mostrarToast(`⚠️ "${file.name}" é maior que 5MB`, true);
-        continue;
-      }
-
-      const preview = document.getElementById('fotos-item-' + itemId);
-      const tempId = 'temp-item-' + Date.now() + '-' + Math.random();
-      const tempDiv = document.createElement('div');
-      tempDiv.className = 'item-foto-thumb';
-      tempDiv.id = tempId;
-      const reader = new FileReader();
-      reader.onload = e => {
-        tempDiv.innerHTML = `<img src="${e.target.result}">`;
-      };
-      reader.readAsDataURL(file);
-      preview.appendChild(tempDiv);
-
-      try {
-        const url = await uploadFoto(file);
-        fotosPorItem[itemId].push(url);
-        tempDiv.innerHTML = `
-          <img src="${url}">
-          <button type="button" class="foto-remove" onclick="removerFotoItem('${itemId}', '${url}', this)">✕</button>
-        `;
-      } catch (err) {
-        log('Erro upload:', err);
-        tempDiv.remove();
-        mostrarToast('❌ ' + err.message, true);
-      }
-    }
-
-    event.target.value = '';
-  }
-
-  function removerFotoItem(itemId, url, btn) {
-    if (fotosPorItem[itemId]) {
-      fotosPorItem[itemId] = fotosPorItem[itemId].filter(u => u !== url);
-    }
-    btn.closest('.item-foto-thumb').remove();
-  }
-
+  // ============ PROGRESSO ============
   function atualizarProgresso() {
     const itens = checklistSelecionado.itens || [];
     const total = itens.length;
@@ -979,6 +977,7 @@
       : '✅ Enviar Inspeção';
   }
 
+  // ============ ENVIAR ============
   async function enviarInspecao() {
     const local = document.getElementById('inspLocal').value.trim();
     const obs = document.getElementById('inspObs').value.trim();
@@ -997,20 +996,13 @@
       const r = respostas[item.id] || {};
       const valor = r.resposta;
 
-      const respItem = {
+      respostasArr.push({
         item_id: item.id,
         pergunta: item.pergunta,
         tipo: item.tipo,
         resposta: valor,
         observacao: r.obs || null
-      };
-
-      // Adiciona fotos do item
-      if (fotosPorItem[item.id] && fotosPorItem[item.id].length > 0) {
-        respItem.fotos = fotosPorItem[item.id];
-      }
-
-      respostasArr.push(respItem);
+      });
 
       if (valor === 'conforme' || valor === 'sim') conforme++;
       else if (valor === 'nao_conforme' || valor === 'nao') naoConforme++;
@@ -1036,7 +1028,7 @@
         local_inspecionado: local,
         observacoes: obs,
         respostas: respostasArr,
-        fotos: fotosGerais,
+        fotos: fotos,
         total_itens: itens.length,
         total_conformes: conforme,
         total_nao_conformes: naoConforme,
@@ -1073,11 +1065,11 @@
     }
   }
 
+  // ============ NAVEGAÇÃO ============
   function voltarEtapa2() {
     if (confirm('Voltar e escolher outro checklist? Suas respostas e fotos serão perdidas.')) {
       respostas = {};
-      fotosGerais = [];
-      fotosPorItem = {};
+      fotos = [];
       checklistSelecionado = null;
       irParaEtapa(2);
     }
@@ -1087,12 +1079,12 @@
     cipeiroSelecionado = null;
     checklistSelecionado = null;
     respostas = {};
-    fotosGerais = [];
-    fotosPorItem = {};
+    fotos = [];
     document.getElementById('userChip').style.display = 'none';
     irParaEtapa(1);
   }
 
+  // ============ INIT ============
   (async function init() {
     log('Iniciando checklistsCIPEIROS.html...');
     await carregarCipeiros();
