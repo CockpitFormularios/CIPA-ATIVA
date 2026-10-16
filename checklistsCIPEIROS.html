@@ -6,6 +6,7 @@
 <title>Inspeções | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
   :root {
@@ -251,7 +252,6 @@
   .obs-add textarea:focus { border-color: var(--green-600);
     box-shadow: 0 0 0 4px rgba(46,139,87,0.1); }
 
-  /* PROGRESSO */
   .progress-bar-wrap { background: #fff;
     border-radius: 14px; padding: 16px 20px;
     margin-bottom: 20px; border: 1.5px solid var(--border);
@@ -335,7 +335,6 @@
     border-color: var(--danger); }
   .resumo-item.nok .num { color: #991b1b; }
 
-  /* ============ SEÇÃO DE FOTOS FINAL ============ */
   .fotos-final-section {
     background: #fff;
     border: 1.5px solid var(--border);
@@ -574,7 +573,7 @@
     <!-- ITENS DO CHECKLIST -->
     <div id="itensContainer"></div>
 
-    <!-- ============ SEÇÃO DE FOTOS FINAL ============ -->
+    <!-- SEÇÃO DE FOTOS FINAL -->
     <div class="fotos-final-section">
       <div class="fotos-final-title">📸 Fotos da Inspeção</div>
       <p class="fotos-final-hint">
@@ -606,6 +605,10 @@
 
       <div class="resumo-grid" id="resumoGrid"></div>
 
+      <button class="btn btn-primary btn-block" onclick="baixarPDF()" style="margin-bottom:12px;">
+        📄 Baixar PDF da Inspeção
+      </button>
+
       <button class="btn btn-gold btn-block" onclick="novaInspecao()">
         🔄 Fazer Nova Inspeção
       </button>
@@ -630,6 +633,8 @@
   let checklistSelecionado = null;
   let respostas = {};
   let fotos = [];
+  // Guarda cópia dos dados no momento do envio (usado pelo PDF)
+  let ultimaInspecao = null;
 
   const log = (...args) => console.log('🔎 [CIPEIRO]', ...args);
 
@@ -791,7 +796,7 @@
     irParaEtapa(3);
   }
 
-  // ============ RENDERIZAR ITENS (sem foto por item) ============
+  // ============ RENDERIZAR ITENS ============
   function renderizarItens() {
     const container = document.getElementById('itensContainer');
     container.innerHTML = '';
@@ -1040,6 +1045,20 @@
 
       if (error) throw error;
 
+      // Guarda cópia dos dados para gerar o PDF depois
+      ultimaInspecao = {
+        checklistTitulo: checklistSelecionado.titulo,
+        checklistCategoria: checklistSelecionado.categoria || '-',
+        cipeiroNome: cipeiroSelecionado.name,
+        local: local,
+        observacoes: obs,
+        data: data || new Date().toISOString().slice(0, 10),
+        itens: itens,
+        respostas: JSON.parse(JSON.stringify(respostas)),
+        fotos: [...fotos],
+        conforme, naoConforme, percentual
+      };
+
       document.getElementById('resumoGrid').innerHTML = `
         <div class="resumo-item ok">
           <div class="num">${conforme}</div>
@@ -1065,6 +1084,261 @@
     }
   }
 
+  // ============ GERAR PDF ============
+  function loadImageAsDataURL(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          // Reduz tamanho para caber bem no PDF
+          const maxW = 800;
+          const scale = img.naturalWidth > maxW ? maxW / img.naturalWidth : 1;
+          canvas.width = img.naturalWidth * scale;
+          canvas.height = img.naturalHeight * scale;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.75));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = () => reject(new Error('Falha ao carregar imagem'));
+      img.src = url;
+    });
+  }
+
+  async function baixarPDF() {
+    if (!ultimaInspecao) {
+      mostrarToast('⚠️ Nenhuma inspeção para gerar PDF', true);
+      return;
+    }
+
+    const btn = event?.target;
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Gerando PDF...'; }
+
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+      const pageW = 210, pageH = 297;
+      const margin = 15;
+      const contentW = pageW - margin * 2;
+      let y = 0;
+
+      const d = ultimaInspecao;
+
+      // ===== CABEÇALHO =====
+      doc.setFillColor(13, 40, 24);
+      doc.rect(0, 0, pageW, 28, 'F');
+      doc.setFillColor(255, 201, 60);
+      doc.roundedRect(margin, 6, 16, 16, 3, 3, 'F');
+      doc.setTextColor(13, 40, 24);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text('C', margin + 5, 17);
+      doc.setTextColor(255, 201, 60);
+      doc.setFontSize(16);
+      doc.text('CIPA Ativa', margin + 22, 14);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(255, 255, 255);
+      doc.text('Relatório de Inspeção', margin + 22, 20);
+
+      y = 38;
+
+      // ===== DADOS GERAIS =====
+      doc.setTextColor(20, 20, 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Dados da Inspeção', margin, y);
+      y += 2;
+      doc.setDrawColor(46, 139, 87);
+      doc.setLineWidth(0.5);
+      doc.line(margin, y, margin + 40, y);
+      y += 7;
+
+      doc.setFontSize(10);
+      const linhas = [
+        ['Checklist:', d.checklistTitulo],
+        ['Categoria:', d.checklistCategoria],
+        ['Cipeiro:', d.cipeiroNome],
+        ['Local inspecionado:', d.local],
+        ['Data:', new Date(d.data + 'T12:00:00').toLocaleDateString('pt-BR')]
+      ];
+
+      linhas.forEach(([label, valor]) => {
+        doc.setFont('helvetica', 'bold');
+        doc.text(label, margin, y);
+        doc.setFont('helvetica', 'normal');
+        const valorLines = doc.splitTextToSize(String(valor || '-'), contentW - 45);
+        doc.text(valorLines, margin + 42, y);
+        y += valorLines.length * 5 + 1;
+      });
+
+      y += 4;
+
+      // ===== OBSERVAÇÕES GERAIS =====
+      if (d.observacoes && d.observacoes.trim()) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text('Observações Gerais', margin, y);
+        y += 2;
+        doc.line(margin, y, margin + 42, y);
+        y += 7;
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const obsLines = doc.splitTextToSize(d.observacoes, contentW);
+        doc.text(obsLines, margin, y);
+        y += obsLines.length * 5 + 5;
+      }
+
+      // ===== RESUMO =====
+      if (y > pageH - 60) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.setTextColor(20, 20, 20);
+      doc.text('Resumo', margin, y);
+      y += 2;
+      doc.line(margin, y, margin + 20, y);
+      y += 8;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total de itens: ${d.itens.length}`, margin, y);
+      doc.setTextColor(4, 120, 87);
+      doc.text(`Conformes: ${d.conforme}`, margin + 60, y);
+      doc.setTextColor(153, 27, 27);
+      doc.text(`Não conformes: ${d.naoConforme}`, margin + 110, y);
+      doc.setTextColor(20, 20, 20);
+      y += 8;
+
+      // ===== ITENS =====
+      if (y > pageH - 40) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text('Itens Avaliados', margin, y);
+      y += 2;
+      doc.line(margin, y, margin + 35, y);
+      y += 8;
+
+      d.itens.forEach((item, idx) => {
+        if (y > pageH - 30) { doc.addPage(); y = 20; }
+
+        // Pergunta
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.setTextColor(20, 20, 20);
+        const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${item.pergunta}`, contentW);
+        doc.text(perguntaLines, margin, y);
+        y += perguntaLines.length * 5 + 1;
+
+        // Resposta
+        const r = d.respostas[item.id] || {};
+        const valor = r.resposta;
+        let respTxt = 'Sem resposta';
+        let cor = [100, 100, 100];
+
+        if (valor === 'conforme') { respTxt = 'CONFORME'; cor = [4, 120, 87]; }
+        else if (valor === 'nao_conforme') { respTxt = 'NÃO CONFORME'; cor = [153, 27, 27]; }
+        else if (valor === 'sim') { respTxt = 'SIM'; cor = [4, 120, 87]; }
+        else if (valor === 'nao') { respTxt = 'NÃO'; cor = [153, 27, 27]; }
+        else if (typeof valor === 'number') {
+          respTxt = `Nota: ${valor}`;
+          cor = valor >= 7 ? [4, 120, 87] : [153, 27, 27];
+        } else if (typeof valor === 'string' && valor.length > 0) {
+          respTxt = valor;
+          cor = [20, 20, 20];
+        }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(cor[0], cor[1], cor[2]);
+        const respLines = doc.splitTextToSize(`Resposta: ${respTxt}`, contentW - 5);
+        doc.text(respLines, margin + 5, y);
+        y += respLines.length * 5;
+
+        // Observação do item
+        if (r.obs && r.obs.trim()) {
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(90, 90, 90);
+          doc.setFontSize(9);
+          const obsLines = doc.splitTextToSize(`Obs: ${r.obs}`, contentW - 5);
+          doc.text(obsLines, margin + 5, y);
+          y += obsLines.length * 4.5;
+          doc.setFontSize(10);
+        }
+
+        doc.setTextColor(20, 20, 20);
+        y += 3;
+      });
+
+      // ===== FOTOS =====
+      if (d.fotos && d.fotos.length > 0) {
+        doc.addPage();
+        y = 20;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(20, 20, 20);
+        doc.text('Fotos da Inspeção', margin, y);
+        y += 2;
+        doc.line(margin, y, margin + 40, y);
+        y += 8;
+
+        const imgW = 85, imgH = 65, gap = 5;
+        let x = margin;
+        let col = 0;
+
+        for (let i = 0; i < d.fotos.length; i++) {
+          const url = d.fotos[i];
+          try {
+            const dataUrl = await loadImageAsDataURL(url);
+            if (y + imgH > pageH - 15) {
+              doc.addPage(); y = 20; x = margin; col = 0;
+            }
+            doc.addImage(dataUrl, 'JPEG', x, y, imgW, imgH);
+            col++;
+            if (col % 2 === 0) {
+              x = margin;
+              y += imgH + gap;
+            } else {
+              x = margin + imgW + gap;
+            }
+          } catch (e) {
+            console.warn('Falha ao carregar imagem', url, e);
+            doc.setFontSize(9);
+            doc.setTextColor(153, 27, 27);
+            doc.text(`(Falha ao carregar imagem ${i + 1})`, x, y + 10);
+            col++;
+            if (col % 2 === 0) { x = margin; y += imgH + gap; }
+            else { x = margin + imgW + gap; }
+          }
+        }
+      }
+
+      // ===== RODAPÉ em todas as páginas =====
+      const totalPag = doc.getNumberOfPages();
+      for (let p = 1; p <= totalPag; p++) {
+        doc.setPage(p);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(150, 150, 150);
+        doc.text(
+          `CIPA Ativa — Gerado em ${new Date().toLocaleString('pt-BR')} — Página ${p}/${totalPag}`,
+          pageW / 2, pageH - 8, { align: 'center' }
+        );
+      }
+
+      const nomeArq = `inspecao-${d.checklistTitulo.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.pdf`;
+      doc.save(nomeArq);
+      mostrarToast('📄 PDF gerado com sucesso!');
+    } catch (err) {
+      console.error(err);
+      mostrarToast('❌ Erro ao gerar PDF: ' + err.message, true);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = '📄 Baixar PDF da Inspeção'; }
+    }
+  }
+
   // ============ NAVEGAÇÃO ============
   function voltarEtapa2() {
     if (confirm('Voltar e escolher outro checklist? Suas respostas e fotos serão perdidas.')) {
@@ -1080,6 +1354,7 @@
     checklistSelecionado = null;
     respostas = {};
     fotos = [];
+    ultimaInspecao = null;
     document.getElementById('userChip').style.display = 'none';
     irParaEtapa(1);
   }
