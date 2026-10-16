@@ -74,7 +74,6 @@
     padding: 0 8px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);
     margin-bottom: 18px; }
 
-  /* ✅ LOGO NA SIDEBAR */
   .brand-logo {
     width: 100%;
     max-width: 200px;
@@ -95,9 +94,6 @@
   .sidebar nav a.active { background: linear-gradient(90deg, var(--green-600), var(--green-700));
     color: #fff; box-shadow: 0 6px 14px rgba(46,139,87,0.4); }
   .sidebar nav a .icon { font-size: 17px; width: 20px; text-align: center; }
-  .sidebar nav a .badge-mini { margin-left: auto; font-size: 10px;
-    background: rgba(255,201,60,0.25); color: var(--yellow);
-    padding: 2px 8px; border-radius: 10px; font-weight: 800; }
   .sidebar-footer { margin-top: auto; padding-top: 16px;
     border-top: 1px solid rgba(255,255,255,0.08); display: flex;
     align-items: center; gap: 10px; padding-left: 8px; }
@@ -261,7 +257,7 @@
     position: relative; z-index: 1; }
   .empty-actions .btn { padding: 13px 26px; font-size: 14px; }
 
-  /* ============ ORGANOGRAMA (CORRIGIDO NR-5) ============ */
+  /* ============ ORGANOGRAMA (NR-5) ============ */
   .org-chart-wrapper { background: #fff; border-radius: var(--radius-lg);
     padding: 40px 30px; box-shadow: var(--shadow-sm);
     border: 1.5px solid var(--border); overflow-x: auto;
@@ -667,10 +663,6 @@
             <input type="text" class="form-control" id="setor" placeholder="Ex: Produção">
           </div>
         </div>
-        <div class="form-group">
-          <label>Ocupação <span>*</span></label>
-          <input type="text" class="form-control" id="ocupacao" placeholder="Ex: Operador de Máquina">
-        </div>
       </div>
 
       <div class="form-section">
@@ -828,6 +820,20 @@
   function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
   function isGestaoEmVigor() { return gestaoSelecionada?.em_vigor === true; }
   function podeEditar() { return isGestaoEmVigor(); }
+
+  // ✅ Converte o cargo interno em nome legível
+  function nomeCargoCIPA(role) {
+    const nomes = {
+      'presidente': 'Presidente',
+      'vice-presidente': 'Vice-Presidente',
+      'secretario': 'Secretário(a)',
+      'suplente-presidente': 'Supl. Presidente',
+      'suplente-secretario': 'Supl. Secretário',
+      'titular': 'Titular',
+      'suplente': 'Suplente'
+    };
+    return nomes[role] || role || '';
+  }
 
   async function verificarLogin() {
     const { data: { session } } = await db.auth.getSession();
@@ -1029,7 +1035,6 @@
       if (container) container.insertAdjacentHTML('beforeend', cardMembroHTML(m));
     });
 
-    // ✅ Placeholders atualizados conforme NR-5
     const placeholders = {
       'slot-presidente': 'Presidente',
       'slot-vice-presidente': 'Vice-Presidente',
@@ -1069,7 +1074,7 @@
         ` : ''}
         <div class="member-photo">${foto}</div>
         <div class="member-name">${nome}</div>
-        <div class="member-role">${m.ocupacao || m.sector || ''}</div>
+        <div class="member-role">${nomeCargoCIPA(m.role)}</div>
       </div>
     `;
   }
@@ -1093,7 +1098,6 @@
     document.getElementById('nome').value = membro?.name || '';
     document.getElementById('matricula').value = membro?.matricula || '';
     document.getElementById('setor').value = membro?.sector || '';
-    document.getElementById('ocupacao').value = membro?.ocupacao || '';
     document.getElementById('cargoCipa').value = membro?.role || '';
     document.getElementById('ativo').value = String(membro?.ativo ?? true);
     document.getElementById('editingId').value = membro?.id || '';
@@ -1139,11 +1143,11 @@
   async function salvarMembro() {
     if (!podeEditar()) return;
 
+    // ✅ Objeto sem "ocupacao"
     const dados = {
       name: document.getElementById('nome').value.trim(),
       matricula: document.getElementById('matricula').value.trim(),
       sector: document.getElementById('setor').value.trim(),
-      ocupacao: document.getElementById('ocupacao').value.trim(),
       role: document.getElementById('cargoCipa').value,
       ativo: document.getElementById('ativo').value === 'true',
       gestao_id: gestaoSelecionada.id,
@@ -1163,7 +1167,7 @@
         m.role === dados.role && m.id !== id && m.ativo !== false
       );
       if (conflito) {
-        mostrarToast(`⚠️ Já existe um ${dados.role.replace('-', ' ')} ativo!`, true);
+        mostrarToast(`⚠️ Já existe um ${nomeCargoCIPA(dados.role)} ativo!`, true);
         return;
       }
     }
