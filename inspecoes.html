@@ -278,8 +278,6 @@
     background: var(--bg); border-radius: 8px; font-size: 12.5px;
     color: var(--text-soft); line-height: 1.5;
     border-left: 3px solid var(--yellow); }
-
-  /* ✅ NOVO — Estilo para o texto digitado do item tipo "texto" */
   .resp-texto {
     margin-top: 10px;
     padding: 12px 16px;
@@ -601,7 +599,6 @@
     return 'nok';
   }
 
-  // Remove emojis para o PDF
   function limparTextoParaPDF(txt) {
     if (!txt) return '';
     return String(txt)
@@ -853,7 +850,6 @@
       const v = r.resposta;
       let status = 'na', label = '—', textoLivre = '';
 
-      // ✅ CORREÇÃO 1: mostra o conteúdo quando tipo === "texto"
       if (v === 'conforme' || v === 'sim') {
         status = 'ok'; label = v === 'sim' ? 'Sim' : 'Conforme';
       } else if (v === 'nao_conforme' || v === 'nao') {
@@ -861,7 +857,6 @@
       } else if (typeof v === 'number') {
         status = v >= 7 ? 'ok' : 'nok'; label = `Nota: ${v}/10`;
       } else if (typeof v === 'string' && v.trim() !== '') {
-        // ✅ Item tipo "texto" — exibe o conteúdo digitado
         status = 'texto';
         label = 'Texto';
         textoLivre = v;
@@ -1044,7 +1039,9 @@
     mostrarToast('📊 CSV exportado!');
   }
 
-  // ============ PDF INDIVIDUAL (COM FOTOS + TEXTO) ============
+  // ================================================================
+  // ============ PDF INDIVIDUAL — COMPACTO (1 PÁGINA) =============
+  // ================================================================
   async function exportarPDFIndividual(id) {
     const insp = id ? inspecoes.find(x => x.id === id) : inspecaoSelecionada;
     if (!insp) { mostrarToast('⚠️ Inspeção não encontrada', true); return; }
@@ -1053,105 +1050,121 @@
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    const largura = doc.internal.pageSize.getWidth();
+    const largura = doc.internal.pageSize.getWidth();     // 210mm
+    const alturaPag = doc.internal.pageSize.getHeight();  // 297mm
+    const margem = 10;
+    const larguraUtil = largura - margem * 2;             // 190mm
+    const limiteInferior = alturaPag - 12;                // deixa espaço pro rodapé
     let y = 0;
 
-    // ===== CABEÇALHO =====
+    // ============ CABEÇALHO COMPACTO (22mm em vez de 32mm) ============
     doc.setFillColor(10, 31, 19);
-    doc.rect(0, 0, largura, 32, 'F');
+    doc.rect(0, 0, largura, 22, 'F');
 
     doc.setFillColor(255, 201, 60);
-    doc.circle(18, 16, 7, 'F');
+    doc.circle(12, 11, 5, 'F');
     doc.setTextColor(10, 31, 19);
-    doc.setFontSize(14);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('C', 15.5, 18.5);
+    doc.text('C', 10.2, 13);
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(16);
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 30, 14);
+    doc.text('CIPA Ativa', 20, 10);
 
-    doc.setFontSize(9);
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 30, 20);
+    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 20, 15);
 
-    doc.setFontSize(8);
-    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 14, { align: 'right' });
-    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - 12, 20, { align: 'right' });
+    doc.setFontSize(6.5);
+    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - margem, 9, { align: 'right' });
+    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - margem, 13, { align: 'right' });
 
-    y = 42;
+    y = 27;
 
-    // ===== INFORMAÇÕES =====
+    // ============ DADOS EM UMA LINHA COMPACTA (18mm) ============
     doc.setFillColor(247, 249, 251);
-    doc.rect(10, y, largura - 20, 40, 'F');
+    doc.rect(margem, y, larguraUtil, 18, 'F');
+
+    doc.setDrawColor(46, 139, 87);
+    doc.setLineWidth(0.8);
+    doc.line(margem, y, margem + 3, y + 18);
+    doc.line(margem, y, margem + 3, y);
 
     doc.setTextColor(100, 116, 139);
-    doc.setFontSize(8);
+    doc.setFontSize(6);
     doc.setFont('helvetica', 'bold');
-    doc.text('INFORMACOES DA INSPECAO', 15, y + 7);
+    doc.text('INFORMACOES DA INSPECAO', margem + 4, y + 3.5);
 
+    // Coluna 1 (esquerda)
     doc.setTextColor(11, 18, 32);
-    doc.setFontSize(10);
+    doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
-    doc.text('Cipeiro:', 15, y + 16);
-    doc.text('Checklist:', 15, y + 24);
-    doc.text('Local:', 15, y + 32);
+    doc.text('Cipeiro:', margem + 4, y + 8.5);
+    doc.text('Checklist:', margem + 4, y + 13);
 
     doc.setFont('helvetica', 'normal');
-    doc.text(`${limparTextoParaPDF(insp.cipeiro_nome || '—')} ${insp.cipeiro_matricula ? `(${limparTextoParaPDF(insp.cipeiro_matricula)})` : ''}`, 45, y + 16);
-    doc.text(`${limparTextoParaPDF(insp.checklist_titulo || '—')}`, 45, y + 24);
-    doc.text(`${limparTextoParaPDF(insp.local_inspecionado || '—')}`, 45, y + 32);
+    doc.text(limparTextoParaPDF(insp.cipeiro_nome || '—'), margem + 22, y + 8.5);
+    doc.text(limparTextoParaPDF(insp.checklist_titulo || '—'), margem + 22, y + 13);
 
+    // Coluna 2 (centro)
     doc.setFont('helvetica', 'bold');
-    doc.text('Data:', largura - 90, y + 16);
-    doc.text('Resultado:', largura - 90, y + 24);
-    doc.text('Conformidade:', largura - 90, y + 32);
-
+    doc.text('Local:', margem + 100, y + 8.5);
     doc.setFont('helvetica', 'normal');
-    doc.text(formatarData(insp.created_at), largura - 55, y + 16);
-    doc.text(`${insp.total_conformes || 0} OK  •  ${insp.total_nao_conformes || 0} NC`, largura - 55, y + 24);
+    doc.text(limparTextoParaPDF(insp.local_inspecionado || '—'), margem + 115, y + 8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Data:', margem + 100, y + 13);
+    doc.setFont('helvetica', 'normal');
+    doc.text(formatarData(insp.created_at), margem + 115, y + 13);
 
+    // Resultado (direita, destacado)
     const pct = parseFloat(insp.percentual_conformidade) || 0;
     if (pct >= 90) doc.setTextColor(4, 120, 87);
     else if (pct >= 70) doc.setTextColor(146, 64, 14);
     else doc.setTextColor(153, 27, 27);
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(11);
-    doc.text(`${pct.toFixed(1)}%`, largura - 55, y + 32);
+    doc.setFontSize(13);
+    doc.text(`${pct.toFixed(1)}%`, largura - margem - 4, y + 11, { align: 'right' });
 
-    y += 48;
+    doc.setFontSize(6);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${insp.total_conformes || 0} OK • ${insp.total_nao_conformes || 0} NC`,
+             largura - margem - 4, y + 15, { align: 'right' });
 
-    // ===== OBSERVAÇÕES =====
-    if (insp.observacoes) {
-      doc.setTextColor(11, 18, 32);
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Observacoes Gerais:', 15, y);
-      y += 6;
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      const obsLines = doc.splitTextToSize(limparTextoParaPDF(insp.observacoes), largura - 30);
-      doc.text(obsLines, 15, y);
-      y += obsLines.length * 5 + 6;
-    }
+    y += 22;
 
-    // ===== ITENS =====
+    // ============ ITENS EM TABELA COMPACTA ============
     doc.setTextColor(11, 18, 32);
-    doc.setFontSize(11);
+    doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
-    doc.text('ITENS INSPECIONADOS', 15, y);
-    y += 4;
+    doc.text('ITENS INSPECIONADOS', margem, y + 3);
+    y += 5;
 
     doc.setDrawColor(46, 139, 87);
-    doc.setLineWidth(0.8);
-    doc.line(15, y, 60, y);
-    y += 6;
+    doc.setLineWidth(0.6);
+    doc.line(margem, y, margem + 40, y);
+    y += 3;
 
     const respostas = insp.respostas || [];
+    const alturaItem = 8;             // altura de cada linha
+    const alturaFoto = 40;            // altura reservada pras fotos
+
+    // Calcular se precisa de página extra para as fotos
+    const temFotos = insp.fotos && insp.fotos.length > 0;
+    const espacoRestante = limiteInferior - y;
+
+    // Espaço mínimo que as fotos vão precisar (título + 1 linha de miniatura)
+    const espacoMinimoFotos = temFotos ? 22 : 0;
+
+    // ===== LISTA DE ITENS =====
     respostas.forEach((r, idx) => {
-      if (y > 260) { doc.addPage(); y = 20; }
+      // Se não cabe mais um item E ainda tem foto pra colocar, quebra
+      if (y + alturaItem > limiteInferior - espacoMinimoFotos) {
+        doc.addPage();
+        y = 15;
+      }
 
       const v = r.resposta;
       let resultado = 'N/A';
@@ -1164,164 +1177,164 @@
       } else if (v === 'nao_conforme' || v === 'nao') {
         resultado = 'NAO CONF.'; corFundo = [225, 29, 72];
       } else if (typeof v === 'number') {
-        resultado = `NOTA ${v}/10`;
+        resultado = `${v}/10`;
         corFundo = v >= 7 ? [16, 185, 129] : [225, 29, 72];
       } else if (typeof v === 'string' && v.trim() !== '') {
-        // ✅ CORREÇÃO 2: item tipo "texto" — vamos mostrar o conteúdo no PDF
         resultado = 'TEXTO';
         corFundo = [59, 130, 246];
         isTexto = true;
         textoConteudo = v;
       }
 
-      const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${limparTextoParaPDF(r.pergunta || '—')}`, largura - 60);
-      const alturaItem = Math.max(14, perguntaLines.length * 4.5 + 8);
-
-      doc.setDrawColor(229, 234, 240);
-      doc.setLineWidth(0.3);
-      doc.roundedRect(15, y, largura - 30, alturaItem, 2, 2);
-
-      doc.setFillColor(...corFundo);
-      doc.roundedRect(18, y + 3, 26, 6, 1.5, 1.5, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(7);
-      doc.setFont('helvetica', 'bold');
-      doc.text(resultado, 31, y + 7, { align: 'center' });
-
-      doc.setTextColor(11, 18, 32);
-      doc.setFontSize(9.5);
+      // Pergunta
+      doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(perguntaLines, 48, y + 7);
+      doc.setTextColor(11, 18, 32);
 
-      y += alturaItem + 2;
+      const perguntaTexto = `${idx + 1}. ${limparTextoParaPDF(r.pergunta || '—')}`;
+      const perguntaLines = doc.splitTextToSize(perguntaTexto, larguraUtil - 30);
+      const alturaLinha = Math.max(alturaItem, perguntaLines.length * 3.8 + 4);
 
-      // ✅ CORREÇÃO 2 (continuação): se for texto, escreve o conteúdo abaixo
-      if (isTexto && textoConteudo.trim()) {
-        if (y > 260) { doc.addPage(); y = 20; }
-
-        const textoLimpo = limparTextoParaPDF(textoConteudo);
-        const textoLines = doc.splitTextToSize(textoLimpo, largura - 63);
-        const alturaTexto = textoLines.length * 4.5 + 8;
-
-        doc.setFillColor(239, 246, 255);
-        doc.roundedRect(48, y, largura - 63, alturaTexto, 1.5, 1.5, 'F');
-
-        // Borda azul à esquerda
-        doc.setFillColor(59, 130, 246);
-        doc.rect(48, y, 1.2, alturaTexto, 'F');
-
-        doc.setTextColor(20, 20, 20);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.text(textoLines, 52, y + 5);
-
-        y += alturaTexto + 2;
+      // Se o item com texto tem várias linhas, checar se cabe
+      if (isTexto) {
+        const textoLines = doc.splitTextToSize(limparTextoParaPDF(textoConteudo), larguraUtil - 30);
+        const alturaTexto = textoLines.length * 3.6 + 4;
+        if (y + alturaLinha + alturaTexto > limiteInferior - espacoMinimoFotos) {
+          doc.addPage(); y = 15;
+        }
+      } else if (y + alturaLinha > limiteInferior - espacoMinimoFotos) {
+        doc.addPage(); y = 15;
       }
 
-      // Observação por item (retrocompatível)
-      if (r.observacao) {
-        if (y > 260) { doc.addPage(); y = 20; }
-        doc.setFillColor(255, 251, 235);
-        const obsLines = doc.splitTextToSize(`Observacao: ${limparTextoParaPDF(r.observacao)}`, largura - 60);
-        const alturaObs = obsLines.length * 4 + 4;
-        doc.roundedRect(48, y, largura - 63, alturaObs, 1.5, 1.5, 'F');
-        doc.setTextColor(146, 64, 14);
-        doc.setFontSize(8);
-        doc.text(obsLines, 50, y + 4);
-        y += alturaObs + 2;
+      // Badge colorido à esquerda
+      doc.setFillColor(...corFundo);
+      doc.roundedRect(margem, y, 18, 5.5, 1, 1, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(5.5);
+      doc.setFont('helvetica', 'bold');
+      doc.text(resultado, margem + 9, y + 3.7, { align: 'center' });
+
+      // Pergunta à direita do badge
+      doc.setTextColor(11, 18, 32);
+      doc.setFontSize(8.5);
+      doc.setFont('helvetica', 'normal');
+      doc.text(perguntaLines, margem + 21, y + 3.8);
+
+      y += alturaLinha;
+
+      // Se for texto, escreve o conteúdo indentado
+      if (isTexto && textoConteudo.trim()) {
+        const textoLimpo = limparTextoParaPDF(textoConteudo);
+        const textoLines = doc.splitTextToSize(textoLimpo, larguraUtil - 30);
+
+        doc.setFillColor(239, 246, 255);
+        const alturaTexto = textoLines.length * 3.6 + 4;
+        doc.roundedRect(margem + 21, y, larguraUtil - 21, alturaTexto, 1.5, 1.5, 'F');
+
+        doc.setFillColor(59, 130, 246);
+        doc.rect(margem + 21, y, 1, alturaTexto, 'F');
+
+        doc.setTextColor(20, 20, 20);
+        doc.setFontSize(7.5);
+        doc.text(textoLines, margem + 24, y + 3.5);
+
+        y += alturaTexto + 1.5;
+      } else {
+        y += 0.8;
       }
     });
 
-    // ===== FOTOS =====
-    if (insp.fotos && insp.fotos.length > 0) {
-      if (y > 200) { doc.addPage(); y = 20; }
-      else { y += 8; }
+    // ============ FOTOS EM GRADE 3 COLUNAS COMPACTA ============
+    if (temFotos) {
+      // Se não tem espaço, nova página
+      const espacoNecessario = 22; // título + 1 linha
+      if (y + espacoNecessario > limiteInferior) {
+        doc.addPage(); y = 15;
+      } else {
+        y += 4;
+      }
 
       doc.setTextColor(11, 18, 32);
-      doc.setFontSize(11);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'bold');
-      doc.text(`FOTOS DA INSPECAO (${insp.fotos.length})`, 15, y);
-      y += 4;
+      doc.text(`FOTOS DA INSPECAO (${insp.fotos.length})`, margem, y);
+      y += 2.5;
 
       doc.setDrawColor(46, 139, 87);
-      doc.setLineWidth(0.8);
-      doc.line(15, y, 80, y);
-      y += 6;
+      doc.setLineWidth(0.6);
+      doc.line(margem, y, margem + 50, y);
+      y += 3;
 
-      const colunas = 2;
-      const gap = 6;
-      const larguraFoto = (largura - 30 - gap) / colunas;
-      const alturaFoto = larguraFoto;
+      const colunas = 3;
+      const gap = 3;
+      const larguraFoto = (larguraUtil - gap * (colunas - 1)) / colunas;
+      const alturaFotoReal = larguraFoto * 0.75; // proporção 4:3 pra economizar espaço
       let colunaAtual = 0;
 
       for (let i = 0; i < insp.fotos.length; i++) {
         const url = insp.fotos[i];
 
-        if (y + alturaFoto + 6 > 280) {
+        if (y + alturaFotoReal + 4 > limiteInferior) {
           doc.addPage();
-          y = 20;
+          y = 15;
           colunaAtual = 0;
         }
 
-        const x = 15 + colunaAtual * (larguraFoto + gap);
+        const x = margem + colunaAtual * (larguraFoto + gap);
         const base64 = await urlParaBase64(url);
 
         if (base64) {
           try {
-            doc.addImage(base64, 'JPEG', x, y, larguraFoto, alturaFoto);
+            doc.addImage(base64, 'JPEG', x, y, larguraFoto, alturaFotoReal);
             doc.setDrawColor(229, 234, 240);
-            doc.setLineWidth(0.3);
-            doc.rect(x, y, larguraFoto, alturaFoto);
+            doc.setLineWidth(0.2);
+            doc.rect(x, y, larguraFoto, alturaFotoReal);
 
-            doc.setFontSize(7);
+            doc.setFontSize(5.5);
             doc.setTextColor(100, 116, 139);
-            doc.text(`Foto ${i + 1}`, x + 2, y + alturaFoto + 3);
+            doc.text(`Foto ${i + 1}`, x + 1.5, y + alturaFotoReal + 2.2);
           } catch (err) {
-            log('Erro ao inserir imagem:', err);
             doc.setDrawColor(229, 234, 240);
-            doc.rect(x, y, larguraFoto, alturaFoto);
-            doc.setFontSize(8);
+            doc.rect(x, y, larguraFoto, alturaFotoReal);
+            doc.setFontSize(6);
             doc.setTextColor(148, 163, 184);
-            doc.text('Erro ao carregar', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+            doc.text('Erro', x + larguraFoto/2, y + alturaFotoReal/2, { align: 'center' });
           }
         } else {
           doc.setDrawColor(229, 234, 240);
-          doc.rect(x, y, larguraFoto, alturaFoto);
-          doc.setFontSize(8);
-          doc.setTextColor(148, 163, 184);
-          doc.text('Imagem indisponivel', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+          doc.rect(x, y, larguraFoto, alturaFotoReal);
           doc.setFontSize(6);
-          doc.text('(verifique bucket publico)', x + larguraFoto/2, y + alturaFoto/2 + 5, { align: 'center' });
+          doc.setTextColor(148, 163, 184);
+          doc.text('Indisponivel', x + larguraFoto/2, y + alturaFotoReal/2 - 1, { align: 'center' });
+          doc.setFontSize(4.5);
+          doc.text('(bucket publico?)', x + larguraFoto/2, y + alturaFotoReal/2 + 2.5, { align: 'center' });
         }
 
         colunaAtual++;
         if (colunaAtual >= colunas) {
           colunaAtual = 0;
-          y += alturaFoto + 8;
+          y += alturaFotoReal + 4;
         }
       }
-
-      if (colunaAtual > 0) y += alturaFoto + 8;
     }
 
-    // ===== RODAPÉ =====
+    // ============ RODAPÉ ============
     const totalPaginas = doc.internal.getNumberOfPages();
     for (let i = 1; i <= totalPaginas; i++) {
       doc.setPage(i);
-      const alturaPag = doc.internal.pageSize.getHeight();
       doc.setDrawColor(229, 234, 240);
       doc.setLineWidth(0.3);
-      doc.line(15, alturaPag - 15, largura - 15, alturaPag - 15);
+      doc.line(margem, alturaPag - 8, largura - margem, alturaPag - 8);
       doc.setTextColor(148, 163, 184);
-      doc.setFontSize(7.5);
+      doc.setFontSize(6.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(`CIPA Ativa • Pagina ${i} de ${totalPaginas}`,
-        largura / 2, alturaPag - 9, { align: 'center' });
+      doc.text(`CIPA Ativa  •  Pagina ${i} de ${totalPaginas}`,
+        largura / 2, alturaPag - 4.5, { align: 'center' });
     }
 
     const nomeArquivo = `inspecao-${(insp.cipeiro_nome || 'cipeiro').replace(/\s+/g, '-').toLowerCase()}-${new Date(insp.created_at).toISOString().slice(0,10)}.pdf`;
     doc.save(nomeArquivo);
-    mostrarToast('📄 PDF gerado!');
+    mostrarToast(`📄 PDF gerado! ${totalPaginas} página${totalPaginas > 1 ? 's' : ''}`);
   }
 
   // ============ PDF RELATÓRIO ============
@@ -1336,37 +1349,37 @@
     const largura = doc.internal.pageSize.getWidth();
 
     doc.setFillColor(10, 31, 19);
-    doc.rect(0, 0, largura, 60, 'F');
+    doc.rect(0, 0, largura, 45, 'F');
 
     doc.setFillColor(255, 201, 60);
-    doc.circle(25, 30, 10, 'F');
+    doc.circle(20, 22, 7.5, 'F');
     doc.setTextColor(10, 31, 19);
-    doc.setFontSize(20);
+    doc.setFontSize(15);
     doc.setFont('helvetica', 'bold');
-    doc.text('C', 21, 34);
+    doc.text('C', 17, 25);
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 42, 26);
-
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio Consolidado de Inspecoes', 42, 36);
+    doc.text('CIPA Ativa', 32, 19);
 
     doc.setFontSize(10);
-    doc.text('Conformidade NR-6 / ISO 14001', 42, 44);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Relatorio Consolidado de Inspecoes', 32, 26);
 
-    doc.setFontSize(9);
-    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 15, 50, { align: 'right' });
-    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - 15, 55, { align: 'right' });
+    doc.setFontSize(8);
+    doc.text('Conformidade NR-6 / ISO 14001', 32, 32);
 
-    let y = 75;
+    doc.setFontSize(7.5);
+    doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 30, { align: 'right' });
+    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - 12, 35, { align: 'right' });
+
+    let y = 55;
     doc.setTextColor(11, 18, 32);
-    doc.setFontSize(14);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('Resumo Estatistico', 15, y);
-    y += 8;
+    doc.text('Resumo Estatistico', 12, y);
+    y += 6;
 
     const total = listaFiltrada.length;
     const somaPct = listaFiltrada.reduce((acc, i) => acc + (parseFloat(i.percentual_conformidade) || 0), 0);
@@ -1374,7 +1387,7 @@
     const totalNC = listaFiltrada.reduce((acc, i) => acc + (parseInt(i.total_nao_conformes) || 0), 0);
     const totalConf = listaFiltrada.reduce((acc, i) => acc + (parseInt(i.total_conformes) || 0), 0);
 
-    const cardW = (largura - 40) / 4;
+    const cardW = (largura - 24) / 4;
     const cards = [
       { label: 'Total', valor: total.toString(), cor: [59, 130, 246] },
       { label: 'Conformidade', valor: mediaPct + '%', cor: [16, 185, 129] },
@@ -1383,30 +1396,30 @@
     ];
 
     cards.forEach((c, i) => {
-      const x = 15 + i * (cardW + 3.33);
+      const x = 12 + i * (cardW + 2);
       doc.setFillColor(247, 249, 251);
-      doc.roundedRect(x, y, cardW, 22, 2, 2, 'F');
+      doc.roundedRect(x, y, cardW, 18, 2, 2, 'F');
 
       doc.setFillColor(...c.cor);
-      doc.rect(x, y, 2, 22, 'F');
+      doc.rect(x, y, 2, 18, 'F');
 
       doc.setTextColor(100, 116, 139);
-      doc.setFontSize(7);
+      doc.setFontSize(6);
       doc.setFont('helvetica', 'bold');
-      doc.text(c.label.toUpperCase(), x + 5, y + 7);
+      doc.text(c.label.toUpperCase(), x + 4, y + 5.5);
 
       doc.setTextColor(...c.cor);
-      doc.setFontSize(16);
+      doc.setFontSize(13);
       doc.setFont('helvetica', 'bold');
-      doc.text(c.valor, x + 5, y + 17);
+      doc.text(c.valor, x + 4, y + 13.5);
     });
 
-    y += 32;
+    y += 26;
     doc.setTextColor(11, 18, 32);
-    doc.setFontSize(14);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('Inspecoes Realizadas', 15, y);
-    y += 6;
+    doc.text('Inspecoes Realizadas', 12, y);
+    y += 4;
 
     const tableData = listaFiltrada.map(i => [
       formatarData(i.created_at).slice(0, 10),
@@ -1426,20 +1439,20 @@
         fillColor: [30, 95, 63],
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 8.5,
+        fontSize: 8,
         halign: 'left'
       },
-      bodyStyles: { fontSize: 8.5, textColor: [11, 18, 32] },
+      bodyStyles: { fontSize: 8, textColor: [11, 18, 32] },
       alternateRowStyles: { fillColor: [247, 249, 251] },
       columnStyles: {
         0: { cellWidth: 22 },
         1: { cellWidth: 35 },
-        2: { cellWidth: 40 },
-        3: { cellWidth: 40 },
-        4: { cellWidth: 18, halign: 'center' },
-        5: { cellWidth: 20, halign: 'center', fontStyle: 'bold' }
+        2: { cellWidth: 42 },
+        3: { cellWidth: 42 },
+        4: { cellWidth: 17, halign: 'center' },
+        5: { cellWidth: 18, halign: 'center', fontStyle: 'bold' }
       },
-      margin: { left: 15, right: 15 }
+      margin: { left: 12, right: 12 }
     });
 
     const totalPag = doc.internal.getNumberOfPages();
@@ -1448,12 +1461,12 @@
       const alturaPag = doc.internal.pageSize.getHeight();
       doc.setDrawColor(229, 234, 240);
       doc.setLineWidth(0.3);
-      doc.line(15, alturaPag - 15, largura - 15, alturaPag - 15);
+      doc.line(12, alturaPag - 12, largura - 12, alturaPag - 12);
       doc.setTextColor(148, 163, 184);
-      doc.setFontSize(7.5);
+      doc.setFontSize(7);
       doc.setFont('helvetica', 'normal');
       doc.text(`CIPA Ativa • Relatorio de Inspecoes • Pagina ${i} de ${totalPag}`,
-        largura / 2, alturaPag - 9, { align: 'center' });
+        largura / 2, alturaPag - 7, { align: 'center' });
     }
 
     doc.save(`relatorio-inspecoes-cipa-${new Date().toISOString().slice(0,10)}.pdf`);
