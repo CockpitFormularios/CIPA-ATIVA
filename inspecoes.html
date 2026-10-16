@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Inspeções Realizadas | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+
+<!-- ✅ FAVICON -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="shortcut icon" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 <style>
@@ -30,16 +36,34 @@
     font-size: 14px; -webkit-font-smoothing: antialiased; display: flex;
     overflow-x: hidden; }
 
+  /* ============ LOADING SIMPLIFICADO ============ */
   .loading-overlay { position: fixed; inset: 0;
     background: linear-gradient(135deg, var(--green-900), var(--green-700));
     display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 20px; z-index: 9999;
+    flex-direction: column; gap: 22px; z-index: 9999;
     color: #fff; transition: opacity 0.4s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner-lg { width: 54px; height: 54px;
-    border: 4px solid rgba(255,201,60,0.2); border-top-color: var(--yellow);
-    border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-logo {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    animation: pulse-logo 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 8px 30px rgba(255,201,60,0.5));
+  }
+
+  @keyframes pulse-logo {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+      filter: drop-shadow(0 8px 30px rgba(255,201,60,0.5));
+    }
+    50% {
+      transform: scale(1.12);
+      opacity: 0.85;
+      filter: drop-shadow(0 8px 40px rgba(255,201,60,0.7));
+    }
+  }
 
   /* SIDEBAR */
   .sidebar { width: 268px;
@@ -47,17 +71,18 @@
     color: #fff; padding: 24px 16px; position: fixed; height: 100vh;
     overflow-y: auto; transition: transform 0.3s ease; z-index: 100;
     display: flex; flex-direction: column; }
-  .brand { display: flex; align-items: center; gap: 12px;
-    padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 20px; }
-  .brand-icon { width: 46px; height: 46px;
-    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 13px; display: flex; align-items: center;
-    justify-content: center; font-weight: 800; font-size: 21px;
-    color: var(--green-900); box-shadow: 0 6px 16px rgba(255,201,60,0.35);
-    flex-shrink: 0; }
-  .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-  .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
+  .brand { display: flex; align-items: center; justify-content: center;
+    padding: 0 8px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 18px; }
+
+  .brand-logo {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+  }
+
   .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px;
     color: rgba(255,255,255,0.35); padding: 14px 12px 8px; font-weight: 700; }
   .sidebar nav a { display: flex; align-items: center; gap: 12px;
@@ -76,7 +101,10 @@
   .avatar-sm { width: 38px; height: 38px; border-radius: 50%;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+    overflow: hidden; }
+  .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+
   .sidebar-footer .info { flex: 1; min-width: 0; }
   .sidebar-footer .info small { display: block;
     color: rgba(255,255,255,0.5); font-size: 11px; }
@@ -388,49 +416,36 @@
     .info-line { flex-direction: column; gap: 4px; }
     .info-line strong { min-width: unset; }
     .menu-toggle { display: flex; }
+    .brand-logo { max-width: 160px; }
   }
 </style>
 </head>
 <body>
 
+<!-- ============ LOADING SIMPLIFICADO ============ -->
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner-lg"></div>
+  <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+       alt="CIPA Ativa" class="loading-logo">
   <p style="font-weight:600;">Carregando inspeções...</p>
 </div>
 
+<!-- ============ SIDEBAR ============ -->
 <aside class="sidebar" id="sidebar">
   <div class="brand">
-    <div class="brand-icon">C</div>
-    <div class="brand-text">
-      <h1>CIPA Ativa</h1>
-      <span>Painel SESMT</span>
-    </div>
+    <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png"
+         alt="CIPA Ativa" class="brand-logo">
   </div>
 
-  <div class="nav-label">Visão Geral</div>
+  <div class="nav-label">Painel</div>
   <nav>
     <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
-    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
-    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
-  </nav>
-
-  <div class="nav-label">Gestão CIPA</div>
-  <nav>
     <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
-    <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Inspeções</div>
   <nav>
     <a class="active"><span class="icon">🔍</span> Ver Inspeções</a>
     <a onclick="window.location.href='checklists.html'"><span class="icon">📋</span> Checklists</a>
-  </nav>
-
-  <div class="nav-label">Sistema</div>
-  <nav>
-    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
-    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
   <div class="sidebar-footer">
@@ -572,7 +587,6 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
   }
 
-  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
   function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
   function escaparHtml(str) {
@@ -659,7 +673,14 @@
     if (!usuario) return;
     const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
       .map(n => n[0].toUpperCase()).join('');
-    document.getElementById('userAvatar').textContent = iniciais || '?';
+
+    const avatarEl = document.getElementById('userAvatar');
+    if (iniciais) {
+      avatarEl.textContent = iniciais;
+    } else {
+      avatarEl.innerHTML = `<img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png" style="width:70%;height:70%;object-fit:contain;">`;
+    }
+
     document.getElementById('userName').textContent =
       usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
     document.getElementById('userRole').textContent = '🔑 SESMT';
@@ -1057,25 +1078,39 @@
     const limiteInferior = alturaPag - 12;                // deixa espaço pro rodapé
     let y = 0;
 
-    // ============ CABEÇALHO COMPACTO (22mm em vez de 32mm) ============
+    // ============ CABEÇALHO COMPACTO ============
     doc.setFillColor(10, 31, 19);
     doc.rect(0, 0, largura, 22, 'F');
 
-    doc.setFillColor(255, 201, 60);
-    doc.circle(12, 11, 5, 'F');
-    doc.setTextColor(10, 31, 19);
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('C', 10.2, 13);
+    // ✅ Tenta carregar a LOGO do Supabase
+    try {
+      const logoBase64 = await urlParaBase64(
+        'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
+      );
+      if (logoBase64) {
+        // Adiciona logo (mantém proporção — altura 12mm)
+        doc.addImage(logoBase64, 'PNG', margem + 1, 5, 22, 12);
+      } else {
+        throw new Error('Logo vazia');
+      }
+    } catch (e) {
+      // Fallback: "C" amarelo
+      doc.setFillColor(255, 201, 60);
+      doc.circle(12, 11, 5, 'F');
+      doc.setTextColor(10, 31, 19);
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('C', 10.2, 13);
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 20, 10);
+    doc.text('CIPA Ativa', 36, 10);
 
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 20, 15);
+    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 36, 15);
 
     doc.setFontSize(6.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - margem, 9, { align: 'right' });
@@ -1083,7 +1118,7 @@
 
     y = 27;
 
-    // ============ DADOS EM UMA LINHA COMPACTA (18mm) ============
+    // ============ DADOS EM UMA LINHA COMPACTA ============
     doc.setFillColor(247, 249, 251);
     doc.rect(margem, y, larguraUtil, 18, 'F');
 
@@ -1097,7 +1132,6 @@
     doc.setFont('helvetica', 'bold');
     doc.text('INFORMACOES DA INSPECAO', margem + 4, y + 3.5);
 
-    // Coluna 1 (esquerda)
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
@@ -1108,7 +1142,6 @@
     doc.text(limparTextoParaPDF(insp.cipeiro_nome || '—'), margem + 22, y + 8.5);
     doc.text(limparTextoParaPDF(insp.checklist_titulo || '—'), margem + 22, y + 13);
 
-    // Coluna 2 (centro)
     doc.setFont('helvetica', 'bold');
     doc.text('Local:', margem + 100, y + 8.5);
     doc.setFont('helvetica', 'normal');
@@ -1118,7 +1151,6 @@
     doc.setFont('helvetica', 'normal');
     doc.text(formatarData(insp.created_at), margem + 115, y + 13);
 
-    // Resultado (direita, destacado)
     const pct = parseFloat(insp.percentual_conformidade) || 0;
     if (pct >= 90) doc.setTextColor(4, 120, 87);
     else if (pct >= 70) doc.setTextColor(146, 64, 14);
@@ -1135,7 +1167,7 @@
 
     y += 22;
 
-    // ============ ITENS EM TABELA COMPACTA ============
+    // ============ ITENS ============
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'bold');
@@ -1148,19 +1180,12 @@
     y += 3;
 
     const respostas = insp.respostas || [];
-    const alturaItem = 8;             // altura de cada linha
-    const alturaFoto = 40;            // altura reservada pras fotos
+    const alturaItem = 8;
 
-    // Calcular se precisa de página extra para as fotos
     const temFotos = insp.fotos && insp.fotos.length > 0;
-    const espacoRestante = limiteInferior - y;
-
-    // Espaço mínimo que as fotos vão precisar (título + 1 linha de miniatura)
     const espacoMinimoFotos = temFotos ? 22 : 0;
 
-    // ===== LISTA DE ITENS =====
     respostas.forEach((r, idx) => {
-      // Se não cabe mais um item E ainda tem foto pra colocar, quebra
       if (y + alturaItem > limiteInferior - espacoMinimoFotos) {
         doc.addPage();
         y = 15;
@@ -1186,7 +1211,6 @@
         textoConteudo = v;
       }
 
-      // Pergunta
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(11, 18, 32);
@@ -1195,7 +1219,6 @@
       const perguntaLines = doc.splitTextToSize(perguntaTexto, larguraUtil - 30);
       const alturaLinha = Math.max(alturaItem, perguntaLines.length * 3.8 + 4);
 
-      // Se o item com texto tem várias linhas, checar se cabe
       if (isTexto) {
         const textoLines = doc.splitTextToSize(limparTextoParaPDF(textoConteudo), larguraUtil - 30);
         const alturaTexto = textoLines.length * 3.6 + 4;
@@ -1206,7 +1229,6 @@
         doc.addPage(); y = 15;
       }
 
-      // Badge colorido à esquerda
       doc.setFillColor(...corFundo);
       doc.roundedRect(margem, y, 18, 5.5, 1, 1, 'F');
       doc.setTextColor(255, 255, 255);
@@ -1214,7 +1236,6 @@
       doc.setFont('helvetica', 'bold');
       doc.text(resultado, margem + 9, y + 3.7, { align: 'center' });
 
-      // Pergunta à direita do badge
       doc.setTextColor(11, 18, 32);
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
@@ -1222,7 +1243,6 @@
 
       y += alturaLinha;
 
-      // Se for texto, escreve o conteúdo indentado
       if (isTexto && textoConteudo.trim()) {
         const textoLimpo = limparTextoParaPDF(textoConteudo);
         const textoLines = doc.splitTextToSize(textoLimpo, larguraUtil - 30);
@@ -1244,10 +1264,9 @@
       }
     });
 
-    // ============ FOTOS EM GRADE 3 COLUNAS COMPACTA ============
+    // ============ FOTOS ============
     if (temFotos) {
-      // Se não tem espaço, nova página
-      const espacoNecessario = 22; // título + 1 linha
+      const espacoNecessario = 22;
       if (y + espacoNecessario > limiteInferior) {
         doc.addPage(); y = 15;
       } else {
@@ -1268,7 +1287,7 @@
       const colunas = 3;
       const gap = 3;
       const larguraFoto = (larguraUtil - gap * (colunas - 1)) / colunas;
-      const alturaFotoReal = larguraFoto * 0.75; // proporção 4:3 pra economizar espaço
+      const alturaFotoReal = larguraFoto * 0.75;
       let colunaAtual = 0;
 
       for (let i = 0; i < insp.fotos.length; i++) {
@@ -1338,7 +1357,7 @@
   }
 
   // ============ PDF RELATÓRIO ============
-  function exportarRelatorioPDF() {
+  async function exportarRelatorioPDF() {
     if (listaFiltrada.length === 0) {
       mostrarToast('⚠️ Nada para exportar', true);
       return;
@@ -1351,24 +1370,36 @@
     doc.setFillColor(10, 31, 19);
     doc.rect(0, 0, largura, 45, 'F');
 
-    doc.setFillColor(255, 201, 60);
-    doc.circle(20, 22, 7.5, 'F');
-    doc.setTextColor(10, 31, 19);
-    doc.setFontSize(15);
-    doc.setFont('helvetica', 'bold');
-    doc.text('C', 17, 25);
+    // ✅ Tenta carregar a LOGO
+    try {
+      const logoBase64 = await urlParaBase64(
+        'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
+      );
+      if (logoBase64) {
+        doc.addImage(logoBase64, 'PNG', 12, 12, 35, 20);
+      } else {
+        throw new Error('Logo vazia');
+      }
+    } catch (e) {
+      doc.setFillColor(255, 201, 60);
+      doc.circle(20, 22, 7.5, 'F');
+      doc.setTextColor(10, 31, 19);
+      doc.setFontSize(15);
+      doc.setFont('helvetica', 'bold');
+      doc.text('C', 17, 25);
+    }
 
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 32, 19);
+    doc.text('CIPA Ativa', 52, 19);
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio Consolidado de Inspecoes', 32, 26);
+    doc.text('Relatorio Consolidado de Inspecoes', 52, 26);
 
     doc.setFontSize(8);
-    doc.text('Conformidade NR-6 / ISO 14001', 32, 32);
+    doc.text('Conformidade NR-5', 52, 32);
 
     doc.setFontSize(7.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 30, { align: 'right' });
