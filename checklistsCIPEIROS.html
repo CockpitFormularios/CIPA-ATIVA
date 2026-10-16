@@ -555,8 +555,8 @@
         </div>
       </div>
       <div class="info-group">
-        <label>Observações gerais (opcional)</label>
-        <textarea id="inspObs" placeholder="Alguma observação sobre a inspeção como um todo..." rows="2"></textarea>
+        <label>Observações gerais do setor (opcional)</label>
+        <textarea id="inspObs" placeholder="Alguma observação sobre a inspeção como um todo, contexto do setor, etc..." rows="3"></textarea>
       </div>
     </div>
 
@@ -653,6 +653,17 @@
       .map(n => n[0].toUpperCase()).join('');
   }
 
+  // Helper: escapa HTML para evitar quebra de layout
+  function escaparHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function irParaEtapa(n) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen' + n).classList.add('active');
@@ -709,13 +720,13 @@
       btn.className = 'cipeiro-btn';
       btn.onclick = () => selecionarCipeiro(c);
       const fotoHtml = c.photo_url
-        ? `<img src="${c.photo_url}" alt="${c.name}">`
+        ? `<img src="${c.photo_url}" alt="${escaparHtml(c.name)}">`
         : iniciais(c.name);
 
       btn.innerHTML = `
         <div class="cipeiro-avatar">${fotoHtml}</div>
-        <div class="cipeiro-nome">${c.name}</div>
-        <div class="cipeiro-cargo">${(c.role || '').replace('-', ' ')}</div>
+        <div class="cipeiro-nome">${escaparHtml(c.name)}</div>
+        <div class="cipeiro-cargo">${escaparHtml((c.role || '').replace('-', ' '))}</div>
       `;
       grid.appendChild(btn);
     });
@@ -761,8 +772,8 @@
           ${c.icone || '📋'}
         </div>
         <div class="checklist-btn-info">
-          <h4>${c.titulo}</h4>
-          <p>${c.descricao || 'Sem descrição'}</p>
+          <h4>${escaparHtml(c.titulo)}</h4>
+          <p>${escaparHtml(c.descricao || 'Sem descrição')}</p>
         </div>
         <div class="checklist-btn-badge">${itens} itens</div>
       `;
@@ -809,55 +820,77 @@
       block.id = 'item-' + item.id;
 
       let respostasHtml = '';
+      const respostaAtual = respostas[item.id] || {};
 
       if (item.tipo === 'conforme') {
+        const selC = respostaAtual.resposta === 'conforme' ? 'selected' : '';
+        const selN = respostaAtual.resposta === 'nao_conforme' ? 'selected' : '';
         respostasHtml = `
           <div class="resp-options">
-            <button class="resp-opt conforme" onclick="responder('${item.id}', 'conforme', this)">
+            <button class="resp-opt conforme ${selC}" onclick="responder('${item.id}', 'conforme', this)">
               ✅ Conforme
             </button>
-            <button class="resp-opt nao-conforme" onclick="responder('${item.id}', 'nao_conforme', this)">
+            <button class="resp-opt nao-conforme ${selN}" onclick="responder('${item.id}', 'nao_conforme', this)">
               ❌ Não Conforme
             </button>
           </div>
         `;
+        if (selC) block.classList.add('respondido-conforme');
+        if (selN) block.classList.add('respondido-nao-conforme');
       } else if (item.tipo === 'sim_nao') {
+        const selS = respostaAtual.resposta === 'sim' ? 'selected' : '';
+        const selN = respostaAtual.resposta === 'nao' ? 'selected' : '';
         respostasHtml = `
           <div class="resp-options">
-            <button class="resp-opt sim" onclick="responder('${item.id}', 'sim', this)">
+            <button class="resp-opt sim ${selS}" onclick="responder('${item.id}', 'sim', this)">
               👍 Sim
             </button>
-            <button class="resp-opt nao" onclick="responder('${item.id}', 'nao', this)">
+            <button class="resp-opt nao ${selN}" onclick="responder('${item.id}', 'nao', this)">
               👎 Não
             </button>
           </div>
         `;
+        if (selS) block.classList.add('respondido-conforme');
+        if (selN) block.classList.add('respondido-nao-conforme');
       } else if (item.tipo === 'nota') {
         respostasHtml = `
           <div class="nota-options">
-            ${[0,1,2,3,4,5,6,7,8,9,10].map(n =>
-              `<button class="nota-btn" onclick="responder('${item.id}', ${n}, this)">${n}</button>`
-            ).join('')}
+            ${[0,1,2,3,4,5,6,7,8,9,10].map(n => {
+              const sel = respostaAtual.resposta === n ? 'selected' : '';
+              return `<button class="nota-btn ${sel}" onclick="responder('${item.id}', ${n}, this)">${n}</button>`;
+            }).join('')}
           </div>
         `;
+        if (typeof respostaAtual.resposta === 'number') {
+          if (respostaAtual.resposta >= 7) block.classList.add('respondido-conforme');
+          else block.classList.add('respondido-nao-conforme');
+        }
       } else if (item.tipo === 'texto') {
+        // ✅ CORREÇÃO: preserva o valor digitado com escape seguro
+        const valorTexto = escaparHtml(respostaAtual.resposta || '');
         respostasHtml = `
           <div class="texto-livre">
-            <textarea placeholder="Digite sua resposta..." oninput="responderTexto('${item.id}', this.value)"></textarea>
+            <textarea
+              id="texto-${item.id}"
+              placeholder="Digite sua resposta..."
+              oninput="responderTexto('${item.id}', this.value)">${valorTexto}</textarea>
           </div>
         `;
       }
 
+      // ✅ CORREÇÃO: preserva a observação do item
+      const obsAtual = escaparHtml(respostaAtual.obs || '');
+
       block.innerHTML = `
         <div class="item-header">
           <div class="item-num">${idx + 1}</div>
-          <div class="item-pergunta">${item.pergunta}</div>
+          <div class="item-pergunta">${escaparHtml(item.pergunta)}</div>
         </div>
         ${respostasHtml}
         <details class="obs-add">
           <summary>Adicionar observação</summary>
           <textarea placeholder="Observação adicional sobre este item..."
-            oninput="adicionarObs('${item.id}', this.value)"></textarea>
+            oninput="adicionarObs('${item.id}', this.value)">${obsAtual}</textarea>
         </details>
       `;
 
@@ -1195,15 +1228,14 @@
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.setTextColor(20, 20, 20);
-        doc.text('Observacoes Gerais', margin, y);
+        doc.text('Observacoes Gerais do Setor', margin, y);
         y += 2;
-        doc.line(margin, y, margin + 45, y);
+        doc.line(margin, y, margin + 60, y);
         y += 7;
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
 
-        // Divide por linhas para preservar quebras e evita estourar página
         const obsTexto = limparTextoParaPDF(d.observacoes);
         const paragrafos = obsTexto.split('\n');
 
@@ -1274,7 +1306,6 @@
           respTxt = `Nota: ${valor}`;
           cor = valor >= 7 ? [4, 120, 87] : [153, 27, 27];
         } else if (typeof valor === 'string' && valor.trim().length > 0) {
-          // ✅ Item tipo TEXTO: mostra o conteúdo digitado
           respTxt = limparTextoParaPDF(valor);
           cor = [20, 20, 20];
         }
@@ -1303,7 +1334,7 @@
           y += respLines.length * 5;
         }
 
-        // ✅ Observação do item (agora aparece no PDF)
+        // Observação do item
         if (r.obs && r.obs.trim()) {
           doc.setFont('helvetica', 'italic');
           doc.setTextColor(90, 90, 90);
