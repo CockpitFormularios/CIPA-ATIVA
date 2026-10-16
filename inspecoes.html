@@ -623,6 +623,16 @@
       .trim();
   }
 
+  // ✅ NOVO — Carrega imagem e retorna proporção real (largura/altura)
+  async function obterProporcaoImagem(base64) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img.naturalWidth / img.naturalHeight);
+      img.onerror = reject;
+      img.src = base64;
+    });
+  }
+
   // ============ LIGHTBOX ============
   function abrirLightbox(url) {
     document.getElementById('fotoLightboxImg').src = url;
@@ -1071,10 +1081,10 @@
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
-    const largura = doc.internal.pageSize.getWidth();     // 210mm
-    const alturaPag = doc.internal.pageSize.getHeight();  // 297mm
+    const largura = doc.internal.pageSize.getWidth();
+    const alturaPag = doc.internal.pageSize.getHeight();
     const margem = 10;
-    const larguraUtil = largura - margem * 2;             // 190mm
+    const larguraUtil = largura - margem * 2;
     const limiteInferior = alturaPag - 12;
     let y = 0;
 
@@ -1082,32 +1092,37 @@
     doc.setFillColor(10, 31, 19);
     doc.rect(0, 0, largura, 22, 'F');
 
-    // ✅ Tenta carregar a LOGO do Supabase
+    // ✅ Carrega logo respeitando PROPORÇÃO REAL (sem repuxar)
+    let larguraLogo = 0;
     try {
       const logoBase64 = await urlParaBase64(
         'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
       );
       if (logoBase64) {
-        // ✅ Logo grande ocupando boa parte do cabeçalho (60x14mm)
-        doc.addImage(logoBase64, 'PNG', margem + 2, 4, 60, 14);
+        const proporcao = await obterProporcaoImagem(logoBase64);
+        const alturaLogo = 12;                        // altura fixa
+        larguraLogo = alturaLogo * proporcao;         // largura proporcional
+        doc.addImage(logoBase64, 'PNG', margem + 2, 5, larguraLogo, alturaLogo);
       } else {
         throw new Error('Logo vazia');
       }
     } catch (e) {
-      // Fallback: "C" amarelo
       doc.setFillColor(255, 201, 60);
       doc.circle(12, 11, 5, 'F');
       doc.setTextColor(10, 31, 19);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
       doc.text('C', 10.2, 13);
+      larguraLogo = 15;
     }
 
-    // ✅ Subtítulo movido para a direita (sem texto "CIPA Ativa" duplicado)
+    // ✅ Subtítulo posicionado logo depois da logo (não mais fixo)
+    const xSubtitulo = margem + 2 + larguraLogo + 6;
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 78, 12);
+    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', xSubtitulo, 12);
 
     doc.setFontSize(6.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - margem, 9, { align: 'right' });
@@ -1367,14 +1382,17 @@
     doc.setFillColor(10, 31, 19);
     doc.rect(0, 0, largura, 45, 'F');
 
-    // ✅ Tenta carregar a LOGO
+    // ✅ Carrega logo respeitando PROPORÇÃO REAL
+    let larguraLogo = 0;
     try {
       const logoBase64 = await urlParaBase64(
         'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
       );
       if (logoBase64) {
-        // ✅ Logo grande (70x22mm)
-        doc.addImage(logoBase64, 'PNG', 12, 10, 70, 22);
+        const proporcao = await obterProporcaoImagem(logoBase64);
+        const alturaLogo = 18;
+        larguraLogo = alturaLogo * proporcao;
+        doc.addImage(logoBase64, 'PNG', 12, 13, larguraLogo, alturaLogo);
       } else {
         throw new Error('Logo vazia');
       }
@@ -1385,16 +1403,19 @@
       doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
       doc.text('C', 17, 25);
+      larguraLogo = 20;
     }
 
-    // ✅ Subtítulo e NR movidos para a direita (sem texto "CIPA Ativa" duplicado)
+    // ✅ Subtítulo posicionado logo depois da logo
+    const xSubtitulo = 12 + larguraLogo + 8;
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio Consolidado de Inspecoes', 90, 22);
+    doc.text('Relatorio Consolidado de Inspecoes', xSubtitulo, 22);
 
     doc.setFontSize(9);
-    doc.text('Conformidade NR-5', 90, 28);
+    doc.text('Conformidade NR-5', xSubtitulo, 28);
 
     doc.setFontSize(7.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 30, { align: 'right' });
