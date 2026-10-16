@@ -268,7 +268,8 @@
   .resp-status.ok { background: var(--success); }
   .resp-status.nok { background: var(--danger); }
   .resp-status.na { background: var(--text-muted); }
-  .resp-info { flex: 1; }
+  .resp-status.texto { background: var(--info); }
+  .resp-info { flex: 1; min-width: 0; }
   .resp-info strong { display: block; font-size: 13.5px;
     margin-bottom: 4px; font-weight: 700; }
   .resp-info small { color: var(--text-soft); font-size: 12px;
@@ -277,6 +278,22 @@
     background: var(--bg); border-radius: 8px; font-size: 12.5px;
     color: var(--text-soft); line-height: 1.5;
     border-left: 3px solid var(--yellow); }
+
+  /* ✅ NOVO — Estilo para o texto digitado do item tipo "texto" */
+  .resp-texto {
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: #eff6ff;
+    border-left: 4px solid var(--info);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-weight: 500;
+  }
+
   .modal-footer { padding: 20px 28px;
     border-top: 1.5px solid var(--border); display: flex;
     justify-content: flex-end; gap: 10px;
@@ -294,7 +311,6 @@
     display: block;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px solid var(--border);
     aspect-ratio: 1;
     background: var(--bg);
     cursor: pointer;
@@ -561,6 +577,16 @@
   function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
   function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
+  function escaparHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function formatarData(iso) {
     if (!iso) return '—';
     const d = new Date(iso);
@@ -573,6 +599,17 @@
     if (pct >= 90) return 'ok';
     if (pct >= 70) return 'parcial';
     return 'nok';
+  }
+
+  // Remove emojis para o PDF
+  function limparTextoParaPDF(txt) {
+    if (!txt) return '';
+    return String(txt)
+      .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+      .replace(/[\u{2600}-\u{27BF}]/gu, '')
+      .replace(/[\u{1F000}-\u{1F2FF}]/gu, '')
+      .replace(/[\u{FE00}-\u{FE0F}]/gu, '')
+      .trim();
   }
 
   // ============ LIGHTBOX ============
@@ -589,7 +626,13 @@
   async function urlParaBase64(url) {
     try {
       const response = await fetch(url, { mode: 'cors' });
-      if (!response.ok) throw new Error('HTTP ' + response.status);
+      if (!response.ok) {
+        log(`⚠️ Erro HTTP ${response.status} ao carregar:`, url);
+        if (response.status === 403) {
+          log('❌ 403 Forbidden — bucket provavelmente PRIVADO. Torne público no Supabase Storage.');
+        }
+        return null;
+      }
       const blob = await response.blob();
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -598,7 +641,7 @@
         reader.readAsDataURL(blob);
       });
     } catch (err) {
-      log('Erro ao carregar imagem:', err);
+      log('❌ Erro ao carregar imagem (CORS?):', url, err.message);
       return null;
     }
   }
@@ -767,11 +810,11 @@
       tr.innerHTML = `
         <td><strong>${formatarData(i.created_at)}</strong></td>
         <td>
-          <div style="font-weight:700;">${i.cipeiro_nome || '—'}</div>
-          <small style="color:var(--text-soft); font-size:11.5px;">${i.cipeiro_matricula || ''}</small>
+          <div style="font-weight:700;">${escaparHtml(i.cipeiro_nome || '—')}</div>
+          <small style="color:var(--text-soft); font-size:11.5px;">${escaparHtml(i.cipeiro_matricula || '')}</small>
         </td>
-        <td>${i.checklist_titulo || '—'}</td>
-        <td>${i.local_inspecionado || '—'}</td>
+        <td>${escaparHtml(i.checklist_titulo || '—')}</td>
+        <td>${escaparHtml(i.local_inspecionado || '—')}</td>
         <td>
           <div class="progress-mini">
             <div class="progress-mini-bar">
@@ -808,15 +851,26 @@
     let respostasHtml = '';
     respostas.forEach((r, idx) => {
       const v = r.resposta;
-      let status = 'na', label = '—';
-      if (v === 'conforme' || v === 'sim') { status = 'ok'; label = v === 'sim' ? 'Sim' : 'Conforme'; }
-      else if (v === 'nao_conforme' || v === 'nao') { status = 'nok'; label = v === 'nao' ? 'Não' : 'Não Conforme'; }
-      else if (typeof v === 'number') { status = v >= 7 ? 'ok' : 'nok'; label = `Nota: ${v}/10`; }
-      else if (v) label = 'Texto';
+      let status = 'na', label = '—', textoLivre = '';
 
-      const statusIcon = status === 'ok' ? '✓' : status === 'nok' ? '✗' : '·';
+      // ✅ CORREÇÃO 1: mostra o conteúdo quando tipo === "texto"
+      if (v === 'conforme' || v === 'sim') {
+        status = 'ok'; label = v === 'sim' ? 'Sim' : 'Conforme';
+      } else if (v === 'nao_conforme' || v === 'nao') {
+        status = 'nok'; label = v === 'nao' ? 'Não' : 'Não Conforme';
+      } else if (typeof v === 'number') {
+        status = v >= 7 ? 'ok' : 'nok'; label = `Nota: ${v}/10`;
+      } else if (typeof v === 'string' && v.trim() !== '') {
+        // ✅ Item tipo "texto" — exibe o conteúdo digitado
+        status = 'texto';
+        label = 'Texto';
+        textoLivre = v;
+      }
 
-      // Fotos por item (se existirem — retrocompatível)
+      const statusIcon = status === 'ok' ? '✓'
+                       : status === 'nok' ? '✗'
+                       : status === 'texto' ? '📝' : '·';
+
       const fotosItem = r.fotos && r.fotos.length > 0 ? `
         <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
           ${r.fotos.map(url => `
@@ -831,9 +885,10 @@
         <div class="resp-item">
           <div class="resp-status ${status}">${statusIcon}</div>
           <div class="resp-info">
-            <strong>${idx + 1}. ${r.pergunta || '—'}</strong>
-            <small><strong>Resposta:</strong> ${label}</small>
-            ${r.observacao ? `<div class="obs">💬 ${r.observacao}</div>` : ''}
+            <strong>${idx + 1}. ${escaparHtml(r.pergunta || '—')}</strong>
+            <small><strong>Resposta:</strong> ${escaparHtml(label)}</small>
+            ${textoLivre ? `<div class="resp-texto">${escaparHtml(textoLivre)}</div>` : ''}
+            ${r.observacao ? `<div class="obs">💬 ${escaparHtml(r.observacao)}</div>` : ''}
             ${fotosItem}
           </div>
         </div>
@@ -845,13 +900,13 @@
 
     document.getElementById('modalBody').innerHTML = `
       <div class="info-line"><strong>Cipeiro</strong>
-        <div>${i.cipeiro_nome || '—'} ${i.cipeiro_matricula ? `(${i.cipeiro_matricula})` : ''}</div>
+        <div>${escaparHtml(i.cipeiro_nome || '—')} ${i.cipeiro_matricula ? `(${escaparHtml(i.cipeiro_matricula)})` : ''}</div>
       </div>
       <div class="info-line"><strong>Checklist</strong>
-        <div>${i.checklist_titulo || '—'} ${i.checklist_categoria ? `• ${i.checklist_categoria}` : ''}</div>
+        <div>${escaparHtml(i.checklist_titulo || '—')} ${i.checklist_categoria ? `• ${escaparHtml(i.checklist_categoria)}` : ''}</div>
       </div>
       <div class="info-line"><strong>Local inspecionado</strong>
-        <div>${i.local_inspecionado || '—'}</div>
+        <div>${escaparHtml(i.local_inspecionado || '—')}</div>
       </div>
       <div class="info-line"><strong>Data/Hora</strong>
         <div>${formatarData(i.created_at)}</div>
@@ -864,7 +919,7 @@
           </span>
         </div>
       </div>
-      ${i.observacoes ? `<div class="info-line"><strong>Observações</strong><div>${i.observacoes}</div></div>` : ''}
+      ${i.observacoes ? `<div class="info-line"><strong>Observações</strong><div>${escaparHtml(i.observacoes)}</div></div>` : ''}
 
       ${fotos.length > 0 ? `
         <h4 style="margin-top:24px; margin-bottom:12px; font-size:15px; font-weight:800;">
@@ -989,7 +1044,7 @@
     mostrarToast('📊 CSV exportado!');
   }
 
-  // ============ PDF INDIVIDUAL (COM FOTOS) ============
+  // ============ PDF INDIVIDUAL (COM FOTOS + TEXTO) ============
   async function exportarPDFIndividual(id) {
     const insp = id ? inspecoes.find(x => x.id === id) : inspecaoSelecionada;
     if (!insp) { mostrarToast('⚠️ Inspeção não encontrada', true); return; }
@@ -1019,11 +1074,11 @@
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatório de Inspeção de Segurança do Trabalho', 30, 20);
+    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 30, 20);
 
     doc.setFontSize(8);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 14, { align: 'right' });
-    doc.text(`Emissor: ${usuario.nome}`, largura - 12, 20, { align: 'right' });
+    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - 12, 20, { align: 'right' });
 
     y = 42;
 
@@ -1034,7 +1089,7 @@
     doc.setTextColor(100, 116, 139);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text('INFORMAÇÕES DA INSPEÇÃO', 15, y + 7);
+    doc.text('INFORMACOES DA INSPECAO', 15, y + 7);
 
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(10);
@@ -1044,9 +1099,9 @@
     doc.text('Local:', 15, y + 32);
 
     doc.setFont('helvetica', 'normal');
-    doc.text(`${insp.cipeiro_nome || '—'} ${insp.cipeiro_matricula ? `(${insp.cipeiro_matricula})` : ''}`, 45, y + 16);
-    doc.text(`${insp.checklist_titulo || '—'}`, 45, y + 24);
-    doc.text(`${insp.local_inspecionado || '—'}`, 45, y + 32);
+    doc.text(`${limparTextoParaPDF(insp.cipeiro_nome || '—')} ${insp.cipeiro_matricula ? `(${limparTextoParaPDF(insp.cipeiro_matricula)})` : ''}`, 45, y + 16);
+    doc.text(`${limparTextoParaPDF(insp.checklist_titulo || '—')}`, 45, y + 24);
+    doc.text(`${limparTextoParaPDF(insp.local_inspecionado || '—')}`, 45, y + 32);
 
     doc.setFont('helvetica', 'bold');
     doc.text('Data:', largura - 90, y + 16);
@@ -1073,11 +1128,11 @@
       doc.setTextColor(11, 18, 32);
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('Observações Gerais:', 15, y);
+      doc.text('Observacoes Gerais:', 15, y);
       y += 6;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      const obsLines = doc.splitTextToSize(insp.observacoes, largura - 30);
+      const obsLines = doc.splitTextToSize(limparTextoParaPDF(insp.observacoes), largura - 30);
       doc.text(obsLines, 15, y);
       y += obsLines.length * 5 + 6;
     }
@@ -1101,15 +1156,25 @@
       const v = r.resposta;
       let resultado = 'N/A';
       let corFundo = [148, 163, 184];
+      let isTexto = false;
+      let textoConteudo = '';
 
-      if (v === 'conforme' || v === 'sim') { resultado = 'CONFORME'; corFundo = [16, 185, 129]; }
-      else if (v === 'nao_conforme' || v === 'nao') { resultado = 'NÃO CONF.'; corFundo = [225, 29, 72]; }
-      else if (typeof v === 'number') {
+      if (v === 'conforme' || v === 'sim') {
+        resultado = 'CONFORME'; corFundo = [16, 185, 129];
+      } else if (v === 'nao_conforme' || v === 'nao') {
+        resultado = 'NAO CONF.'; corFundo = [225, 29, 72];
+      } else if (typeof v === 'number') {
         resultado = `NOTA ${v}/10`;
         corFundo = v >= 7 ? [16, 185, 129] : [225, 29, 72];
-      } else if (v) { resultado = 'TEXTO'; corFundo = [59, 130, 246]; }
+      } else if (typeof v === 'string' && v.trim() !== '') {
+        // ✅ CORREÇÃO 2: item tipo "texto" — vamos mostrar o conteúdo no PDF
+        resultado = 'TEXTO';
+        corFundo = [59, 130, 246];
+        isTexto = true;
+        textoConteudo = v;
+      }
 
-      const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${r.pergunta || '—'}`, largura - 60);
+      const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${limparTextoParaPDF(r.pergunta || '—')}`, largura - 60);
       const alturaItem = Math.max(14, perguntaLines.length * 4.5 + 8);
 
       doc.setDrawColor(229, 234, 240);
@@ -1130,10 +1195,34 @@
 
       y += alturaItem + 2;
 
+      // ✅ CORREÇÃO 2 (continuação): se for texto, escreve o conteúdo abaixo
+      if (isTexto && textoConteudo.trim()) {
+        if (y > 260) { doc.addPage(); y = 20; }
+
+        const textoLimpo = limparTextoParaPDF(textoConteudo);
+        const textoLines = doc.splitTextToSize(textoLimpo, largura - 63);
+        const alturaTexto = textoLines.length * 4.5 + 8;
+
+        doc.setFillColor(239, 246, 255);
+        doc.roundedRect(48, y, largura - 63, alturaTexto, 1.5, 1.5, 'F');
+
+        // Borda azul à esquerda
+        doc.setFillColor(59, 130, 246);
+        doc.rect(48, y, 1.2, alturaTexto, 'F');
+
+        doc.setTextColor(20, 20, 20);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text(textoLines, 52, y + 5);
+
+        y += alturaTexto + 2;
+      }
+
+      // Observação por item (retrocompatível)
       if (r.observacao) {
         if (y > 260) { doc.addPage(); y = 20; }
         doc.setFillColor(255, 251, 235);
-        const obsLines = doc.splitTextToSize(`Observação: ${r.observacao}`, largura - 60);
+        const obsLines = doc.splitTextToSize(`Observacao: ${limparTextoParaPDF(r.observacao)}`, largura - 60);
         const alturaObs = obsLines.length * 4 + 4;
         doc.roundedRect(48, y, largura - 63, alturaObs, 1.5, 1.5, 'F');
         doc.setTextColor(146, 64, 14);
@@ -1143,7 +1232,7 @@
       }
     });
 
-    // ===== FOTOS (COM IMAGENS REAIS) =====
+    // ===== FOTOS =====
     if (insp.fotos && insp.fotos.length > 0) {
       if (y > 200) { doc.addPage(); y = 20; }
       else { y += 8; }
@@ -1151,7 +1240,7 @@
       doc.setTextColor(11, 18, 32);
       doc.setFontSize(11);
       doc.setFont('helvetica', 'bold');
-      doc.text(`FOTOS DA INSPEÇÃO (${insp.fotos.length})`, 15, y);
+      doc.text(`FOTOS DA INSPECAO (${insp.fotos.length})`, 15, y);
       y += 4;
 
       doc.setDrawColor(46, 139, 87);
@@ -1175,7 +1264,6 @@
         }
 
         const x = 15 + colunaAtual * (larguraFoto + gap);
-
         const base64 = await urlParaBase64(url);
 
         if (base64) {
@@ -1201,7 +1289,9 @@
           doc.rect(x, y, larguraFoto, alturaFoto);
           doc.setFontSize(8);
           doc.setTextColor(148, 163, 184);
-          doc.text('Imagem indisponível', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+          doc.text('Imagem indisponivel', x + larguraFoto/2, y + alturaFoto/2, { align: 'center' });
+          doc.setFontSize(6);
+          doc.text('(verifique bucket publico)', x + larguraFoto/2, y + alturaFoto/2 + 5, { align: 'center' });
         }
 
         colunaAtual++;
@@ -1225,13 +1315,13 @@
       doc.setTextColor(148, 163, 184);
       doc.setFontSize(7.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(`CIPA Ativa • Conformidade NR-6 / ISO 14001 • Página ${i} de ${totalPaginas}`,
+      doc.text(`CIPA Ativa • Pagina ${i} de ${totalPaginas}`,
         largura / 2, alturaPag - 9, { align: 'center' });
     }
 
     const nomeArquivo = `inspecao-${(insp.cipeiro_nome || 'cipeiro').replace(/\s+/g, '-').toLowerCase()}-${new Date(insp.created_at).toISOString().slice(0,10)}.pdf`;
     doc.save(nomeArquivo);
-    mostrarToast('📄 PDF gerado com fotos!');
+    mostrarToast('📄 PDF gerado!');
   }
 
   // ============ PDF RELATÓRIO ============
@@ -1262,20 +1352,20 @@
 
     doc.setFontSize(13);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatório Consolidado de Inspeções', 42, 36);
+    doc.text('Relatorio Consolidado de Inspecoes', 42, 36);
 
     doc.setFontSize(10);
     doc.text('Conformidade NR-6 / ISO 14001', 42, 44);
 
     doc.setFontSize(9);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 15, 50, { align: 'right' });
-    doc.text(`Emissor: ${usuario.nome}`, largura - 15, 55, { align: 'right' });
+    doc.text(`Emissor: ${limparTextoParaPDF(usuario.nome)}`, largura - 15, 55, { align: 'right' });
 
     let y = 75;
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Resumo Estatístico', 15, y);
+    doc.text('Resumo Estatistico', 15, y);
     y += 8;
 
     const total = listaFiltrada.length;
@@ -1289,7 +1379,7 @@
       { label: 'Total', valor: total.toString(), cor: [59, 130, 246] },
       { label: 'Conformidade', valor: mediaPct + '%', cor: [16, 185, 129] },
       { label: 'Conformes', valor: totalConf.toString(), cor: [46, 139, 87] },
-      { label: 'Não Conf.', valor: totalNC.toString(), cor: [225, 29, 72] }
+      { label: 'Nao Conf.', valor: totalNC.toString(), cor: [225, 29, 72] }
     ];
 
     cards.forEach((c, i) => {
@@ -1315,14 +1405,14 @@
     doc.setTextColor(11, 18, 32);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Inspeções Realizadas', 15, y);
+    doc.text('Inspecoes Realizadas', 15, y);
     y += 6;
 
     const tableData = listaFiltrada.map(i => [
       formatarData(i.created_at).slice(0, 10),
-      i.cipeiro_nome || '—',
-      i.checklist_titulo || '—',
-      i.local_inspecionado || '—',
+      limparTextoParaPDF(i.cipeiro_nome || '—'),
+      limparTextoParaPDF(i.checklist_titulo || '—'),
+      limparTextoParaPDF(i.local_inspecionado || '—'),
       `${i.total_conformes || 0}/${i.total_itens || 0}`,
       `${(parseFloat(i.percentual_conformidade) || 0).toFixed(1)}%`
     ]);
@@ -1362,7 +1452,7 @@
       doc.setTextColor(148, 163, 184);
       doc.setFontSize(7.5);
       doc.setFont('helvetica', 'normal');
-      doc.text(`CIPA Ativa • Relatório de Inspeções • Página ${i} de ${totalPag}`,
+      doc.text(`CIPA Ativa • Relatorio de Inspecoes • Pagina ${i} de ${totalPag}`,
         largura / 2, alturaPag - 9, { align: 'center' });
     }
 
