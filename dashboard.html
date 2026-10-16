@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦺</text></svg>">
+
+<!-- ✅ FAVICON -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="shortcut icon" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
   :root {
@@ -34,7 +40,21 @@
     flex-direction: column; gap: 20px; z-index: 9999;
     color: #fff; transition: opacity 0.4s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner-lg { width: 54px; height: 54px;
+
+  /* ✅ LOGO ANIMADA NO LOADING */
+  .loading-logo {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+    animation: pulse-logo 1.8s ease-in-out infinite;
+    filter: drop-shadow(0 8px 24px rgba(255,201,60,0.4));
+  }
+  @keyframes pulse-logo {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.08); opacity: 0.9; }
+  }
+
+  .spinner-lg { width: 44px; height: 44px;
     border: 4px solid rgba(255,201,60,0.2); border-top-color: var(--yellow);
     border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -55,12 +75,15 @@
   .brand { display: flex; align-items: center; gap: 12px;
     padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
     margin-bottom: 20px; }
-  .brand-icon { width: 46px; height: 46px;
-    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 13px; display: flex; align-items: center;
-    justify-content: center; font-weight: 800; font-size: 21px;
-    color: var(--green-900); box-shadow: 0 6px 16px rgba(255,201,60,0.35);
-    flex-shrink: 0; }
+
+  /* ✅ LOGO NA SIDEBAR */
+  .brand-logo {
+    height: 52px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
   .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
   .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
   .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px;
@@ -81,10 +104,15 @@
   .sidebar-footer { margin-top: auto; padding-top: 16px;
     border-top: 1px solid rgba(255,255,255,0.08); display: flex;
     align-items: center; gap: 10px; padding-left: 8px; }
+
+  /* ✅ AVATAR COM FALLBACK DE CAPACETE */
   .avatar-sm { width: 38px; height: 38px; border-radius: 50%;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+    overflow: hidden; }
+  .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+
   .sidebar-footer .info { flex: 1; min-width: 0; }
   .sidebar-footer .info small { display: block;
     color: rgba(255,255,255,0.5); font-size: 11px; }
@@ -110,10 +138,6 @@
     -webkit-text-fill-color: var(--text-soft); }
   .topbar-actions { display: flex; align-items: center; gap: 10px;
     flex-wrap: wrap; }
-  .sesmt-badge { background: linear-gradient(135deg, rgba(46,139,87,0.12), rgba(255,201,60,0.12));
-    color: var(--green-700); padding: 8px 16px; border-radius: 30px;
-    font-size: 12px; font-weight: 700; border: 1px solid rgba(46,139,87,0.2);
-    display: flex; align-items: center; gap: 6px; white-space: nowrap; }
   .menu-toggle { display: none; width: 42px; height: 42px;
     border-radius: 12px; background: var(--card);
     border: 1.5px solid var(--border); align-items: center;
@@ -174,29 +198,33 @@
     cursor: pointer; }
   .kpi::before { content: ''; position: absolute; top: 0; left: 0;
     width: 4px; height: 100%; background: var(--green-600); }
-  .kpi.warning::before { background: var(--warning); }
-  .kpi.danger::before  { background: var(--danger); }
   .kpi.info::before    { background: var(--info); }
-  .kpi.muted::before   { background: var(--text-muted); }
   .kpi:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg);
     border-color: var(--border-strong); }
   .kpi-header { display: flex; justify-content: space-between;
     align-items: center; margin-bottom: 14px; }
+
+  /* ✅ ÍCONE DE FUNDO NOS KPIs */
+  .kpi-bg-icon {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    opacity: 0.12;
+    pointer-events: none;
+  }
   .kpi-icon { width: 44px; height: 44px; border-radius: 12px;
     display: flex; align-items: center; justify-content: center;
     font-size: 20px; background: rgba(46,139,87,0.1); }
-  .kpi.warning .kpi-icon { background: rgba(245,158,11,0.12); }
-  .kpi.danger  .kpi-icon { background: rgba(239,68,68,0.12); }
-  .kpi.info    .kpi-icon { background: rgba(59,130,246,0.12); }
-  .kpi.muted   .kpi-icon { background: rgba(100,116,139,0.1); }
+  .kpi.info .kpi-icon { background: rgba(59,130,246,0.12); }
   .kpi-value { font-size: 32px; font-weight: 800; letter-spacing: -1px;
     line-height: 1; margin-bottom: 6px; }
   .kpi-label { font-size: 13px; color: var(--text-soft); font-weight: 500; }
   .kpi-trend { font-size: 11.5px; font-weight: 600; margin-top: 12px;
     display: inline-flex; align-items: center; gap: 4px;
     padding: 4px 10px; border-radius: 20px; }
-  .trend-up      { background: rgba(16,185,129,0.12); color: var(--success); }
-  .trend-down    { background: rgba(239,68,68,0.12);  color: var(--danger); }
   .trend-neutral { background: rgba(100,116,139,0.12); color: var(--text-soft); }
 
   .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -227,8 +255,6 @@
   .atalho-info p { font-size: 12.5px; color: var(--text-soft);
     line-height: 1.4; }
 
-  .grid-2 { display: grid; grid-template-columns: 1.7fr 1fr;
-    gap: 20px; margin-bottom: 24px; }
   .card { background: var(--card); border-radius: var(--radius-lg);
     padding: 26px; box-shadow: var(--shadow-sm);
     border: 1.5px solid var(--border); }
@@ -253,6 +279,7 @@
     display: flex; align-items: center; justify-content: center;
     color: #fff; font-weight: 800; font-size: 15px;
     flex-shrink: 0; overflow: hidden; }
+  .insp-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .insp-info { flex: 1; min-width: 0; }
   .insp-info strong { display: block; font-size: 13.5px; font-weight: 700;
     color: var(--text); margin-bottom: 2px; overflow: hidden;
@@ -267,18 +294,20 @@
   .insp-result.nok { background: var(--danger-soft); color: #991b1b; }
   .insp-result.parcial { background: var(--warning-soft); color: #92400e; }
 
+  /* ✅ EMPTY STATE COM CAPACETE */
   .empty-state { text-align: center; padding: 40px 20px;
     color: var(--text-soft); width: 100%; }
-  .empty-state .icon { font-size: 46px; margin-bottom: 12px;
-    opacity: 0.4; }
+  .empty-icon-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    opacity: 0.35;
+    margin-bottom: 16px;
+    filter: grayscale(0.4);
+  }
   .empty-state p { font-size: 13.5px; font-weight: 600;
     margin-bottom: 4px; }
   .empty-state small { font-size: 11.5px; color: var(--text-muted); }
-
-  .link-cipeiro-input { flex: 1; min-width: 240px;
-    padding: 12px 16px; border: 1.5px solid var(--border);
-    border-radius: 11px; font-size: 13px; font-family: inherit;
-    background: var(--bg); color: var(--text-soft); font-weight: 600; }
 
   .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(120px);
@@ -292,7 +321,6 @@
   .toast.error { background: var(--danger); }
   .toast.success { background: var(--success); }
 
-  @media (max-width: 1024px) { .grid-2 { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
@@ -308,32 +336,25 @@
 </head>
 <body>
 
+<!-- ✅ LOADING COM CAPACETE -->
 <div class="loading-overlay" id="loadingOverlay">
+  <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+       alt="CIPA Ativa" class="loading-logo">
   <div class="spinner-lg"></div>
   <p style="font-weight:600; font-size:14px;">Carregando painel...</p>
 </div>
 
 <aside class="sidebar" id="sidebar">
   <div class="brand">
-    <div class="brand-icon">C</div>
-    <div class="brand-text">
-      <h1>CIPA Ativa</h1>
-      <span>Painel SESMT</span>
-    </div>
+    <!-- ✅ LOGO CLARA NA SIDEBAR -->
+    <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png"
+         alt="CIPA Ativa" class="brand-logo">
   </div>
 
-  <div class="nav-label">Visão Geral</div>
+  <div class="nav-label">Painel</div>
   <nav>
     <a class="active"><span class="icon">📊</span> Dashboard</a>
-    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
-    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
-  </nav>
-
-  <div class="nav-label">Gestão CIPA</div>
-  <nav>
     <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
-    <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Inspeções</div>
@@ -343,12 +364,6 @@
       <span class="badge-mini" id="badgeInsp" style="display:none;">0</span>
     </a>
     <a onclick="window.location.href='checklists.html'"><span class="icon">📋</span> Checklists</a>
-  </nav>
-
-  <div class="nav-label">Sistema</div>
-  <nav>
-    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
-    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
   <div class="sidebar-footer">
@@ -367,7 +382,6 @@
       <span id="saudacao">Bem-vindo ao centro de comando da CIPA.</span>
     </h2>
     <div class="topbar-actions">
-      <span class="sesmt-badge">🔒 SESMT</span>
       <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     </div>
   </div>
@@ -402,6 +416,9 @@
 
   <section class="kpis">
     <div class="kpi" onclick="window.location.href='membros.html'">
+      <!-- ✅ ÍCONE DE FUNDO -->
+      <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+           class="kpi-bg-icon" alt="">
       <div class="kpi-header"><div class="kpi-icon">👥</div></div>
       <div class="kpi-value" id="kpiMembros"><span class="skeleton"></span></div>
       <div class="kpi-label">Membros na gestão atual</div>
@@ -409,6 +426,8 @@
     </div>
 
     <div class="kpi info" onclick="window.location.href='checklists.html'">
+      <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+           class="kpi-bg-icon" alt="">
       <div class="kpi-header"><div class="kpi-icon">📋</div></div>
       <div class="kpi-value" id="kpiChecklists"><span class="skeleton"></span></div>
       <div class="kpi-label">Checklists disponíveis</div>
@@ -416,17 +435,12 @@
     </div>
 
     <div class="kpi" onclick="window.location.href='inspecoes.html'">
+      <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+           class="kpi-bg-icon" alt="">
       <div class="kpi-header"><div class="kpi-icon">🔍</div></div>
       <div class="kpi-value" id="kpiInspecoes"><span class="skeleton"></span></div>
       <div class="kpi-label">Inspeções realizadas</div>
       <span class="kpi-trend trend-neutral" id="kpiInspecoesTrend">Carregando...</span>
-    </div>
-
-    <div class="kpi muted" onclick="emBreve('Não Conformidades')">
-      <div class="kpi-header"><div class="kpi-icon">⚠️</div></div>
-      <div class="kpi-value">—</div>
-      <div class="kpi-label">Não conformidades abertas</div>
-      <span class="kpi-trend trend-neutral">Em breve</span>
     </div>
   </section>
 
@@ -456,32 +470,13 @@
     </div>
   </div>
 
-  <section class="grid-2" id="secaoInspecoes" style="display:none;">
-    <div class="card" style="grid-column: 1 / -1;">
+  <section id="secaoInspecoes" style="display:none; margin-bottom:24px;">
+    <div class="card">
       <div class="card-header">
         <h3>🔍 Últimas Inspeções</h3>
         <a onclick="window.location.href='inspecoes.html'">Ver todas →</a>
       </div>
       <ul class="insp-list" id="listaInspecoes"></ul>
-    </div>
-  </section>
-
-  <section class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-      <h3>🔗 Link do Cipeiro (Inspeções de Campo)</h3>
-    </div>
-    <p style="color:var(--text-soft); font-size:13.5px; margin-bottom:16px; line-height:1.6;">
-      Envie este link para os cipeiros. Eles abrem direto, escolhem o nome e fazem a inspeção — <strong>sem precisar de login</strong>.
-    </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <input type="text" id="linkCipeiro" readonly class="link-cipeiro-input"
-        value="https://cockpitformularios.github.io/CIPA-ATIVA/checklistsCIPEIROS.html">
-      <button class="btn-ghost" style="background:var(--green-600); border-color:var(--green-600);" onclick="copiarLink()">
-        📋 Copiar
-      </button>
-      <button class="btn-ghost" style="background:var(--card); color:var(--text); border:1.5px solid var(--border);" onclick="window.open(document.getElementById('linkCipeiro').value, '_blank')">
-        🔗 Abrir
-      </button>
     </div>
   </section>
 </main>
@@ -508,16 +503,7 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
-  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
   function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-
-  function copiarLink() {
-    const input = document.getElementById('linkCipeiro');
-    input.select();
-    navigator.clipboard.writeText(input.value).then(() => {
-      mostrarToast('📋 Link copiado!', 'success');
-    });
-  }
 
   async function verificarLogin() {
     const { data: { session }, error } = await db.auth.getSession();
@@ -535,7 +521,15 @@
     if (!usuario) return;
     const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
       .map(n => n[0].toUpperCase()).join('');
-    document.getElementById('userAvatar').textContent = iniciais || '?';
+
+    // ✅ Avatar com fallback para capacete se não tiver iniciais
+    const avatarEl = document.getElementById('userAvatar');
+    if (iniciais) {
+      avatarEl.textContent = iniciais;
+    } else {
+      avatarEl.innerHTML = `<img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png" style="width:70%;height:70%;object-fit:contain;">`;
+    }
+
     document.getElementById('userName').textContent =
       usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
     document.getElementById('userRole').textContent = '🔑 SESMT';
