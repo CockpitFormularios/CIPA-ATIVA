@@ -5,7 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checklists | CIPA Ativa</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+
+<!-- ✅ FAVICON -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="shortcut icon" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+<link rel="apple-touch-icon" sizes="180x180" href="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png">
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
   :root {
@@ -28,16 +34,34 @@
     font-size: 14px; -webkit-font-smoothing: antialiased; display: flex;
     overflow-x: hidden; }
 
+  /* ============ LOADING SIMPLIFICADO ============ */
   .loading-overlay { position: fixed; inset: 0;
     background: linear-gradient(135deg, var(--green-900), var(--green-700));
     display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 20px; z-index: 9999;
+    flex-direction: column; gap: 22px; z-index: 9999;
     color: #fff; transition: opacity 0.4s; }
   .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .spinner-lg { width: 54px; height: 54px;
-    border: 4px solid rgba(255,201,60,0.2); border-top-color: var(--yellow);
-    border-radius: 50%; animation: spin 0.8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-logo {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    animation: pulse-logo 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 8px 30px rgba(255,201,60,0.5));
+  }
+
+  @keyframes pulse-logo {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+      filter: drop-shadow(0 8px 30px rgba(255,201,60,0.5));
+    }
+    50% {
+      transform: scale(1.12);
+      opacity: 0.85;
+      filter: drop-shadow(0 8px 40px rgba(255,201,60,0.7));
+    }
+  }
 
   /* SIDEBAR */
   .sidebar { width: 268px;
@@ -45,17 +69,18 @@
     color: #fff; padding: 24px 16px; position: fixed; height: 100vh;
     overflow-y: auto; transition: transform 0.3s ease; z-index: 100;
     display: flex; flex-direction: column; }
-  .brand { display: flex; align-items: center; gap: 12px;
-    padding: 0 8px 24px; border-bottom: 1px solid rgba(255,255,255,0.08);
-    margin-bottom: 20px; }
-  .brand-icon { width: 46px; height: 46px;
-    background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
-    border-radius: 13px; display: flex; align-items: center;
-    justify-content: center; font-weight: 800; font-size: 21px;
-    color: var(--green-900); box-shadow: 0 6px 16px rgba(255,201,60,0.35);
-    flex-shrink: 0; }
-  .brand-text h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
-  .brand-text span { font-size: 11px; color: var(--yellow); font-weight: 500; }
+  .brand { display: flex; align-items: center; justify-content: center;
+    padding: 0 8px 22px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 18px; }
+
+  .brand-logo {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+  }
+
   .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px;
     color: rgba(255,255,255,0.35); padding: 14px 12px 8px; font-weight: 700; }
   .sidebar nav a { display: flex; align-items: center; gap: 12px;
@@ -71,10 +96,14 @@
   .sidebar-footer { margin-top: auto; padding-top: 16px;
     border-top: 1px solid rgba(255,255,255,0.08); display: flex;
     align-items: center; gap: 10px; padding-left: 8px; }
+
   .avatar-sm { width: 38px; height: 38px; border-radius: 50%;
     background: linear-gradient(135deg, var(--green-500), var(--green-600));
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; flex-shrink: 0; }
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+    overflow: hidden; }
+  .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+
   .sidebar-footer .info { flex: 1; min-width: 0; }
   .sidebar-footer .info small { display: block;
     color: rgba(255,255,255,0.5); font-size: 11px; }
@@ -372,49 +401,36 @@
     .icon-picker { grid-template-columns: repeat(6, 1fr); }
     .item-fields .row-2 { grid-template-columns: 1fr; }
     .menu-toggle { display: flex; }
+    .brand-logo { max-width: 160px; }
   }
 </style>
 </head>
 <body>
 
+<!-- ============ LOADING SIMPLIFICADO ============ -->
 <div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner-lg"></div>
+  <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png"
+       alt="CIPA Ativa" class="loading-logo">
   <p style="font-weight:600; font-size:14px;">Carregando checklists...</p>
 </div>
 
+<!-- ============ SIDEBAR ============ -->
 <aside class="sidebar" id="sidebar">
   <div class="brand">
-    <div class="brand-icon">C</div>
-    <div class="brand-text">
-      <h1>CIPA Ativa</h1>
-      <span>Painel SESMT</span>
-    </div>
+    <img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png"
+         alt="CIPA Ativa" class="brand-logo">
   </div>
 
-  <div class="nav-label">Visão Geral</div>
+  <div class="nav-label">Painel</div>
   <nav>
     <a onclick="window.location.href='dashboard.html'"><span class="icon">📊</span> Dashboard</a>
-    <a onclick="emBreve('Relatórios')"><span class="icon">📈</span> Relatórios</a>
-    <a onclick="emBreve('Calendário')"><span class="icon">📅</span> Calendário</a>
-  </nav>
-
-  <div class="nav-label">Gestão CIPA</div>
-  <nav>
     <a onclick="window.location.href='membros.html'"><span class="icon">👥</span> Membros da CIPA</a>
-    <a onclick="emBreve('Histórico de Gestões')"><span class="icon">🏛️</span> Histórico de Gestões</a>
-    <a onclick="emBreve('Não Conformidades')"><span class="icon">⚠️</span> Não Conformidades</a>
   </nav>
 
   <div class="nav-label">Inspeções</div>
   <nav>
     <a onclick="window.location.href='inspecoes.html'"><span class="icon">🔍</span> Ver Inspeções</a>
     <a class="active"><span class="icon">📋</span> Checklists</a>
-  </nav>
-
-  <div class="nav-label">Sistema</div>
-  <nav>
-    <a onclick="emBreve('Biblioteca')"><span class="icon">📚</span> Biblioteca</a>
-    <a onclick="emBreve('Configurações')"><span class="icon">⚙️</span> Configurações</a>
   </nav>
 
   <div class="sidebar-footer">
@@ -596,7 +612,6 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
   }
 
-  function emBreve(secao) { mostrarToast(`🚧 "${secao}" em construção!`); }
   function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
   function gerarId() { return 'item-' + Date.now() + '-' + Math.random().toString(36).substring(2, 8); }
   function hexToRgba(hex, alpha) {
@@ -622,7 +637,14 @@
     if (!usuario) return;
     const iniciais = usuario.nome.split(/[\s._-]+/).filter(Boolean).slice(0, 2)
       .map(n => n[0].toUpperCase()).join('');
-    document.getElementById('userAvatar').textContent = iniciais || '?';
+
+    const avatarEl = document.getElementById('userAvatar');
+    if (iniciais) {
+      avatarEl.textContent = iniciais;
+    } else {
+      avatarEl.innerHTML = `<img src="https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/icone-app.png" style="width:70%;height:70%;object-fit:contain;">`;
+    }
+
     document.getElementById('userName').textContent =
       usuario.nome.charAt(0).toUpperCase() + usuario.nome.slice(1);
     document.getElementById('userRole').textContent = '🔑 SESMT';
