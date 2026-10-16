@@ -1053,7 +1053,7 @@
         local: local,
         observacoes: obs,
         data: data || new Date().toISOString().slice(0, 10),
-        itens: itens,
+        itens: JSON.parse(JSON.stringify(itens)),
         respostas: JSON.parse(JSON.stringify(respostas)),
         fotos: [...fotos],
         conforme, naoConforme, percentual
@@ -1092,7 +1092,6 @@
       img.onload = () => {
         try {
           const canvas = document.createElement('canvas');
-          // Reduz tamanho para caber bem no PDF
           const maxW = 800;
           const scale = img.naturalWidth > maxW ? maxW / img.naturalWidth : 1;
           canvas.width = img.naturalWidth * scale;
@@ -1107,6 +1106,17 @@
       img.onerror = () => reject(new Error('Falha ao carregar imagem'));
       img.src = url;
     });
+  }
+
+  // Remove emojis e caracteres não suportados pelo jsPDF
+  function limparTextoParaPDF(txt) {
+    if (!txt) return '';
+    return String(txt)
+      .replace(/[\u{1F300}-\u{1FAFF}]/gu, '')
+      .replace(/[\u{2600}-\u{27BF}]/gu, '')
+      .replace(/[\u{1F000}-\u{1F2FF}]/gu, '')
+      .replace(/[\u{FE00}-\u{FE0F}]/gu, '')
+      .trim();
   }
 
   async function baixarPDF() {
@@ -1136,14 +1146,14 @@
       doc.setTextColor(13, 40, 24);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
-      doc.text('C', margin + 5, 17);
+      doc.text('C', margin + 5.5, 17);
       doc.setTextColor(255, 201, 60);
       doc.setFontSize(16);
       doc.text('CIPA Ativa', margin + 22, 14);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
       doc.setTextColor(255, 255, 255);
-      doc.text('Relatório de Inspeção', margin + 22, 20);
+      doc.text('Relatorio de Inspecao', margin + 22, 20);
 
       y = 38;
 
@@ -1151,19 +1161,19 @@
       doc.setTextColor(20, 20, 20);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(12);
-      doc.text('Dados da Inspeção', margin, y);
+      doc.text('Dados da Inspecao', margin, y);
       y += 2;
       doc.setDrawColor(46, 139, 87);
       doc.setLineWidth(0.5);
-      doc.line(margin, y, margin + 40, y);
+      doc.line(margin, y, margin + 45, y);
       y += 7;
 
       doc.setFontSize(10);
       const linhas = [
-        ['Checklist:', d.checklistTitulo],
-        ['Categoria:', d.checklistCategoria],
-        ['Cipeiro:', d.cipeiroNome],
-        ['Local inspecionado:', d.local],
+        ['Checklist:', limparTextoParaPDF(d.checklistTitulo)],
+        ['Categoria:', limparTextoParaPDF(d.checklistCategoria)],
+        ['Cipeiro:', limparTextoParaPDF(d.cipeiroNome)],
+        ['Local inspecionado:', limparTextoParaPDF(d.local)],
         ['Data:', new Date(d.data + 'T12:00:00').toLocaleDateString('pt-BR')]
       ];
 
@@ -1180,17 +1190,33 @@
 
       // ===== OBSERVAÇÕES GERAIS =====
       if (d.observacoes && d.observacoes.trim()) {
+        if (y > pageH - 60) { doc.addPage(); y = 20; }
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        doc.text('Observações Gerais', margin, y);
+        doc.setTextColor(20, 20, 20);
+        doc.text('Observacoes Gerais', margin, y);
         y += 2;
-        doc.line(margin, y, margin + 42, y);
+        doc.line(margin, y, margin + 45, y);
         y += 7;
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const obsLines = doc.splitTextToSize(d.observacoes, contentW);
-        doc.text(obsLines, margin, y);
-        y += obsLines.length * 5 + 5;
+
+        // Divide por linhas para preservar quebras e evita estourar página
+        const obsTexto = limparTextoParaPDF(d.observacoes);
+        const paragrafos = obsTexto.split('\n');
+
+        paragrafos.forEach(par => {
+          const linhasPar = doc.splitTextToSize(par || ' ', contentW);
+          linhasPar.forEach(linha => {
+            if (y > pageH - 20) { doc.addPage(); y = 20; }
+            doc.text(linha, margin, y);
+            y += 5;
+          });
+        });
+
+        y += 4;
       }
 
       // ===== RESUMO =====
@@ -1209,7 +1235,7 @@
       doc.setTextColor(4, 120, 87);
       doc.text(`Conformes: ${d.conforme}`, margin + 60, y);
       doc.setTextColor(153, 27, 27);
-      doc.text(`Não conformes: ${d.naoConforme}`, margin + 110, y);
+      doc.text(`Nao conformes: ${d.naoConforme}`, margin + 110, y);
       doc.setTextColor(20, 20, 20);
       y += 8;
 
@@ -1223,13 +1249,14 @@
       y += 8;
 
       d.itens.forEach((item, idx) => {
-        if (y > pageH - 30) { doc.addPage(); y = 20; }
+        if (y > pageH - 35) { doc.addPage(); y = 20; }
 
         // Pergunta
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(10);
         doc.setTextColor(20, 20, 20);
-        const perguntaLines = doc.splitTextToSize(`${idx + 1}. ${item.pergunta}`, contentW);
+        const perguntaTexto = `${idx + 1}. ${limparTextoParaPDF(item.pergunta)}`;
+        const perguntaLines = doc.splitTextToSize(perguntaTexto, contentW);
         doc.text(perguntaLines, margin, y);
         y += perguntaLines.length * 5 + 1;
 
@@ -1240,36 +1267,62 @@
         let cor = [100, 100, 100];
 
         if (valor === 'conforme') { respTxt = 'CONFORME'; cor = [4, 120, 87]; }
-        else if (valor === 'nao_conforme') { respTxt = 'NÃO CONFORME'; cor = [153, 27, 27]; }
+        else if (valor === 'nao_conforme') { respTxt = 'NAO CONFORME'; cor = [153, 27, 27]; }
         else if (valor === 'sim') { respTxt = 'SIM'; cor = [4, 120, 87]; }
-        else if (valor === 'nao') { respTxt = 'NÃO'; cor = [153, 27, 27]; }
+        else if (valor === 'nao') { respTxt = 'NAO'; cor = [153, 27, 27]; }
         else if (typeof valor === 'number') {
           respTxt = `Nota: ${valor}`;
           cor = valor >= 7 ? [4, 120, 87] : [153, 27, 27];
-        } else if (typeof valor === 'string' && valor.length > 0) {
-          respTxt = valor;
+        } else if (typeof valor === 'string' && valor.trim().length > 0) {
+          // ✅ Item tipo TEXTO: mostra o conteúdo digitado
+          respTxt = limparTextoParaPDF(valor);
           cor = [20, 20, 20];
         }
 
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(cor[0], cor[1], cor[2]);
-        const respLines = doc.splitTextToSize(`Resposta: ${respTxt}`, contentW - 5);
-        doc.text(respLines, margin + 5, y);
-        y += respLines.length * 5;
+        // Se for texto livre, mostra em bloco com "Resposta:" e o conteúdo
+        if (item.tipo === 'texto' && typeof valor === 'string') {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(59, 130, 246);
+          doc.text('Resposta (texto):', margin + 5, y);
+          y += 5;
 
-        // Observação do item
+          doc.setFont('helvetica', 'normal');
+          doc.setTextColor(20, 20, 20);
+          const textoLinhas = doc.splitTextToSize(respTxt || '(sem resposta)', contentW - 10);
+
+          textoLinhas.forEach(linha => {
+            if (y > pageH - 20) { doc.addPage(); y = 20; }
+            doc.text(linha, margin + 8, y);
+            y += 5;
+          });
+        } else {
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(cor[0], cor[1], cor[2]);
+          const respLines = doc.splitTextToSize(`Resposta: ${respTxt}`, contentW - 5);
+          doc.text(respLines, margin + 5, y);
+          y += respLines.length * 5;
+        }
+
+        // ✅ Observação do item (agora aparece no PDF)
         if (r.obs && r.obs.trim()) {
           doc.setFont('helvetica', 'italic');
           doc.setTextColor(90, 90, 90);
           doc.setFontSize(9);
-          const obsLines = doc.splitTextToSize(`Obs: ${r.obs}`, contentW - 5);
-          doc.text(obsLines, margin + 5, y);
-          y += obsLines.length * 4.5;
+
+          const obsTextoItem = 'Observacao: ' + limparTextoParaPDF(r.obs);
+          const obsLines = doc.splitTextToSize(obsTextoItem, contentW - 10);
+
+          obsLines.forEach(linha => {
+            if (y > pageH - 20) { doc.addPage(); y = 20; }
+            doc.text(linha, margin + 5, y);
+            y += 4.5;
+          });
+
           doc.setFontSize(10);
         }
 
         doc.setTextColor(20, 20, 20);
-        y += 3;
+        y += 4;
       });
 
       // ===== FOTOS =====
@@ -1279,7 +1332,7 @@
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
         doc.setTextColor(20, 20, 20);
-        doc.text('Fotos da Inspeção', margin, y);
+        doc.text('Fotos da Inspecao', margin, y);
         y += 2;
         doc.line(margin, y, margin + 40, y);
         y += 8;
@@ -1315,7 +1368,7 @@
         }
       }
 
-      // ===== RODAPÉ em todas as páginas =====
+      // ===== RODAPÉ =====
       const totalPag = doc.getNumberOfPages();
       for (let p = 1; p <= totalPag; p++) {
         doc.setPage(p);
@@ -1323,7 +1376,7 @@
         doc.setFontSize(8);
         doc.setTextColor(150, 150, 150);
         doc.text(
-          `CIPA Ativa — Gerado em ${new Date().toLocaleString('pt-BR')} — Página ${p}/${totalPag}`,
+          `CIPA Ativa - Gerado em ${new Date().toLocaleString('pt-BR')} - Pagina ${p}/${totalPag}`,
           pageW / 2, pageH - 8, { align: 'center' }
         );
       }
