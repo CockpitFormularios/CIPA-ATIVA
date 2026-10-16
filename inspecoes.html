@@ -1075,7 +1075,7 @@
     const alturaPag = doc.internal.pageSize.getHeight();  // 297mm
     const margem = 10;
     const larguraUtil = largura - margem * 2;             // 190mm
-    const limiteInferior = alturaPag - 12;                // deixa espaço pro rodapé
+    const limiteInferior = alturaPag - 12;
     let y = 0;
 
     // ============ CABEÇALHO COMPACTO ============
@@ -1088,8 +1088,8 @@
         'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
       );
       if (logoBase64) {
-        // Adiciona logo (mantém proporção — altura 12mm)
-        doc.addImage(logoBase64, 'PNG', margem + 1, 5, 22, 12);
+        // ✅ Logo grande ocupando boa parte do cabeçalho (60x14mm)
+        doc.addImage(logoBase64, 'PNG', margem + 2, 4, 60, 14);
       } else {
         throw new Error('Logo vazia');
       }
@@ -1103,14 +1103,11 @@
       doc.text('C', 10.2, 13);
     }
 
+    // ✅ Subtítulo movido para a direita (sem texto "CIPA Ativa" duplicado)
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(13);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 36, 10);
-
-    doc.setFontSize(7.5);
+    doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 36, 15);
+    doc.text('Relatorio de Inspecao de Seguranca do Trabalho', 78, 12);
 
     doc.setFontSize(6.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - margem, 9, { align: 'right' });
@@ -1376,7 +1373,8 @@
         'https://rvtquhqeivrhcdoreghu.supabase.co/storage/v1/object/public/cipa-branding/logo-cipa-ativa.png'
       );
       if (logoBase64) {
-        doc.addImage(logoBase64, 'PNG', 12, 12, 35, 20);
+        // ✅ Logo grande (70x22mm)
+        doc.addImage(logoBase64, 'PNG', 12, 10, 70, 22);
       } else {
         throw new Error('Logo vazia');
       }
@@ -1389,17 +1387,14 @@
       doc.text('C', 17, 25);
     }
 
+    // ✅ Subtítulo e NR movidos para a direita (sem texto "CIPA Ativa" duplicado)
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('CIPA Ativa', 52, 19);
-
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatorio Consolidado de Inspecoes', 52, 26);
+    doc.text('Relatorio Consolidado de Inspecoes', 90, 22);
 
-    doc.setFontSize(8);
-    doc.text('Conformidade NR-5', 52, 32);
+    doc.setFontSize(9);
+    doc.text('Conformidade NR-5', 90, 28);
 
     doc.setFontSize(7.5);
     doc.text(`Emitido em: ${new Date().toLocaleString('pt-BR')}`, largura - 12, 30, { align: 'right' });
