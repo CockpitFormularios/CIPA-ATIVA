@@ -340,6 +340,17 @@
   .add-item-btn:hover { border-color: var(--green-600);
     background: var(--green-100); transform: translateY(-2px); }
 
+  /* DICA ITEM TEXTO */
+  .dica-texto-item {
+    font-size: 11.5px;
+    color: #3b82f6;
+    background: rgba(59,130,246,0.08);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border-left: 3px solid #3b82f6;
+    line-height: 1.4;
+  }
+
   /* TOAST */
   .toast { position: fixed; bottom: 30px; left: 50%;
     transform: translateX(-50%) translateY(120px);
@@ -792,6 +803,8 @@
   function atualizarItem(id, campo, valor) {
     const item = itensTemp.find(i => i.id === id);
     if (item) item[campo] = valor;
+    // Se mudou o tipo para texto, re-renderiza para mostrar a dica
+    if (campo === 'tipo') renderizarItens();
   }
 
   function renderizarItens() {
@@ -814,6 +827,12 @@
     itensTemp.forEach((item, idx) => {
       const row = document.createElement('div');
       row.className = 'item-row';
+
+      // Dica extra quando o tipo é texto
+      const dicaTexto = item.tipo === 'texto'
+        ? `<div class="dica-texto-item">💡 Este item virará uma caixa de texto livre para o cipeiro preencher na inspeção — o conteúdo aparecerá no PDF.</div>`
+        : '';
+
       row.innerHTML = `
         <div class="item-number">${idx + 1}</div>
         <div class="item-fields">
@@ -828,6 +847,7 @@
             </select>
             <button class="btn-remove-item" title="Remover" onclick="removerItem('${item.id}')">✕</button>
           </div>
+          ${dicaTexto}
         </div>
       `;
       lista.appendChild(row);
